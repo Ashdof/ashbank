@@ -55,7 +55,7 @@ public class UserLoginScene {
         lblTitle.setContentDisplay(ContentDisplay.TOP);
         lblTitle.setId("title");
 
-        lblUser = new Label("User: ");
+        lblUser = new Label("Employee: ");
         lblUsername = new Label("Username: ");
         lblPassword = new Label("Password: ");
         forgotPassword = new Hyperlink("Forgot password");
