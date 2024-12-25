@@ -15,10 +15,23 @@ import javafx.scene.layout.GridPane;
 import java.util.Objects;
 
 public class UserLoginScene {
-    private final Scene loginScene;
 
+    /* ================ DATA MEMBERS ================ */
+    private final Stage stage;
+
+    /**
+     * Construct Login Scene:
+     * constructs the login scene on the stage
+     * @param stage the stage on which to display
+     *              the login scene
+     */
     public UserLoginScene(Stage stage) {
-        stage.setResizable(false);
+        this.stage = stage;
+    }
+
+    public void getUserLoginScene() {
+        this.stage.setResizable(false);
+        Scene loginScene;
 
         GridPane gridPane;
         Label lblInstruction, lblUser, lblUsername, lblPassword, lblTitle;
@@ -46,6 +59,11 @@ public class UserLoginScene {
         lblUsername = new Label("Username: ");
         lblPassword = new Label("Password: ");
         forgotPassword = new Hyperlink("Forgot password");
+        forgotPassword.setOnAction(e -> {
+            ForgotPasswordScene forgotPasswordScene = new ForgotPasswordScene(this.stage);
+            forgotPasswordScene.getForgotPasswordScene();
+        });
+
         forgotPassBox = new HBox();
         forgotPassBox.getChildren().add(forgotPassword);
         forgotPassBox.setAlignment(Pos.BASELINE_RIGHT);
@@ -62,10 +80,10 @@ public class UserLoginScene {
         users.getItems().addAll(manager, admin);
 
         btnLogin = new Button("_Login");
-        btnLogin.setId("btn-login");
+        btnLogin.setId("btn-success");
 
-        btnCancel = new Button("_Cancel");
-        btnCancel.setId("btn-cancel");
+        btnCancel = new Button("_Quit");
+        btnCancel.setId("btn-fail");
         btnCancel.setOnAction(e -> {
             stage.close();
         });
@@ -112,11 +130,8 @@ public class UserLoginScene {
         root.getChildren().addAll(lblTitle, gridPane);
 
         loginScene = new Scene(root, 600, 450);
-        loginScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/LoginStyles.css")).toExternalForm());
+        this.stage.setScene(loginScene);
+        loginScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
 
-    }
-
-    public Scene getLoginScene() {
-        return loginScene;
     }
 }

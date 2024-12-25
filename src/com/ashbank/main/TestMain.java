@@ -16,7 +16,8 @@ public class TestMain extends Application{
 
         primaryStage.getIcons().add(new Image("/com/ashbank/objects/resources/icons/bank.png"));
         primaryStage.setTitle("ASHBank: User Authentication");
-        primaryStage.setScene(userLoginScene.getLoginScene());
+        userLoginScene.getUserLoginScene();
+//        primaryStage.setScene(userLoginScene.getLoginScene());
         primaryStage.show();
     }
 

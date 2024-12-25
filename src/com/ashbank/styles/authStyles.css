@@ -28,19 +28,19 @@
     -fx-cursor: hand;
 }
 
-#btn-cancel {
+#btn-fail {
     -fx-background-color: #8B0000;
 }
 
-#btn-cancel:hover {
+#btn-fail:hover {
     -fx-background-color: #D40000;
 }
 
-#btn-login {
+#btn-success {
     -fx-background-color: #006400;
 }
 
-#btn-login:hover {
+#btn-success:hover {
     -fx-background-color: #00AA00;
 }
 
