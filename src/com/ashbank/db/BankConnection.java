@@ -1,5 +1,6 @@
 package com.ashbank.db;
 
+import com.ashbank.db.db.engines.AuthStorageEngine;
 import com.ashbank.objects.utility.CustomDialogs;
 
 import java.net.URL;
@@ -25,7 +26,8 @@ public class BankConnection {
                 System.out.println(INFO_CON_MESSAGE);
             }
         } catch (SQLException sqlException) {
-            customDialogs.showErrInformation(ERR_CON_TITLE, sqlException.getMessage());
+            System.out.println(sqlException.getMessage());
+//            customDialogs.showErrInformation(ERR_CON_TITLE, sqlException.getMessage());
         }
     }
 

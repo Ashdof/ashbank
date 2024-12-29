@@ -12,12 +12,29 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
+
+import java.sql.SQLException;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.ashbank.objects.people.User;
+import com.ashbank.objects.utility.CustomDialogs;
+import com.ashbank.objects.utility.Security;
+import com.ashbank.db.db.engines.AuthStorageEngine;
 
 public class UserLoginScene {
 
     /* ================ DATA MEMBERS ================ */
     private final Stage stage;
+    private final Security security = new Security();
+    private static final CustomDialogs customDialogs = new CustomDialogs();
+    private static final Logger logger = Logger.getLogger(UserLoginScene.class.getName());
+    private final AuthStorageEngine authStorageEngine = new AuthStorageEngine();
+
+    /* ================ MESSAGES ================ */
+    private static final String ERR_LOGIN_TITLE = "Error Logging In";
+    private static final String ERR_LOGIN_MSG = "An invalid login information provided. Please provide valid information.";
 
     /**
      * Construct Login Scene:
@@ -30,14 +47,15 @@ public class UserLoginScene {
     }
 
     public void getUserLoginScene() {
-        this.stage.setResizable(false);
+        User bankUser = new User();
+
         Scene loginScene;
 
         GridPane gridPane;
         Label lblInstruction, lblUser, lblUsername, lblPassword, lblTitle;
         TextField txtUsername;
         PasswordField passwordField;
-        MenuItem manager, admin;
+        MenuItem cashier, admin;
         MenuButton users;
         Button btnLogin, btnCancel;
         Hyperlink forgotPassword;
@@ -71,16 +89,38 @@ public class UserLoginScene {
         txtUsername = new TextField();
         passwordField = new PasswordField();
 
-        manager = new MenuItem("Manager");
         admin = new MenuItem("Administrator");
+        cashier = new MenuItem("Cashier");
         users = new MenuButton("Login as ...");
         users.prefWidthProperty().bind(txtUsername.widthProperty());
-        manager.setOnAction(event -> users.setText(manager.getText()));
+        cashier.setOnAction(event -> users.setText(cashier.getText()));
         admin.setOnAction(event -> users.setText(admin.getText()));
-        users.getItems().addAll(manager, admin);
+        users.getItems().addAll(cashier, admin);
 
         btnLogin = new Button("_Login");
         btnLogin.setId("btn-success");
+        btnLogin.setOnAction(e -> {
+            String username = txtUsername.getText().trim();
+            String user = users.getText().trim();
+            String pass = passwordField.getText().trim();
+            String hashedPassword = security.hashSecurityData(pass);
+
+            if (username.isEmpty() || pass.isEmpty() || user.equals("Login as ...")) {
+                customDialogs.showErrInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
+            } else {
+                bankUser.setEmployeePosition(user);
+                bankUser.setUsername(username);
+                bankUser.setPassword(hashedPassword);
+
+                try {
+                    if (authStorageEngine.userLogin(bankUser)) {
+                        getMainDashboardScene(this.stage, bankUser.getUsername());
+                    }
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error logging user - " + sqlException.getMessage());
+                }
+            }
+        });
 
         btnCancel = new Button("_Quit");
         btnCancel.setId("btn-fail");
@@ -131,7 +171,39 @@ public class UserLoginScene {
 
         loginScene = new Scene(root, 600, 450);
         this.stage.setScene(loginScene);
+        this.stage.setResizable(false);
         loginScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
 
+    }
+
+    public void getMainDashboardScene(Stage stage, String username) {
+        stage.setTitle("The ASHBank Platform");
+
+        Scene dashboardScene;
+        Button btnSignOut;
+        Label lblInfo, lblMsg;
+        VBox root;
+
+        lblInfo = new Label("Welcome the ASHBank Dashboard");
+        lblMsg = new Label("Currently logged in as:\t" + username);
+
+        btnSignOut = new Button("Sign out");
+        btnSignOut.setId("btn-signout");
+        btnSignOut.setMinWidth(25);
+        btnSignOut.setOnAction(e -> {
+            UserLoginScene userLoginScene = new UserLoginScene(this.stage);
+            userLoginScene.getUserLoginScene();
+        });
+
+        root = new VBox(10);
+        root.setSpacing(20);
+        root.setAlignment(Pos.CENTER);
+        root.getChildren().addAll(lblInfo, lblMsg, btnSignOut);
+
+        dashboardScene = new Scene(root, 800, 600);
+        stage.setScene(dashboardScene);
+        stage.setMaximized(true);
+        stage.setResizable(true);
+        dashboardScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
     }
 }

@@ -1,16 +1,31 @@
 package com.ashbank.objects.people;
 
 public class User extends Employee {
+
+    /*=================== DEFAULT DATA MEMBERS ===================*/
+    private static final String DEFAULT_TEXT = "none";
+
+    /*=================== DATA MEMBERS ===================*/
     private String securityQuestion, securityAnswer, password, userID, username;
 
-    public User(String userID, String employeeID, String lastName, String firstName, String gender, String birthDate, int age, String position,
+    public User(String userID, String employeeID, String lastName, String firstName, String gender, String birthDate, int age, String qualification,
+                String dateEmployed, String department, String position, String nationality, String nationalCard, String nationalCardNumber,
                 String securityQuestion, String securityAnswer, String username, String password) {
-        super(employeeID, lastName, firstName, gender, birthDate, age, position);
+        super(employeeID, lastName, firstName, gender, birthDate, age, dateEmployed, qualification, department, position, nationality, nationalCard, nationalCardNumber);
         this.userID = userID;
         this.securityQuestion = securityQuestion;
         this.securityAnswer = securityAnswer;
         this.username = username;
         this.password = password;
+    }
+
+    public User() {
+        super();
+        this.securityQuestion = DEFAULT_TEXT;
+        this.securityAnswer = DEFAULT_TEXT;
+        this.userID = DEFAULT_TEXT;
+        this.username = DEFAULT_TEXT;
+        this.password = DEFAULT_TEXT;
     }
 
     /**

@@ -12,7 +12,7 @@
     -fx-background-radius: 5;
     -fx-background-color: #444;
     -fx-text-fill: #f4f4f4;
-    -fx-font-size: 16px;
+    -fx-font-size: 14px;
 }
 
 .menu-button .context-menu {
@@ -42,6 +42,14 @@
 
 #btn-success:hover {
     -fx-background-color: #00AA00;
+}
+
+#btn-signout {
+    -fx-background-color: #DC143C;
+}
+
+#btn-signout:hover {
+    -fx-background-color: #990000;
 }
 
 .hyperlink {

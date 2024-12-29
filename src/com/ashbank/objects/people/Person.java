@@ -1,6 +1,7 @@
 package com.ashbank.objects.people;
 
 public class Person{
+
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
     private static final int DEFAULT_AGE = 18;
