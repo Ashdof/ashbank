@@ -1,5 +1,6 @@
 package com.ashbank.objects.scenes.dashboard.admin;
 
+import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.objects.people.User;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 
@@ -9,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class AdminDashboardScenes {
@@ -40,8 +42,20 @@ public class AdminDashboardScenes {
         lblInfo = new Label("Welcome to the ASHBank Dashboard");
         lblCurrentUser = new Label("Current user: " + user.getEmployeePosition());
 
+        String id = user.getUserID();
+        String activity = "User Logout";
+        String success_details = user.getUsername() + "'s logout attempt successful.";
+
         menuItemSignOut = new MenuItem("Sign out");
-        menuItemSignOut.setOnAction(e -> userAuthScenes.getUserLoginScene());
+        menuItemSignOut.setOnAction(e -> {
+            try {
+                ActivityLogger.logActivity(id, activity, success_details);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            userAuthScenes.getUserLoginScene();
+        });
 
         menuItemHome = new MenuItem("Dashboard");
         menuItemHome.setOnAction(e -> {

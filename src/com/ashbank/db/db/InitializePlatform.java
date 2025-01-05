@@ -18,21 +18,25 @@ public class InitializePlatform {
      * initializes the database by creating tables if they don't exist
      * and insert default values into the tables
      */
-    public static void initiateSystem() {
-        try (Connection conn = BankConnection.getBankConnection()){
-            activateTables(conn);
-            activateDefaultBasicEmployeeData(conn);
-            activateDefaultEmployeeEmploymentData(conn);
-            activateDefaultEmployeeResidenceData(conn);
-            activateEmployeeNationalityData(conn);
-            activateEmployeeAddressData(conn);
-            activateEmployeeUserData(conn);
-            activateEmployeeProfileData(conn);
+    public static void initiateSystem() throws SQLException {
+        Connection conn = BankConnection.getBankConnection();
 
-            System.out.println("Database initialization successful.");
-        } catch (SQLException sqlException) {
-            logger.log(Level.SEVERE, "Error initializing database - " + sqlException.getMessage());
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA synchronous = NORMAL;");
+            stmt.execute("PRAGMA journal_mode=WAL;");
         }
+
+        activateTables(conn);
+        activateDefaultBasicEmployeeData(conn);
+        activateDefaultEmployeeEmploymentData(conn);
+        activateDefaultEmployeeResidenceData(conn);
+        activateEmployeeNationalityData(conn);
+        activateEmployeeAddressData(conn);
+        activateEmployeeUserData(conn);
+        activateEmployeeProfileData(conn);
+        activateActivityLogTable(conn);
+
+        System.out.println("Database initialization successful.");
     }
 
     /**
@@ -44,68 +48,76 @@ public class InitializePlatform {
     private static void activateTables(Connection connection) {
         String createEmployeeBasicTable = "CREATE TABLE IF NOT EXISTS employee (" +
                 "id TEXT PRIMARY KEY," +
-                "last_name TEXT NOT NULL," +
-                "first_name TEXT NOT NULL," +
-                "gender TEXT NOT NULL," +
-                "birth_date TEXT NOT NULL," +
-                "age INTEGER NOT NULL," +
+                "last_name TEXT," +
+                "first_name TEXT," +
+                "gender TEXT," +
+                "birth_date TEXT," +
+                "age INTEGER," +
                 "photo BLOB" +
                 ");";
 
         String createEmployeeEmploymentTable = "CREATE TABLE IF NOT EXISTS employee_employment (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
-                "date_employed TEXT NOT NULL," +
-                "qualification TEXT NOT NULL, " +
-                "department TEXT NOT NULL," +
-                "position TEXT NULL," +
+                "employee_id TEXT," +
+                "date_employed TEXT," +
+                "qualification TEXT, " +
+                "department TEXT," +
+                "position TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
         String createEmployeeResidenceTable = "CREATE TABLE IF NOT EXISTS employee_residence (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
-                "town TEXT NOT NULL," +
-                "suburb TEXT NOT NULL," +
-                "street_name TEXT NOT NULL," +
-                "house_number TEXT NOT NULL," +
-                "gps_address TEXT NOT NULL," +
+                "employee_id TEXT," +
+                "town TEXT," +
+                "suburb TEXT," +
+                "street_name TEXT," +
+                "house_number TEXT," +
+                "gps_address TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
         String createEmployeeNationalityTable = "CREATE TABLE IF NOT EXISTS employee_nationality (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
-                "nationality TEXT NOT NULL," +
-                "national_card TEXT NOT NULL," +
-                "card_number TEXT NOT NULL," +
+                "employee_id TEXT," +
+                "nationality TEXT," +
+                "national_card TEXT," +
+                "card_number TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
         String createEmployeeAddressTable = "CREATE TABLE IF NOT EXISTS employee_address (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
-                "postal_address TEXT NOT NULL," +
-                "email_address TEXT NOT NULL," +
-                "phone_number TEXT NOT NULL," +
+                "employee_id TEXT," +
+                "postal_address TEXT," +
+                "email_address TEXT," +
+                "phone_number TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
         String createUsersTable = "CREATE TABLE IF NOT EXISTS bank_users (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
-                "role TEXT NOT NULL," +
-                "username TEXT NOT NULL," +
-                "password TEXT NOT NULL," +
+                "employee_id TEXT," +
+                "role TEXT," +
+                "username TEXT," +
+                "password TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
         String createUsersProfileTable = "CREATE TABLE IF NOT EXISTS bank_users_profile (" +
                 "id TEXT PRIMARY KEY," +
-                "employee_id TEXT NOT NULL," +
+                "employee_id TEXT," +
                 "security_question TEXT," +
                 "security_answer TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                ");";
+
+        String createActivityLogTable = "CREATE TABLE IF NOT EXISTS activity_log (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "user_id TEXT NOT NULL," +
+                "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                "activity TEXT NOT NULL," +
+                "details TEXT" +
                 ");";
 
         try (Statement statement = connection.createStatement()){
@@ -116,6 +128,7 @@ public class InitializePlatform {
             statement.execute(createEmployeeAddressTable);
             statement.execute(createUsersTable);
             statement.execute(createUsersProfileTable);
+            statement.execute(createActivityLogTable);
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error initializing tables - " + sqlException.getMessage());
         }
@@ -251,6 +264,22 @@ public class InitializePlatform {
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error initializing profile table - " + sqlException.getMessage());
+        }
+    }
+
+    private static void activateActivityLogTable(Connection connection) {
+        String activityLog = "INSERT OR IGNORE INTO activity_log (user_id, activity, details)" +
+                "VALUES (?, ?, ?)";
+        String activity = "Initialized database, and registered a default admin user";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(activityLog)) {
+            preparedStatement.setString(1, "22777456-407b-4db5-8448-db2111f18c5f");
+            preparedStatement.setString(2, "Initialization");
+            preparedStatement.setString(3, activity);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException sqlException) {
+            logger.log(Level.SEVERE, "Error initializing activity log table - " + sqlException.getMessage());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.ashbank.objects.scenes.auth;
 
+import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.db.db.engines.AuthStorageEngine;
 import com.ashbank.objects.people.User;
 import com.ashbank.objects.utility.CustomDialogs;
@@ -121,9 +122,21 @@ public class UserAuthScenes {
             }
         });
 
+        String id = bankUser.getUserID();
+        String activity = "Platform Exist";
+        String success_details = bankUser.getUsername() + "'s platform exist successful.";
+
         btnCancel = new Button("_Quit");
         btnCancel.setId("btn-fail");
-        btnCancel.setOnAction(e -> stage.close());
+        btnCancel.setOnAction(e -> {
+            try {
+                ActivityLogger.logActivity(id, activity, success_details);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+
+            stage.close();
+        });
 
         gridPane = new GridPane();
         gridPane.setHgap(15);
