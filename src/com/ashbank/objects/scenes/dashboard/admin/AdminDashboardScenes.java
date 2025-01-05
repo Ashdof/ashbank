@@ -4,6 +4,7 @@ import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.objects.people.User;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 
+import com.ashbank.objects.utility.UserSession;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -39,8 +40,8 @@ public class AdminDashboardScenes {
         Label lblInfo, lblCurrentUser;
         Scene dashboardScene;
 
-        lblInfo = new Label("Welcome to the ASHBank Dashboard");
-        lblCurrentUser = new Label("Current user: " + user.getEmployeePosition());
+        lblInfo = new Label(UserSession.getUsername() + "!\nWelcome to the ASHBank Dashboard");
+        lblCurrentUser = new Label("Current user: " + UserSession.getUsername());
 
         String id = user.getUserID();
         String activity = "User Logout";
@@ -54,6 +55,7 @@ public class AdminDashboardScenes {
                 throw new RuntimeException(ex);
             }
 
+            UserSession.clearSession();
             userAuthScenes.getUserLoginScene();
         });
 

@@ -1,5 +1,6 @@
 package com.ashbank.main;
 
+import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import javafx.application.Application;
 import javafx.scene.image.Image;
@@ -16,7 +17,18 @@ public class TestMain extends Application{
     public void start(Stage primaryStage) throws SQLException {
         InitializePlatform.initiateSystem();
         UserAuthScenes userAuthScenes = new UserAuthScenes(primaryStage);
-//        UserLoginScene userLoginScene = new UserLoginScene(primaryStage);
+
+        String osName = System.getProperty("os.name");
+        String osUsername = System.getProperty("user.name");
+        String osUser = osName + ":" + osUsername;
+        String activity = "Platform Startup";
+        String success_details = osUser + "'s platform startup successful.";
+
+        try {
+            ActivityLogger.logActivity("No value", activity, success_details);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
 
         primaryStage.getIcons().add(new Image("/com/ashbank/objects/resources/icons/bank.png"));
         primaryStage.setTitle("ASHBank: Employee Authentication");

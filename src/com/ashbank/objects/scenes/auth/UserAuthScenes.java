@@ -7,6 +7,7 @@ import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.Security;
 import com.ashbank.objects.scenes.dashboard.admin.AdminDashboardScenes;
 
+import com.ashbank.objects.utility.UserSession;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -114,6 +115,7 @@ public class UserAuthScenes {
 
                 try {
                     if (authStorageEngine.userLogin(bankUser)) {
+                        UserSession.setUsername(bankUser.getUsername());
                         getMainDashboardScene(this.stage, bankUser);
                     }
                 } catch (SQLException sqlException) {
@@ -122,9 +124,12 @@ public class UserAuthScenes {
             }
         });
 
+        String osName = System.getProperty("os.name");
+        String osUsername = System.getProperty("user.name");
+        String osUser = osName + ":" + osUsername;
         String id = bankUser.getUserID();
         String activity = "Platform Exist";
-        String success_details = bankUser.getUsername() + "'s platform exist successful.";
+        String success_details = osUser + "'s platform exist successful.";
 
         btnCancel = new Button("_Quit");
         btnCancel.setId("btn-fail");
