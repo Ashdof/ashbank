@@ -1,5 +1,6 @@
 package com.ashbank.main;
 
+import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -12,11 +13,12 @@ public class TestMain extends Application{
     @Override
     public void start(Stage primaryStage) {
         InitializePlatform.initiateSystem();
-        UserLoginScene userLoginScene = new UserLoginScene(primaryStage);
+        UserAuthScenes userAuthScenes = new UserAuthScenes(primaryStage);
+//        UserLoginScene userLoginScene = new UserLoginScene(primaryStage);
 
         primaryStage.getIcons().add(new Image("/com/ashbank/objects/resources/icons/bank.png"));
         primaryStage.setTitle("ASHBank: Employee Authentication");
-        userLoginScene.getUserLoginScene();
+        userAuthScenes.getUserLoginScene();
         primaryStage.show();
     }
 

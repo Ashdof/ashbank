@@ -78,7 +78,12 @@ public class AuthStorageEngine {
      */
     public boolean resetPassword(User user) throws SQLException {
 
-        String selectQuery = "SELECT * FROM bank_users WHERE username = ? AND security_question = ? AND security_answer = ?";
+        String selectQuery = """
+                SELECT p.security_question, p.security_answer, u.username
+                FROM bank_users_profile p
+                JOIN bank_users u ON p.employee_id = u.employee_id
+                WHERE username = ? AND security_question = ? AND security_answer = ?
+                """;
         String updateQuery = "UPDATE bank_users SET password = ? WHERE username = ?";
         int rows;
 

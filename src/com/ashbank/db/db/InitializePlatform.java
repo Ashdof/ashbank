@@ -27,6 +27,7 @@ public class InitializePlatform {
             activateEmployeeNationalityData(conn);
             activateEmployeeAddressData(conn);
             activateEmployeeUserData(conn);
+            activateEmployeeProfileData(conn);
 
             System.out.println("Database initialization successful.");
         } catch (SQLException sqlException) {
@@ -93,11 +94,17 @@ public class InitializePlatform {
         String createUsersTable = "CREATE TABLE IF NOT EXISTS bank_users (" +
                 "id TEXT PRIMARY KEY," +
                 "employee_id TEXT NOT NULL," +
-                "security_question TEXT," +
-                "security_answer TEXT," +
                 "role TEXT NOT NULL," +
                 "username TEXT NOT NULL," +
                 "password TEXT NOT NULL," +
+                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                ");";
+
+        String createUsersProfileTable = "CREATE TABLE IF NOT EXISTS bank_users_profile (" +
+                "id TEXT PRIMARY KEY," +
+                "employee_id TEXT NOT NULL," +
+                "security_question TEXT," +
+                "security_answer TEXT," +
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
@@ -108,6 +115,7 @@ public class InitializePlatform {
             statement.execute(createEmployeeNationalityTable);
             statement.execute(createEmployeeAddressTable);
             statement.execute(createUsersTable);
+            statement.execute(createUsersProfileTable);
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error initializing tables - " + sqlException.getMessage());
         }
@@ -214,21 +222,35 @@ public class InitializePlatform {
     }
 
     private static void activateEmployeeUserData(Connection connection) {
-        String adminBankUser = "INSERT OR IGNORE INTO bank_users (id, employee_id, security_question, security_answer, role, username, password)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String adminBankUser = "INSERT OR IGNORE INTO bank_users (id, employee_id, role, username, password)" +
+                "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminBankUser)) {
             preparedStatement.setString(1, "2f1cc2a5-e5e5-46ea-aa20-4250a13e9556");
             preparedStatement.setString(2, "22777456-407b-4db5-8448-db2111f18c5f");
-            preparedStatement.setString(3, "None");
-            preparedStatement.setString(4, "None");
-            preparedStatement.setString(5, "Administrator");
-            preparedStatement.setString(6, "admin");
-            preparedStatement.setString(7, "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9");
+            preparedStatement.setString(3, "Administrator");
+            preparedStatement.setString(4, "admin");
+            preparedStatement.setString(5, "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9");
 
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error initializing users table - " + sqlException.getMessage());
+        }
+    }
+
+    private static void activateEmployeeProfileData(Connection connection) {
+        String adminBankUserProfile = "INSERT OR IGNORE INTO bank_users_profile (id, employee_id, security_question, security_answer)" +
+                "VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(adminBankUserProfile)) {
+            preparedStatement.setString(1, "9f010a9c-3ea8-4936-a149-9707e78d5285");
+            preparedStatement.setString(2, "22777456-407b-4db5-8448-db2111f18c5f");
+            preparedStatement.setString(3, "None");
+            preparedStatement.setString(4, "None");
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException sqlException) {
+            logger.log(Level.SEVERE, "Error initializing profile table - " + sqlException.getMessage());
         }
     }
 }
