@@ -34,7 +34,7 @@ public class InitializePlatform {
         activateEmployeeAddressData(conn);
         activateEmployeeUserData(conn);
         activateEmployeeProfileData(conn);
-        activateActivityLogTable(conn);
+//        activateActivityLogTable(conn);
 
         System.out.println("Database initialization successful.");
     }
@@ -46,7 +46,9 @@ public class InitializePlatform {
      * @param connection a connection to the database
      */
     private static void activateTables(Connection connection) {
-        String createEmployeeBasicTable = "CREATE TABLE IF NOT EXISTS employee (" +
+
+        /* =================== EMPLOYEE TABLES =================== **/
+        String createEmployeeBasicTable = "CREATE TABLE IF NOT EXISTS employees (" +
                 "id TEXT PRIMARY KEY," +
                 "last_name TEXT," +
                 "first_name TEXT," +
@@ -56,17 +58,17 @@ public class InitializePlatform {
                 "photo BLOB" +
                 ");";
 
-        String createEmployeeEmploymentTable = "CREATE TABLE IF NOT EXISTS employee_employment (" +
+        String createEmployeeEmploymentTable = "CREATE TABLE IF NOT EXISTS employees_employment (" +
                 "id TEXT PRIMARY KEY," +
                 "employee_id TEXT," +
                 "date_employed TEXT," +
                 "qualification TEXT, " +
                 "department TEXT," +
                 "position TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
-        String createEmployeeResidenceTable = "CREATE TABLE IF NOT EXISTS employee_residence (" +
+        String createEmployeeResidenceTable = "CREATE TABLE IF NOT EXISTS employees_residence (" +
                 "id TEXT PRIMARY KEY," +
                 "employee_id TEXT," +
                 "town TEXT," +
@@ -74,26 +76,152 @@ public class InitializePlatform {
                 "street_name TEXT," +
                 "house_number TEXT," +
                 "gps_address TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
-        String createEmployeeNationalityTable = "CREATE TABLE IF NOT EXISTS employee_nationality (" +
+        String createEmployeeNationalityTable = "CREATE TABLE IF NOT EXISTS employees_nationality (" +
                 "id TEXT PRIMARY KEY," +
                 "employee_id TEXT," +
                 "nationality TEXT," +
                 "national_card TEXT," +
                 "card_number TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
-        String createEmployeeAddressTable = "CREATE TABLE IF NOT EXISTS employee_address (" +
+        String createEmployeeAddressTable = "CREATE TABLE IF NOT EXISTS employees_address (" +
                 "id TEXT PRIMARY KEY," +
                 "employee_id TEXT," +
                 "postal_address TEXT," +
                 "email_address TEXT," +
                 "phone_number TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
+
+        /* =================== CUSTOMER TABLES =================== **/
+
+        String createCustomerBasicDataTable = "CREATE TABLE IF NOT EXISTS customers (" +
+                "id TEXT PRIMARY KEY," +
+                "last_name TEXT," +
+                "first_name TEXT," +
+                "gender TEXT," +
+                "birth_date TEXT," +
+                "age INTEGER," +
+                "photo BLOB" +
+                ");";
+
+        String createCustomerProfessionDataTable = "CREATE TABLE IF NOT EXISTS customers_profession (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "profession TEXT," +
+                "place_of_work TEXT, " +
+                "position TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        String createCustomerResidenceDataTable = "CREATE TABLE IF NOT EXISTS customers_residence (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "town TEXT," +
+                "suburb TEXT," +
+                "street_name TEXT," +
+                "house_number TEXT," +
+                "gps_address TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        String createCustomerNationalityDataTable = "CREATE TABLE IF NOT EXISTS customers_nationality (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "nationality TEXT," +
+                "national_card TEXT," +
+                "card_number TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        String createCustomerAddressDataTable = "CREATE TABLE IF NOT EXISTS customers_address (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "postal_address TEXT," +
+                "email_address TEXT," +
+                "phone_number TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        String createCustomerKinDataTable = "CREATE TABLE IF NOT EXISTS customers_kin (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "kin_name TEXT," +
+                "kin_relation TEXT," +
+                "kin_phone_number TEXT," +
+                "kin_postal_address TEXT," +
+                "kin_email_address TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        String createCustomerAccountBeneficiaryDataTable = "CREATE TABLE IF NOT EXISTS customers_account_beneficiary (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "beneficiary_name TEXT," +
+                "beneficiary_relation TEXT," +
+                "beneficiary_phone_number TEXT," +
+                "beneficiary_postal_address TEXT," +
+                "beneficiary_email_address TEXT," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
+                ");";
+
+        /* =================== CUSTOMERS BANK ACCOUNT TABLE =================== **/
+
+        String createCustomerBankAccountDataTable = "CREATE TABLE IF NOT EXISTS customers_bank_account (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "account_number TEXT NOT NULL UNIQUE," +
+                "account_type TEXT NOT NULL," +
+                "current_balance DECIMAL(15, 2) DEFAULT 0.00," +
+                "account_currency TEXT DEFAULT 'GHS'," +
+                "date_created DATE NOT NULL," +
+                "lastTransactionDate DATE," +
+                "account_status TEXT DEFAULT 'Active'," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id)" +
+                ");";
+
+        /* =================== CUSTOMERS ACCOUNT TRANSACTIONS TABLE =================== **/
+
+        String createCustomerAccountTransactionsDataTable = "CREATE TABLE IF NOT EXISTS customers_account_transactions (" +
+                "id TEXT PRIMARY KEY," +
+                "account_id TEXT," +
+                "transaction_type TEXT NOT NULL," +
+                "transaction_amount DECIMAL(15, 2) NOT NULL," +
+                "transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "transaction_details TEXT," +
+                "FOREIGN KEY (account_id) REFERENCES customers_bank_account (id)" +
+                ");";
+
+        /* =================== CUSTOMERS LOANS TABLES =================== **/
+
+        String createCustomerLoansApplicationDataTable = "CREATE TABLE IF NOT EXISTS customers_loan_applications (" +
+                "id TEXT PRIMARY KEY," +
+                "customer_id TEXT," +
+                "loan_type TEXT NOT NULL," +
+                "loan_amount DECIMAL(15, 2) NOT NULL," +
+                "loan_interest_rate DECIMAL(5, 2) NOT NULL," +
+                "loan_period_months INT NOT NULL," +
+                "loan_start_date DATE NOT NULL," +
+                "loan_end_date DATE NOT NULL," +
+                "loan_status TEXT DEFAULT 'Active'," +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id)" +
+                ");";
+
+        String createCustomerLoansPaymentsDataTable = "CREATE TABLE IF NOT EXISTS customers_loan_payments (" +
+                "id TEXT PRIMARY KEY," +
+                "loan_id TEXT," +
+                "payment_amount DECIMAL(15, 2) NOT NULL," +
+                "payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "payment_method TEXT," +
+                "payment_details TEXT," +
+                "FOREIGN KEY (loan_id) REFERENCES customers_loan_applications (id)" +
+                ");";
+
+        /* =================== PLATFORM USERS TABLES =================== **/
 
         String createUsersTable = "CREATE TABLE IF NOT EXISTS bank_users (" +
                 "id TEXT PRIMARY KEY," +
@@ -112,6 +240,7 @@ public class InitializePlatform {
                 "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
                 ");";
 
+        /* =================== ACTIVITY LOG TABLE =================== **/
         String createActivityLogTable = "CREATE TABLE IF NOT EXISTS activity_log (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "user_id TEXT NOT NULL," +
@@ -120,12 +249,27 @@ public class InitializePlatform {
                 "details TEXT" +
                 ");";
 
+        /* =================== EXECUTE SQL COMMANDS =================== **/
         try (Statement statement = connection.createStatement()){
             statement.execute(createEmployeeBasicTable);
             statement.execute(createEmployeeEmploymentTable);
             statement.execute(createEmployeeResidenceTable);
             statement.execute(createEmployeeNationalityTable);
             statement.execute(createEmployeeAddressTable);
+
+            statement.execute(createCustomerBasicDataTable);
+            statement.execute(createCustomerNationalityDataTable);
+            statement.execute(createCustomerProfessionDataTable);
+            statement.execute(createCustomerAddressDataTable);
+            statement.execute(createCustomerResidenceDataTable);
+            statement.execute(createCustomerKinDataTable);
+            statement.execute(createCustomerAccountBeneficiaryDataTable);
+
+            statement.execute(createCustomerBankAccountDataTable);
+            statement.execute(createCustomerAccountTransactionsDataTable);
+            statement.execute(createCustomerLoansApplicationDataTable);
+            statement.execute(createCustomerLoansPaymentsDataTable);
+
             statement.execute(createUsersTable);
             statement.execute(createUsersProfileTable);
             statement.execute(createActivityLogTable);
@@ -140,7 +284,7 @@ public class InitializePlatform {
      * @param connection the connection to the database
      */
     private static void activateDefaultBasicEmployeeData(Connection connection) {
-        String adminEmployeeBasic = "INSERT OR IGNORE INTO employee (id, last_name, first_name, gender, birth_date, age, photo)" +
+        String adminEmployeeBasic = "INSERT OR IGNORE INTO employees (id, last_name, first_name, gender, birth_date, age, photo)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminEmployeeBasic)) {
@@ -164,7 +308,7 @@ public class InitializePlatform {
      * @param connection the connection to the database
      */
     private static void activateDefaultEmployeeEmploymentData(Connection connection) {
-        String adminEmployeeEmployment = "INSERT OR IGNORE INTO employee_employment (id, employee_id, date_employed, qualification, department, position)" +
+        String adminEmployeeEmployment = "INSERT OR IGNORE INTO employees_employment (id, employee_id, date_employed, qualification, department, position)" +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminEmployeeEmployment)) {
@@ -182,7 +326,7 @@ public class InitializePlatform {
     }
 
     private static void activateDefaultEmployeeResidenceData(Connection connection) {
-        String adminEmployeeResidence = "INSERT OR IGNORE INTO employee_residence (id, employee_id, town, suburb, street_name, house_number, gps_address)" +
+        String adminEmployeeResidence = "INSERT OR IGNORE INTO employees_residence (id, employee_id, town, suburb, street_name, house_number, gps_address)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminEmployeeResidence)) {
@@ -201,7 +345,7 @@ public class InitializePlatform {
     }
 
     private static void activateEmployeeNationalityData(Connection connection) {
-        String adminEmployeeNationality = "INSERT OR IGNORE INTO employee_nationality (id, employee_id, nationality, national_card, card_number)" +
+        String adminEmployeeNationality = "INSERT OR IGNORE INTO employees_nationality (id, employee_id, nationality, national_card, card_number)" +
                 "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminEmployeeNationality)) {
@@ -218,7 +362,7 @@ public class InitializePlatform {
     }
 
     private static void activateEmployeeAddressData(Connection connection) {
-        String adminEmployeeContact = "INSERT OR IGNORE INTO employee_address (id, employee_id, postal_address, email_address, phone_number)" +
+        String adminEmployeeContact = "INSERT OR IGNORE INTO employees_address (id, employee_id, postal_address, email_address, phone_number)" +
                 "VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(adminEmployeeContact)) {

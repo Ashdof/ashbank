@@ -7,8 +7,34 @@ public class Person{
     private static final int DEFAULT_AGE = 18;
 
     /*=================== DATA MEMBERS ===================*/
-    private String lastName, firstName, gender, birthDate, postAddress, emailAddress, phoneNumber, photo;
+    private String lastName, firstName, gender, birthDate, postAddress, emailAddress, phoneNumber, photo,
+            nationality, nationalCardNumber, nationalCard, townOfResidence, suburbOfResidence,
+            streetNameOfResidence, houseNumberOfResidence, gpsAddressOfResidence;
     private int age;
+
+    /***
+     * Initialize Default Values:
+     * create a new person object with default values
+     */
+    public Person(){
+        this.lastName = DEFAULT_TEXT;
+        this.firstName = DEFAULT_TEXT;
+        this.gender = DEFAULT_TEXT;
+        this.birthDate =DEFAULT_TEXT;
+        this.age = DEFAULT_AGE;
+        this.nationality = DEFAULT_TEXT;
+        this.nationalCard = DEFAULT_TEXT;
+        this.nationalCardNumber = DEFAULT_TEXT;
+        this.townOfResidence = DEFAULT_TEXT;
+        this.suburbOfResidence = DEFAULT_TEXT;
+        this.streetNameOfResidence = DEFAULT_TEXT;
+        this.houseNumberOfResidence = DEFAULT_TEXT;
+        this.gpsAddressOfResidence = DEFAULT_TEXT;
+        this.postAddress = DEFAULT_TEXT;
+        this.emailAddress = DEFAULT_TEXT;
+        this.phoneNumber = DEFAULT_TEXT;
+        this.photo = DEFAULT_TEXT;
+    }
 
     /***
      * Basic Bio Constructor:
@@ -27,22 +53,6 @@ public class Person{
         this.age = age;
     }
 
-    /***
-     * Initialize Default Values:
-     * create a new person with default values
-     */
-    public Person(){
-        this.lastName = DEFAULT_TEXT;
-        this.firstName = DEFAULT_TEXT;
-        this.gender = DEFAULT_TEXT;
-        this.birthDate =DEFAULT_TEXT;
-        this.age = DEFAULT_AGE;
-        this.postAddress = DEFAULT_TEXT;
-        this.emailAddress = DEFAULT_TEXT;
-        this.phoneNumber = DEFAULT_TEXT;
-        this.photo = DEFAULT_TEXT;
-    }
-
     /**
      * Person from Person:
      * create a new person from an existing
@@ -55,6 +65,14 @@ public class Person{
         this.gender = person.getGender();
         this.birthDate = person.getBirthDate();
         this.age = person.getAge();
+        this.nationality = person.getNationality();
+        this.nationalCard = person.getNationalCard();
+        this.nationalCardNumber = person.getNationalCardNumber();
+        this.townOfResidence = person.getTownOfResidence();
+        this.suburbOfResidence = person.getSuburbOfResidence();
+        this.streetNameOfResidence = person.getStreetNameOfResidence();
+        this.houseNumberOfResidence = person.getHouseNumberOfResidence();
+        this.gpsAddressOfResidence = person.getGpsAddressOfResidence();
         this.postAddress = person.getPostAddress();
         this.emailAddress = person.getEmailAddress();
         this.phoneNumber = person.getPhoneNumber();
@@ -98,6 +116,38 @@ public class Person{
         this.photo = photo;
     }
 
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public void setNationalCard(String nationalCard) {
+        this.nationalCard = nationalCard;
+    }
+
+    public void setNationalCardNumber(String nationalCardNumber) {
+        this.nationalCardNumber = nationalCardNumber;
+    }
+
+    public void setTownOfResidence(String townOfResidence) {
+        this.townOfResidence = townOfResidence;
+    }
+
+    public void setSuburbOfResidence(String suburbOfResidence) {
+        this.suburbOfResidence = suburbOfResidence;
+    }
+
+    public void setStreetNameOfResidence(String streetNameOfResidence) {
+        this.streetNameOfResidence = streetNameOfResidence;
+    }
+
+    public void setHouseNumberOfResidence(String houseNumberOfResidence) {
+        this.houseNumberOfResidence = houseNumberOfResidence;
+    }
+
+    public void setGpsAddressOfResidence(String gpsAddressOfResidence) {
+        this.gpsAddressOfResidence = gpsAddressOfResidence;
+    }
+
     /*=================== GETTERS ===================*/
     public String getLastName() {
         return this.lastName;
@@ -135,6 +185,38 @@ public class Person{
         return photo;
     }
 
+    public String getNationality() {
+        return nationality;
+    }
+
+    public String getNationalCard() {
+        return nationalCard;
+    }
+
+    public String getNationalCardNumber() {
+        return nationalCardNumber;
+    }
+
+    public String getTownOfResidence() {
+        return townOfResidence;
+    }
+
+    public String getSuburbOfResidence() {
+        return suburbOfResidence;
+    }
+
+    public String getStreetNameOfResidence() {
+        return streetNameOfResidence;
+    }
+
+    public String getHouseNumberOfResidence() {
+        return houseNumberOfResidence;
+    }
+
+    public String getGpsAddressOfResidence() {
+        return gpsAddressOfResidence;
+    }
+
     /*=================== OTHER METHODS ===================*/
 
     public String getFullName() {
@@ -147,14 +229,20 @@ public class Person{
     @Override
     public String toString() {
 
-        return "Name:\t\t\t" + this.getFullName() + "\n" +
+        return "Basic Information:\n" +
+                "Name:\t\t\t" + this.getFullName() + "\n" +
                 "Gender:\t\t\t" + this.getGender() + "\n" +
                 "Birth date:\t\t" + this.getBirthDate() + "\n" +
                 "Age:\t\t\t" + this.getAge() + "\n" +
+                "Photo:\t\t\t" + this.getPhoto() + "\n" +
+                "\nNational Identity Information:\n" +
+                "Nationality:\t\t" + this.getNationality()  + "\n" +
+                "National card:\t" + this.getNationalCard()  + "\n" +
+                "Card number:\t\t" + this.getNationalCardNumber()  + "\n" +
+                "\nAddress and Contact Information:\n" +
                 "Postal address:\t" + this.getPostAddress() + "\n" +
                 "Email address:\t" + this.getEmailAddress() + "\n" +
-                "Phone number:\t" + this.getPhoneNumber() + "\n" +
-                "Photo:\t\t\t" + this.getPhoto() + "\n";
+                "Phone number:\t" + this.getPhoneNumber();
     }
 
     /**

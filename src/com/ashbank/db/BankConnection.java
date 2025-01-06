@@ -42,7 +42,7 @@ public class BankConnection {
 
 
     private static String getDatabasePath() {
-        URL resource = AuthStorageEngine.class.getResource("/com/ashbank/db/db/cashbank.db");
+        URL resource = AuthStorageEngine.class.getResource("/com/ashbank/db/db/ashbank.db");
         if (resource != null) {
             return Paths.get(resource.getPath()).toString();
         }

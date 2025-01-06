@@ -7,7 +7,7 @@ public class Employee extends Person{
 
     /*=================== DATA MEMBERS ===================*/
     private String employeeID, employeeQualification, employeeDepartment, employeePosition,
-            dateEmployed, nationality, nationalCardNumber, nationalCard;
+            dateEmployed;
 
     /**
      * Default constructor
@@ -19,14 +19,12 @@ public class Employee extends Person{
         this.employeeDepartment = DEFAULT_TEXT;
         this.employeePosition = DEFAULT_TEXT;
         this.dateEmployed = DEFAULT_TEXT;
-        this.nationality = DEFAULT_TEXT;
-        this.nationalCard = DEFAULT_TEXT;
-        this.nationalCardNumber = DEFAULT_TEXT;
     }
 
     /**
-     * Employee Bio Data:
-     * create user with bio data
+     * Employee Basic and Employment Data:
+     * create employee object with bio and employment
+     * data
      * @param lastName the last name of the employee
      * @param firstName the first name of the employee
      * @param gender the gender of the employee
@@ -36,19 +34,21 @@ public class Employee extends Person{
      * @param position the position of the employee
      */
     public Employee(String employeeID, String lastName, String firstName, String gender, String birthDate, int age,
-                    String dateEmployed, String employeeQualification, String employeeDepartment, String position,
-                    String nationality, String nationalCard, String nationalCardNumber) {
+                    String dateEmployed, String employeeQualification, String employeeDepartment, String position) {
         super(lastName, firstName, gender, birthDate, age);
         this.employeeID = employeeID;
         this.employeeDepartment = employeeDepartment;
         this.employeeQualification = employeeQualification;
         this.employeePosition = position;
         this.dateEmployed = dateEmployed;
-        this.nationality = nationality;
-        this.nationalCard = nationalCard;
-        this.nationalCardNumber = nationalCardNumber;
     }
 
+    /**
+     * Employee Object:
+     * create a new employee object from an existing
+     * employee object
+     * @param employee the existing employee object
+     */
     public Employee(Employee employee) {
         super(employee);
         this.employeeID = employee.getEmployeeID();
@@ -56,9 +56,6 @@ public class Employee extends Person{
         this.employeeQualification = employee.getEmployeeQualification();
         this.employeePosition = employee.getEmployeePosition();
         this.dateEmployed = employee.getDateEmployed();
-        this.nationality = employee.getNationality();
-        this.nationalCard = employee.getNationalCard();
-        this.nationalCardNumber = employee.getNationalCardNumber();
     }
 
     /*=================== SETTERS ===================*/
@@ -83,17 +80,6 @@ public class Employee extends Person{
         this.dateEmployed = dateEmployed;
     }
 
-    public void setNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-    public void setNationalCard(String nationalCard) {
-        this.nationalCard = nationalCard;
-    }
-
-    public void setNationalCardNumber(String nationalCardNumber) {
-        this.nationalCardNumber = nationalCardNumber;
-    }
     /*=================== GETTERS ===================*/
 
     public String getEmployeePosition() {
@@ -116,26 +102,13 @@ public class Employee extends Person{
         return dateEmployed;
     }
 
-    public String getNationalCard() {
-        return this.nationalCard;
-    }
-
-    public String getNationalCardNumber() {
-        return this.nationalCardNumber;
-    }
-
-    public String getNationality() {
-        return this.nationality;
-    }
-
     /*=================== OTHER METHODS ===================*/
     public String toString() {
         return super.toString() + "\n" +
+                "\nEmployment Information:\n" +
                 "Qualification:\t" + this.getEmployeeQualification() + "\n" +
+                "Department:\t\t" + this.getEmployeeDepartment() + "\n" +
                 "Position:\t\t" + this.getEmployeePosition() + "\n" +
-                "Date employed:\t" + this.getDateEmployed() + "\n" +
-                "Nationality:\t" + this.getNationality() + "\n" +
-                "National ID card:\t" + this.getNationalCard() + "\n" +
-                "ID card number:\t" + this.getNationalCardNumber();
+                "Date employed:\t" + this.getDateEmployed();
     }
 }

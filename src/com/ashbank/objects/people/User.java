@@ -9,9 +9,8 @@ public class User extends Employee {
     private String securityQuestion, securityAnswer, password, userID, username;
 
     public User(String userID, String employeeID, String lastName, String firstName, String gender, String birthDate, int age, String qualification,
-                String dateEmployed, String department, String position, String nationality, String nationalCard, String nationalCardNumber,
-                String securityQuestion, String securityAnswer, String username, String password) {
-        super(employeeID, lastName, firstName, gender, birthDate, age, dateEmployed, qualification, department, position, nationality, nationalCard, nationalCardNumber);
+                String dateEmployed, String department, String position, String securityQuestion, String securityAnswer, String username, String password) {
+        super(employeeID, lastName, firstName, gender, birthDate, age, dateEmployed, qualification, department, position);
         this.userID = userID;
         this.securityQuestion = securityQuestion;
         this.securityAnswer = securityAnswer;
@@ -90,6 +89,7 @@ public class User extends Employee {
     /*=================== OTHER METHODS ===================*/
     public String toString() {
         return super.toString() + "\n" +
+                "\nPlatform User Information:\n" +
                 "Username:\t\t" + this.getUsername()  + "\n" +
                 "Security question:\t" + this.getEmployeePosition();
     }
