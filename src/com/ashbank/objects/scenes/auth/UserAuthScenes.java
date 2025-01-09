@@ -2,7 +2,7 @@ package com.ashbank.objects.scenes.auth;
 
 import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.db.db.engines.AuthStorageEngine;
-import com.ashbank.objects.people.User;
+import com.ashbank.objects.people.Users;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.Security;
 import com.ashbank.objects.scenes.dashboard.admin.AdminDashboardScenes;
@@ -17,14 +17,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserAuthScenes {
 
     /* ================ DATA MEMBERS ================ */
-    private User user;
+    private Users users;
     private final Security security = new Security();
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final AuthStorageEngine authStorageEngine = new AuthStorageEngine();
@@ -51,7 +50,7 @@ public class UserAuthScenes {
     }
 
     public void getUserLoginScene() {
-        User bankUser = new User();
+        Users bankUsers = new Users();
 
         Scene loginScene;
 
@@ -77,7 +76,7 @@ public class UserAuthScenes {
         lblTitle.setContentDisplay(ContentDisplay.TOP);
         lblTitle.setId("title");
 
-        lblUser = new Label("Employee: ");
+        lblUser = new Label("Employees: ");
         lblUsername = new Label("Username: ");
         lblPassword = new Label("Password: ");
         forgotPassword = new Hyperlink("Forgot password");
@@ -109,25 +108,26 @@ public class UserAuthScenes {
             if (username.isEmpty() || pass.isEmpty() || user.equals("Login as ...")) {
                 customDialogs.showErrInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
             } else {
-                bankUser.setEmployeePosition(user);
-                bankUser.setUsername(username);
-                bankUser.setPassword(hashedPassword);
+                bankUsers.setEmployeePosition(user);
+                bankUsers.setUsername(username);
+                bankUsers.setPassword(hashedPassword);
 
                 try {
-                    if (authStorageEngine.userLogin(bankUser)) {
-                        UserSession.setUsername(bankUser.getUsername());
-                        getMainDashboardScene(this.stage, bankUser);
+                    if (authStorageEngine.userLogin(bankUsers)) {
+                        UserSession.setUsername(bankUsers.getUsername());
+                        UserSession.setUserID(bankUsers.getUserID());
+                        getMainDashboardScene(this.stage, bankUsers);
                     }
                 } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error logging user - " + sqlException.getMessage());
+                    logger.log(Level.SEVERE, "Error logging users - " + sqlException.getMessage());
                 }
             }
         });
 
         String osName = System.getProperty("os.name");
-        String osUsername = System.getProperty("user.name");
+        String osUsername = System.getProperty("users.name");
         String osUser = osName + ":" + osUsername;
-        String id = bankUser.getUserID();
+        String id = bankUsers.getUserID();
         String activity = "Platform Exist";
         String success_details = osUser + "'s platform exist successful.";
 
@@ -184,12 +184,11 @@ public class UserAuthScenes {
         root.setAlignment(Pos.CENTER);
         root.getChildren().addAll(lblTitle, gridPane);
 
-        loginScene = new Scene(root, 600, 450);
-        this.stage.setScene(loginScene);
-        this.stage.setX(300);
-        this.stage.setY(100);
-        this.stage.setResizable(false);
-        loginScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
+        loginScene = new Scene(root, 1200, 1000);
+        stage.setScene(loginScene);
+        stage.setResizable(true);
+        stage.setMaximized(true);
+//        loginScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
 
     }
 
@@ -253,14 +252,14 @@ public class UserAuthScenes {
             } else {
                 String hashedPassword = security.hashSecurityData(password);
 
-                user = new User();
-                user.setUsername(username);
-                user.setSecurityQuestion(securityQuestion);
-                user.setSecurityAnswer(securityAnswer);
-                user.setPassword(hashedPassword);
+                users = new Users();
+                users.setUsername(username);
+                users.setSecurityQuestion(securityQuestion);
+                users.setSecurityAnswer(securityAnswer);
+                users.setPassword(hashedPassword);
 
                 try {
-                    if (authStorageEngine.resetPassword(user)) {
+                    if (authStorageEngine.resetPassword(users)) {
                         this.getUserLoginScene();
 
                     }
@@ -318,24 +317,22 @@ public class UserAuthScenes {
         root.setAlignment(Pos.CENTER);
         root.getChildren().addAll(lblTitle, gridPane);
 
-        forgotPassScene = new Scene(root, 600, 450);
-        this.stage.setScene(forgotPassScene);
-        this.stage.setX(300);
-        this.stage.setY(100);
-        this.stage.setResizable(false);
-        forgotPassScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
+        forgotPassScene = new Scene(root, 1200, 1000);
+        stage.setScene(forgotPassScene);
+        stage.setResizable(true);
+        stage.setMaximized(true);
+//        forgotPassScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
     }
 
     /**
      * Dashboard:
      * the main landing page for the platform
      * @param stage the stage
-     * @param user the user object
+     * @param users the users object
      */
-    public void getMainDashboardScene(Stage stage, User user) {
+    public void getMainDashboardScene(Stage stage, Users users) {
         dashboardScenes = new AdminDashboardScenes(stage);
         stage.setTitle("The ASHBank Platform");
-
 
         Scene dashboardScene;
         Button btnSignOut;
@@ -343,7 +340,7 @@ public class UserAuthScenes {
         VBox root;
 
         lblInfo = new Label("Welcome the ASHBank Dashboard");
-        lblMsg = new Label("Currently logged in as:\t" + user.getEmployeePosition());
+        lblMsg = new Label("Currently logged in as:\t" + users.getEmployeePosition());
 
         btnSignOut = new Button("Sign out");
         btnSignOut.setId("btn-signout");
@@ -356,14 +353,13 @@ public class UserAuthScenes {
         root.getChildren().addAll(lblInfo, lblMsg, btnSignOut);
 
         dashboardScene = new Scene(root, 1200, 1000);
-        if (user.getEmployeePosition().equals("Administrator"))
-            stage.setScene(dashboardScenes.getAdminMainDashboardScene(user));
+        if (users.getEmployeePosition().equals("Administrator"))
+            dashboardScenes.getAdminMainDashboardScene(users);
+//            stage.setScene(dashboardScenes.getAdminMainDashboardScene(users));
         else
-            stage.setScene(dashboardScene);
-        stage.setX(100);
-        stage.setY(200);
-        stage.setMaximized(true);
-        stage.setResizable(true);
-        dashboardScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
+            this.stage.setScene(dashboardScene);
+        this.stage.setMaximized(true);
+        this.stage.setResizable(true);
+//        dashboardScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
     }
 }

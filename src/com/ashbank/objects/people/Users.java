@@ -1,6 +1,8 @@
 package com.ashbank.objects.people;
 
-public class User extends Employee {
+import java.io.File;
+
+public class Users extends Employees {
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
@@ -8,9 +10,9 @@ public class User extends Employee {
     /*=================== DATA MEMBERS ===================*/
     private String securityQuestion, securityAnswer, password, userID, username;
 
-    public User(String userID, String employeeID, String lastName, String firstName, String gender, String birthDate, int age, String qualification,
-                String dateEmployed, String department, String position, String securityQuestion, String securityAnswer, String username, String password) {
-        super(employeeID, lastName, firstName, gender, birthDate, age, dateEmployed, qualification, department, position);
+    public Users(String userID, String employeeID, String lastName, String firstName, String gender, String birthDate, int age, File photo, String qualification,
+                 String dateEmployed, String department, String position, String securityQuestion, String securityAnswer, String username, String password) {
+        super(employeeID, lastName, firstName, gender, birthDate, age, photo, dateEmployed, qualification, department, position);
         this.userID = userID;
         this.securityQuestion = securityQuestion;
         this.securityAnswer = securityAnswer;
@@ -18,7 +20,7 @@ public class User extends Employee {
         this.password = password;
     }
 
-    public User() {
+    public Users() {
         super();
         this.securityQuestion = DEFAULT_TEXT;
         this.securityAnswer = DEFAULT_TEXT;
@@ -28,18 +30,18 @@ public class User extends Employee {
     }
 
     /**
-     * Authenticate Employee:
-     * authenticates user with login information
+     * Authenticate Employees:
+     * authenticates users with login information
      *
-     * @param user the user object
+     * @param users the users object
      */
-    public User(User user) {
-        super(user);
-        this.userID = user.getUserID();
-        this.username = user.getUsername();
-        this.password = user.getPassword();
-        this.securityQuestion = user.getSecurityQuestion();
-        this.securityAnswer = user.getSecurityAnswer();
+    public Users(Users users) {
+        super(users);
+        this.userID = users.getUserID();
+        this.username = users.getUsername();
+        this.password = users.getPassword();
+        this.securityQuestion = users.getSecurityQuestion();
+        this.securityAnswer = users.getSecurityAnswer();
     }
 
     /*=================== SETTERS ===================*/
@@ -89,7 +91,7 @@ public class User extends Employee {
     /*=================== OTHER METHODS ===================*/
     public String toString() {
         return super.toString() + "\n" +
-                "\nPlatform User Information:\n" +
+                "\nPlatform Users Information:\n" +
                 "Username:\t\t" + this.getUsername()  + "\n" +
                 "Security question:\t" + this.getEmployeePosition();
     }

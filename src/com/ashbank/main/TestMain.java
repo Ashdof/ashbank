@@ -6,7 +6,6 @@ import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import com.ashbank.objects.scenes.auth.UserLoginScene;
 import com.ashbank.db.db.InitializePlatform;
 
 import java.sql.SQLException;
@@ -31,7 +30,7 @@ public class TestMain extends Application{
         }
 
         primaryStage.getIcons().add(new Image("/com/ashbank/objects/resources/icons/bank.png"));
-        primaryStage.setTitle("ASHBank: Employee Authentication");
+        primaryStage.setTitle("ASHBank: Employees Authentication");
         userAuthScenes.getUserLoginScene();
         primaryStage.show();
     }

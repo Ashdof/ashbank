@@ -1,6 +1,6 @@
 package com.ashbank.objects.bank;
 
-public class CustomerLoanApplication {
+public class CustomerLoanApplications {
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
@@ -17,7 +17,7 @@ public class CustomerLoanApplication {
      * create a loan application object with
      * default values
      */
-    public CustomerLoanApplication() {
+    public CustomerLoanApplications() {
         this.loanID = DEFAULT_TEXT;
         this.customerID = DEFAULT_TEXT;
         this.loanType = DEFAULT_TEXT;
@@ -43,8 +43,8 @@ public class CustomerLoanApplication {
      * @param loanPeriod the period of the loan
      * @param loanStatus the status of the loan
      */
-    public CustomerLoanApplication(String loanID, String customerID, String loanType, double loanAmount, double loanInterestRate,
-                                   String loanStartDate, String loanEndDate, int loanPeriod, String loanStatus) {
+    public CustomerLoanApplications(String loanID, String customerID, String loanType, double loanAmount, double loanInterestRate,
+                                    String loanStartDate, String loanEndDate, int loanPeriod, String loanStatus) {
         this.loanID = loanID;
          this.customerID = customerID;
          this.loanType = loanType;
@@ -56,16 +56,16 @@ public class CustomerLoanApplication {
          this.loanStatus = loanStatus;
     }
 
-    public CustomerLoanApplication(CustomerLoanApplication customerLoanApplication) {
-        this.loanID = customerLoanApplication.getLoanID();
-        this.customerID = customerLoanApplication.getCustomerID();
-        this.loanType = customerLoanApplication.getLoanType();
-        this.loanAmount = customerLoanApplication.getLoanAmount();
-        this.loanInterestRate = customerLoanApplication.getLoanInterestRate();
-        this.loanStartDate = customerLoanApplication.getLoanStartDate();
-        this.loanEndDate = customerLoanApplication.getLoanEndDate();
-        this.loanPeriod = customerLoanApplication.getLoanPeriod();
-        this.loanStatus = customerLoanApplication.getLoanStatus();
+    public CustomerLoanApplications(CustomerLoanApplications customerLoanApplications) {
+        this.loanID = customerLoanApplications.getLoanID();
+        this.customerID = customerLoanApplications.getCustomerID();
+        this.loanType = customerLoanApplications.getLoanType();
+        this.loanAmount = customerLoanApplications.getLoanAmount();
+        this.loanInterestRate = customerLoanApplications.getLoanInterestRate();
+        this.loanStartDate = customerLoanApplications.getLoanStartDate();
+        this.loanEndDate = customerLoanApplications.getLoanEndDate();
+        this.loanPeriod = customerLoanApplications.getLoanPeriod();
+        this.loanStatus = customerLoanApplications.getLoanStatus();
     }
 
     /*=================== SETTERS ===================*/
@@ -149,7 +149,7 @@ public class CustomerLoanApplication {
     @Override
     public String toString() {
         return "Loan Application Summary:\n" +
-                "Customer ID:\t\t" + this.getCustomerID() + "\n" +
+                "Customers ID:\t\t" + this.getCustomerID() + "\n" +
                 "Type:\t\t" + this.getLoanType() + "\n" +
                 "Amount:\t\tGHS" + this.getLoanAmount() + "\n" +
                 "Interest rate:\t" + this.getLoanInterestRate() + "\n" +

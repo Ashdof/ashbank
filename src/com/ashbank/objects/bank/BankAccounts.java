@@ -1,6 +1,6 @@
 package com.ashbank.objects.bank;
 
-public class BankAccount {
+public class BankAccounts {
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
@@ -16,7 +16,7 @@ public class BankAccount {
      * create a new bank account object with
      * default values
      */
-    public BankAccount() {
+    public BankAccounts() {
         this.accountID = DEFAULT_TEXT;
         this.customerID = DEFAULT_TEXT;
         this.accountNumber = DEFAULT_TEXT;
@@ -43,8 +43,8 @@ public class BankAccount {
      * @param accountStatus the status of the bank account
      * @param lastTransactionDate the last transaction date of the bank account
      */
-    public BankAccount(String accountID, String customerID, String accountNumber, String accountType, double initialDeposit, String accountCurrency,
-                       String dateCreated, String accountStatus, String lastTransactionDate) {
+    public BankAccounts(String accountID, String customerID, String accountNumber, String accountType, double initialDeposit, String accountCurrency,
+                        String dateCreated, String accountStatus, String lastTransactionDate) {
         this.accountID = accountID;
         this.customerID = customerID;
         this.accountNumber = accountNumber;
@@ -60,18 +60,18 @@ public class BankAccount {
      * Bank Account:
      * create a new bank account object from an existing
      * bank account object
-     * @param bankAccount the existing bank account object
+     * @param bankAccounts the existing bank account object
      */
-    public BankAccount(BankAccount bankAccount) {
-        this.accountID = bankAccount.getAccountID();
-        this.customerID = bankAccount.getCustomerID();
-        this.accountNumber = bankAccount.getAccountNumber();
-        this.accountType = bankAccount.getAccountType();
-        this.accountBalance = bankAccount.getAccountBalance();
-        this.accountCurrency = bankAccount.getAccountCurrency();
-        this.dateCreated = bankAccount.getDateCreated();
-        this.accountStatus = bankAccount.getAccountStatus();
-        this.lastTransactionDate = bankAccount.getLastTransactionDate();
+    public BankAccounts(BankAccounts bankAccounts) {
+        this.accountID = bankAccounts.getAccountID();
+        this.customerID = bankAccounts.getCustomerID();
+        this.accountNumber = bankAccounts.getAccountNumber();
+        this.accountType = bankAccounts.getAccountType();
+        this.accountBalance = bankAccounts.getAccountBalance();
+        this.accountCurrency = bankAccounts.getAccountCurrency();
+        this.dateCreated = bankAccounts.getDateCreated();
+        this.accountStatus = bankAccounts.getAccountStatus();
+        this.lastTransactionDate = bankAccounts.getLastTransactionDate();
     }
 
     /*=================== SETTERS ===================*/
@@ -154,7 +154,7 @@ public class BankAccount {
     public String toString() {
         return "Account Information:\n" +
                 "Date created:\t\t\t" + this.getDateCreated()  + "\n" +
-                "Customer ID:\t\t\t" + this.getCustomerID()  + "\n" +
+                "Customers ID:\t\t\t" + this.getCustomerID()  + "\n" +
                 "Account Type:\t\t\t" + this.getAccountType() + "\n" +
                 "Account number:\t\t" + this.getAccountNumber()  + "\n" +
                 "Account currency:\t\t" + this.getAccountCurrency() +  "\n" +

@@ -106,7 +106,7 @@ public class InitializePlatform {
                 "gender TEXT," +
                 "birth_date TEXT," +
                 "age INTEGER," +
-                "photo BLOB" +
+                "photo TEXT" +
                 ");";
 
         String createCustomerProfessionDataTable = "CREATE TABLE IF NOT EXISTS customers_profession (" +
@@ -144,6 +144,7 @@ public class InitializePlatform {
                 "postal_address TEXT," +
                 "email_address TEXT," +
                 "phone_number TEXT," +
+                "home_number TEXT," +
                 "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
                 ");";
 
@@ -279,7 +280,7 @@ public class InitializePlatform {
     }
 
     /**
-     * Create Default Employee Basic Data:
+     * Create Default Employees Basic Data:
      * creates a default admin employee basic data
      * @param connection the connection to the database
      */
@@ -303,7 +304,7 @@ public class InitializePlatform {
     }
 
     /**
-     * Create Default Employee Employment Data:
+     * Create Default Employees Employment Data:
      * creates a default admin employee employment data
      * @param connection the connection to the database
      */

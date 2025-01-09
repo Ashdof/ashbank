@@ -1,6 +1,8 @@
 package com.ashbank.objects.people;
 
-public class Employee extends Person{
+import java.io.File;
+
+public class Employees extends Person{
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
@@ -12,7 +14,7 @@ public class Employee extends Person{
     /**
      * Default constructor
      */
-    public Employee() {
+    public Employees() {
         super();
         this.employeeID = DEFAULT_TEXT;
         this.employeeQualification = DEFAULT_TEXT;
@@ -22,7 +24,7 @@ public class Employee extends Person{
     }
 
     /**
-     * Employee Basic and Employment Data:
+     * Employees Basic and Employment Data:
      * create employee object with bio and employment
      * data
      * @param lastName the last name of the employee
@@ -33,9 +35,9 @@ public class Employee extends Person{
      * @param employeeID the ID of the employee
      * @param position the position of the employee
      */
-    public Employee(String employeeID, String lastName, String firstName, String gender, String birthDate, int age,
-                    String dateEmployed, String employeeQualification, String employeeDepartment, String position) {
-        super(lastName, firstName, gender, birthDate, age);
+    public Employees(String employeeID, String lastName, String firstName, String gender, String birthDate, int age, File photo,
+                     String dateEmployed, String employeeQualification, String employeeDepartment, String position) {
+        super(lastName, firstName, gender, birthDate, age, photo);
         this.employeeID = employeeID;
         this.employeeDepartment = employeeDepartment;
         this.employeeQualification = employeeQualification;
@@ -44,18 +46,18 @@ public class Employee extends Person{
     }
 
     /**
-     * Employee Object:
-     * create a new employee object from an existing
-     * employee object
-     * @param employee the existing employee object
+     * Employees Object:
+     * create a new employees object from an existing
+     * employees object
+     * @param employees the existing employees object
      */
-    public Employee(Employee employee) {
-        super(employee);
-        this.employeeID = employee.getEmployeeID();
-        this.employeeDepartment = employee.getEmployeeDepartment();
-        this.employeeQualification = employee.getEmployeeQualification();
-        this.employeePosition = employee.getEmployeePosition();
-        this.dateEmployed = employee.getDateEmployed();
+    public Employees(Employees employees) {
+        super(employees);
+        this.employeeID = employees.getEmployeeID();
+        this.employeeDepartment = employees.getEmployeeDepartment();
+        this.employeeQualification = employees.getEmployeeQualification();
+        this.employeePosition = employees.getEmployeePosition();
+        this.dateEmployed = employees.getDateEmployed();
     }
 
     /*=================== SETTERS ===================*/

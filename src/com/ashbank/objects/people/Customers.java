@@ -1,6 +1,8 @@
 package com.ashbank.objects.people;
 
-public class Customer extends Person {
+import java.io.File;
+
+public class Customers extends Person {
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
     private static final String DEFAULT_TEXT = "none";
@@ -14,7 +16,7 @@ public class Customer extends Person {
      * Initialize Default Values:
      * create a new customer object with default values
      */
-    public Customer() {
+    public Customers() {
         super();
         this.customerID = DEFAULT_TEXT;
         this.profession = DEFAULT_TEXT;
@@ -33,7 +35,7 @@ public class Customer extends Person {
     }
 
     /**
-     * Customer Basic and Next of Kin Data:
+     * Customers Basic and Next of Kin Data:
      * create a customer object with basic and next of kin
      * data
      * @param customerID the id of the customer
@@ -53,10 +55,10 @@ public class Customer extends Person {
      * @param nextOfKinEmailAddress the email address of the customer's
      *                              next of kin
      */
-    public Customer(String customerID, String lastName, String firstName, String gender, String birthDate, int age,
-                    String profession, String placeOfWork, String position, String nextOfKinName, String nextOfKinRelation,
-                    String nextOfKinPhone, String nextOfKinPostAddress, String nextOfKinEmailAddress) {
-        super(lastName, firstName, gender, birthDate, age);
+    public Customers(String customerID, String lastName, String firstName, String gender, String birthDate, int age, File photo,
+                     String profession, String placeOfWork, String position, String nextOfKinName, String nextOfKinRelation,
+                     String nextOfKinPhone, String nextOfKinPostAddress, String nextOfKinEmailAddress) {
+        super(lastName, firstName, gender, birthDate, age, photo);
         this.customerID = customerID;
         this.profession = profession;
         this.placeOfWork = placeOfWork;
@@ -69,27 +71,27 @@ public class Customer extends Person {
     }
 
     /**
-     * Customer Object:
-     * create a new customer object from an existing
-     * customer object
-     * @param customer the existing customer object
+     * Customers Object:
+     * create a new customers object from an existing
+     * customers object
+     * @param customers the existing customers object
      */
-    public Customer(Customer customer) {
-        super(customer);
-        this.customerID = customer.getCustomerID();
-        this.profession = customer.getProfession();
-        this.placeOfWork = customer.getPlaceOfWork();
-        this.position = customer.getPosition();
-        this.nextOfKinName = customer.getNextOfKinName();
-        this.nextOfKinRelation = customer.getNextOfKinRelation();
-        this.nextOfKinPhone = customer.getNextOfKinPhone();
-        this.nextOfKinPostAddress = customer.getNextOfKinPostAddress();
-        this.nextOfKinEmailAddress = customer.getNextOfKinEmailAddress();
-        this.beneficiaryName = customer.getBeneficiaryName();
-        this.beneficiaryRelation = customer.getBeneficiaryRelation();
-        this.beneficiaryPhone = customer.getBeneficiaryPhone();
-        this.beneficiaryPostAddress = customer.getBeneficiaryPostAddress();
-        this.beneficiaryEmailAddress = customer.getBeneficiaryEmailAddress();
+    public Customers(Customers customers) {
+        super(customers);
+        this.customerID = customers.getCustomerID();
+        this.profession = customers.getProfession();
+        this.placeOfWork = customers.getPlaceOfWork();
+        this.position = customers.getPosition();
+        this.nextOfKinName = customers.getNextOfKinName();
+        this.nextOfKinRelation = customers.getNextOfKinRelation();
+        this.nextOfKinPhone = customers.getNextOfKinPhone();
+        this.nextOfKinPostAddress = customers.getNextOfKinPostAddress();
+        this.nextOfKinEmailAddress = customers.getNextOfKinEmailAddress();
+        this.beneficiaryName = customers.getBeneficiaryName();
+        this.beneficiaryRelation = customers.getBeneficiaryRelation();
+        this.beneficiaryPhone = customers.getBeneficiaryPhone();
+        this.beneficiaryPostAddress = customers.getBeneficiaryPostAddress();
+        this.beneficiaryEmailAddress = customers.getBeneficiaryEmailAddress();
     }
 
     /*=================== SETTERS ===================*/

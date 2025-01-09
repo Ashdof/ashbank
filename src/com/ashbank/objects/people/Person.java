@@ -1,5 +1,7 @@
 package com.ashbank.objects.people;
 
+import java.io.File;
+
 public class Person{
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
@@ -7,9 +9,10 @@ public class Person{
     private static final int DEFAULT_AGE = 18;
 
     /*=================== DATA MEMBERS ===================*/
-    private String lastName, firstName, gender, birthDate, postAddress, emailAddress, phoneNumber, photo,
+    private String lastName, firstName, gender, birthDate, postAddress, emailAddress, phoneNumber, homePhoneNumber,
             nationality, nationalCardNumber, nationalCard, townOfResidence, suburbOfResidence,
             streetNameOfResidence, houseNumberOfResidence, gpsAddressOfResidence;
+    File photo;
     private int age;
 
     /***
@@ -33,7 +36,8 @@ public class Person{
         this.postAddress = DEFAULT_TEXT;
         this.emailAddress = DEFAULT_TEXT;
         this.phoneNumber = DEFAULT_TEXT;
-        this.photo = DEFAULT_TEXT;
+        this.homePhoneNumber = DEFAULT_TEXT;
+        this.photo = null;
     }
 
     /***
@@ -45,12 +49,13 @@ public class Person{
      * @param gender the gender of the person
      * @param age the age of the person
      */
-    public Person(String lastName, String firstName, String gender, String birthDate, int age) {
+    public Person(String lastName, String firstName, String gender, String birthDate, int age, File photo) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.gender = gender;
         this.birthDate = birthDate;
         this.age = age;
+        this.photo = photo;
     }
 
     /**
@@ -76,6 +81,7 @@ public class Person{
         this.postAddress = person.getPostAddress();
         this.emailAddress = person.getEmailAddress();
         this.phoneNumber = person.getPhoneNumber();
+        this.homePhoneNumber = person.getHomePhoneNumber();
         this.photo = person.getPhoto();
     }
 
@@ -112,7 +118,7 @@ public class Person{
         this.phoneNumber = phoneNumber;
     }
 
-    public void setPhoto(String photo) {
+    public void setPhoto(File photo) {
         this.photo = photo;
     }
 
@@ -148,6 +154,10 @@ public class Person{
         this.gpsAddressOfResidence = gpsAddressOfResidence;
     }
 
+    public void setHomePhoneNumber(String homePhoneNumber) {
+        this.homePhoneNumber = homePhoneNumber;
+    }
+
     /*=================== GETTERS ===================*/
     public String getLastName() {
         return this.lastName;
@@ -181,7 +191,7 @@ public class Person{
         return this.phoneNumber;
     }
 
-    public String getPhoto() {
+    public File getPhoto() {
         return photo;
     }
 
@@ -217,6 +227,10 @@ public class Person{
         return gpsAddressOfResidence;
     }
 
+    public String getHomePhoneNumber() {
+        return homePhoneNumber;
+    }
+
     /*=================== OTHER METHODS ===================*/
 
     public String getFullName() {
@@ -242,7 +256,8 @@ public class Person{
                 "\nAddress and Contact Information:\n" +
                 "Postal address:\t" + this.getPostAddress() + "\n" +
                 "Email address:\t" + this.getEmailAddress() + "\n" +
-                "Phone number:\t" + this.getPhoneNumber();
+                "Phone number:\t" + this.getPhoneNumber()  + "\n" +
+                "Home phone:\t" + this.getHomePhoneNumber();
     }
 
     /**

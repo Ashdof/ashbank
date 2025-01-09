@@ -1,6 +1,6 @@
 package com.ashbank.db.db.engines;
 
-import com.ashbank.objects.people.User;
+import com.ashbank.objects.people.Users;
 import com.ashbank.db.BankConnection;
 import com.ashbank.objects.utility.CustomDialogs;
 
@@ -32,23 +32,23 @@ public class AuthStorageEngine {
     /* =================== OTHER METHODS =================== */
 
     /**
-     * Sign In User:
-     * logs the user into the platform by accessing the username
-     * and password from the User object
-     * @param user the User object to access the login credentials
+     * Sign In Users:
+     * logs the users into the platform by accessing the username
+     * and password from the Users object
+     * @param users the Users object to access the login credentials
      *             from
      * @return true if password associated with the username is
      * correct, else false otherwise.
      * @throws SQLException en exception if connection issues
      * exists
      */
-    public boolean userLogin(User user) throws SQLException {
-        String id = user.getUserID();
-        String activity = "User Login";
-        String success_details = user.getUsername() + "'s login attempt successful.";
-        String failure_details = user.getUsername() + "'s login attempt unsuccessful.";
+    public boolean userLogin(Users users) throws SQLException {
+        String id = users.getUserID();
+        String activity = "Users Login";
+        String success_details = users.getUsername() + "'s login attempt successful.";
+        String failure_details = users.getUsername() + "'s login attempt unsuccessful.";
 
-        if (user.getUsername().isEmpty() || user.getEmployeePosition().isEmpty() || user.getPassword().isEmpty()) {
+        if (users.getUsername().isEmpty() || users.getEmployeePosition().isEmpty() || users.getPassword().isEmpty()) {
             ActivityLogger.logActivity(id, activity, failure_details);
             return false;
         }
@@ -58,9 +58,9 @@ public class AuthStorageEngine {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
-            preparedStatement.setString(1, user.getEmployeePosition());
-            preparedStatement.setString(2, user.getUsername());
-            preparedStatement.setString(3, user.getPassword());
+            preparedStatement.setString(1, users.getEmployeePosition());
+            preparedStatement.setString(2, users.getUsername());
+            preparedStatement.setString(3, users.getPassword());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -70,7 +70,7 @@ public class AuthStorageEngine {
                 }
             }
         } catch (SQLException sqlException) {
-            logger.log(Level.SEVERE, "Error logging user - " + sqlException.getMessage());
+            logger.log(Level.SEVERE, "Error logging users - " + sqlException.getMessage());
         } finally {
             if (connection != null) {
                 try {
@@ -88,17 +88,17 @@ public class AuthStorageEngine {
 
     /**
      * Reset Password:
-     * reset the user's password
-     * @param user the user object
+     * reset the users' password
+     * @param users the users object
      * @return true upon success, false if it fails
      * @throws SQLException an exception to be raised
      */
-    public boolean resetPassword(User user) throws SQLException {
+    public boolean resetPassword(Users users) throws SQLException {
 
-        String id = user.getUserID();
+        String id = users.getUserID();
         String activity = "Password Reset";
-        String success_details = user.getUsername() + "'s password reset attempt successful.";
-        String failure_details = user.getUsername() + "'s password reset attempt unsuccessful.";
+        String success_details = users.getUsername() + "'s password reset attempt successful.";
+        String failure_details = users.getUsername() + "'s password reset attempt unsuccessful.";
 
         String selectQuery = """
                 SELECT p.security_question, p.security_answer, u.username
@@ -111,12 +111,12 @@ public class AuthStorageEngine {
 
         Connection connection = BankConnection.getBankConnection();
 
-        // Verify user's credentials
+        // Verify users's credentials
         try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
 
-            preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getSecurityQuestion());
-            preparedStatement.setString(3, user.getSecurityAnswer());
+            preparedStatement.setString(1, users.getUsername());
+            preparedStatement.setString(2, users.getSecurityQuestion());
+            preparedStatement.setString(3, users.getSecurityAnswer());
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
@@ -128,8 +128,8 @@ public class AuthStorageEngine {
 
             // Reset password
             try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)){
-                updateStatement.setString(1, user.getPassword());
-                updateStatement.setString(2, user.getUsername());
+                updateStatement.setString(1, users.getPassword());
+                updateStatement.setString(2, users.getUsername());
 
                 rows = updateStatement.executeUpdate();
                 if (rows > 0) {
