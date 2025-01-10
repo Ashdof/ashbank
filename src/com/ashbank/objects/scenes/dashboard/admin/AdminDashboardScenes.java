@@ -3,9 +3,10 @@ package com.ashbank.objects.scenes.dashboard.admin;
 import com.ashbank.db.db.engines.ActivityLogger;
 import com.ashbank.objects.people.Users;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
-
 import com.ashbank.objects.scenes.dashboard.CustomerScenes;
+import com.ashbank.objects.scenes.dashboard.BankAccountsScenes;
 import com.ashbank.objects.utility.UserSession;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -27,6 +28,7 @@ public class AdminDashboardScenes {
 
     private UserAuthScenes userAuthScenes;
     private CustomerScenes customerScenes = new CustomerScenes();
+    private BankAccountsScenes bankAccountsScenes = new BankAccountsScenes();
 
     /* ================ CONSTRUCTOR ================ */
     public AdminDashboardScenes(Stage stage) {
@@ -119,6 +121,14 @@ public class AdminDashboardScenes {
         // Create Accounts Menu and Items
         menuManageAccounts = new Menu("Manage Accounts");
         menuItemNewAccount = new MenuItem("New Account");
+        menuItemNewAccount.setOnAction(e -> {
+            try {
+                centerBorderPane.setCenter(bankAccountsScenes.createNewBankAccountScene());
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         menuItemCloseAccount = new MenuItem("Close Account");
         menuItemUpdateAccount = new MenuItem("Update Account Details");
         menuManageAccounts.getItems().addAll(menuItemNewAccount, menuItemUpdateAccount, menuItemCloseAccount);

@@ -179,7 +179,7 @@ public class InitializePlatform {
                 "account_type TEXT NOT NULL," +
                 "current_balance DECIMAL(15, 2) DEFAULT 0.00," +
                 "account_currency TEXT DEFAULT 'GHS'," +
-                "date_created DATE NOT NULL," +
+                "date_created TEXT NOT NULL," +
                 "lastTransactionDate DATE," +
                 "account_status TEXT DEFAULT 'Active'," +
                 "FOREIGN KEY (customer_id) REFERENCES customers (id)" +

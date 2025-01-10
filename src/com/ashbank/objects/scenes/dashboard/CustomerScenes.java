@@ -1,6 +1,5 @@
 package com.ashbank.objects.scenes.dashboard;
 
-import com.ashbank.objects.utility.CustomDialogs;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -17,6 +16,7 @@ import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.Security;
@@ -38,6 +38,7 @@ public class CustomerScenes {
     private DatePicker dpBirthDate;
     private MenuButton mbGender;
     private File selectedFile;
+    private ImageView imageView;
 
     private static final Logger logger = Logger.getLogger(CustomerScenes.class.getName());
 
@@ -99,7 +100,7 @@ public class CustomerScenes {
      * create a layout for the basic data using grid pane
      * @return a grid pane layout
      */
-    private GridPane createBasicDataPane() {
+    protected GridPane createBasicDataPane() {
 
         GridPane gridPaneBasicData;
         Label lblLastName, lblFirstName, lblGender, lblBirthDate, lblAge, lblTitle;
@@ -310,7 +311,7 @@ public class CustomerScenes {
         const3.setPrefWidth(30);
         gridPane.getColumnConstraints().addAll(lblConst, txtConst);
 
-        lblTitle = new Label("Residence Information");
+        lblTitle = new Label("Nationality Information");
         lblTitle.setId("title");
         gridPane.add(lblTitle, 0, 0, 2, 1);
 
@@ -525,9 +526,8 @@ public class CustomerScenes {
      * photo
      * @return a VBox element
      */
-    private VBox createPhotoUploadPaneBox() {
+    protected VBox createPhotoUploadPaneBox() {
         VBox vBox;
-        ImageView imageView;
         Button btnUploadPhoto;
 
         // Create an ImageView to display the uploaded photo
@@ -559,6 +559,11 @@ public class CustomerScenes {
         return vBox;
     }
 
+    /**
+     * Copy Photo:
+     * copy the selected photo of the customer to a dedicated
+     * customers photo directory
+     */
     private void copyUploadedCustomerPhoto() {
         if (selectedFile != null) {
             try {
@@ -587,7 +592,10 @@ public class CustomerScenes {
         btnCancel = new Button(" _Cancel ");
         btnCancel.setPrefWidth(100);
         btnCancel.setId("btn-warn");
-        btnCancel.setOnAction(e -> this.clearFields());
+        btnCancel.setOnAction(e -> {
+            this.clearFields();
+        });
+
         btnSave = new Button(" _Save ");
         btnSave.setPrefWidth(100);
         btnSave.setId("btn-success");
@@ -751,6 +759,6 @@ public class CustomerScenes {
         txtBeneficiaryEmailAddress.clear();
         txtBeneficiaryPhoneNumber.clear();
 
-//        selectedFile.delete();
+        imageView.setImage(null);
     }
 }

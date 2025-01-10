@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,13 +34,12 @@ public class CustomersStorageEngine {
      * Save Customer:
      * persist a customer object to the database
      * @param customers the customers object
-     * @return true if success, false otherwise
      */
     public void saveCustomerData(Customers customers) throws SQLException, IOException {
 
         Security security;
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
-                beneficiaryQuery, customerPhotosPath, customerID, activity, activity_success_details,
+                beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details;
         Connection connection;
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
@@ -172,8 +173,10 @@ public class CustomersStorageEngine {
                 // Display success message in a dialog to the user
                 customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
             } catch (IllegalArgumentException illegalArgumentException) {
+                // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error uploading customer photo - " + illegalArgumentException.getMessage());
             } catch (SQLException  sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error saving customer record - " + sqlException.getMessage());
             } finally {
                 // Close the prepared statements
@@ -188,20 +191,64 @@ public class CustomersStorageEngine {
                     beneficiaryPreparedStatement.close();
 
                 } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
                     logger.log(Level.SEVERE, "Error closing prepared statements - " + sqlException.getMessage());
                 }
             }
         } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error saving customer - " + sqlException.getMessage());
         } finally {
             if (connection != null) {
                 try {
                     connection.close();
                 } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
                     logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
                 }
             }
         }
+    }
+
+    /**
+     * Customer Objects:
+     * fetch all customer objects from the basic data table
+     * @return return an array list of customers
+     * @throws SQLException the error fetching objects
+     */
+    public static List<Customers> getAllCustomersBasicData() throws SQLException {
+
+        List<Customers> customersList = new ArrayList<>();
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, id, lastName, firstName, gender, birthDate, photoPath;
+        int age;
+
+        query = "SELECT * FROM customers";
+        connection = BankConnection.getBankConnection();
+
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                id = resultSet.getString("id");
+                lastName = resultSet.getString("last_name");
+                firstName = resultSet.getString("first_name");
+                gender = resultSet.getString("gender");
+                birthDate = resultSet.getString("birth_date");
+                age = resultSet.getInt("age");
+                photoPath = resultSet.getString("photo");
+
+                customersList.add(new Customers(id, lastName, firstName, gender, birthDate, age, new File(photoPath)));
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
+        }
+
+        return customersList;
     }
 
     /**

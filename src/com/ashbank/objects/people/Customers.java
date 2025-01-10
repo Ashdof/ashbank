@@ -35,6 +35,35 @@ public class Customers extends Person {
     }
 
     /**
+     * Customer Object:
+     * create a new customer object with only basic data
+     * @param customerID the ID of the customer
+     * @param lastName the last name of the customer
+     * @param firstName the first name of the customer
+     * @param gender the gender of the customer
+     * @param birthDate the birthdate of the customer
+     * @param age the age of the customer
+     * @param photo the photo of the customer
+     */
+    public Customers(String customerID, String lastName, String firstName, String gender, String birthDate, int age, File photo) {
+        super(lastName, firstName, gender, birthDate, age, photo);
+        this.customerID = customerID;
+        this.profession = DEFAULT_TEXT;
+        this.placeOfWork = DEFAULT_TEXT;
+        this.position = DEFAULT_TEXT;
+        this.nextOfKinName = DEFAULT_TEXT;
+        this.nextOfKinRelation = DEFAULT_TEXT;
+        this.nextOfKinPhone = DEFAULT_TEXT;
+        this.nextOfKinPostAddress = DEFAULT_TEXT;
+        this.nextOfKinEmailAddress = DEFAULT_TEXT;
+        this.beneficiaryName = DEFAULT_TEXT;
+        this.beneficiaryRelation = DEFAULT_TEXT;
+        this.beneficiaryPhone = DEFAULT_TEXT;
+        this.beneficiaryPostAddress = DEFAULT_TEXT;
+        this.beneficiaryEmailAddress = DEFAULT_TEXT;
+    }
+
+    /**
      * Customers Basic and Next of Kin Data:
      * create a customer object with basic and next of kin
      * data
