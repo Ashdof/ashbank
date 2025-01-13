@@ -8,8 +8,8 @@ import java.util.logging.Logger;
 
 import com.ashbank.db.BankConnection;
 
-public class ActivityLogger {
-    private static final Logger logger = Logger.getLogger(ActivityLogger.class.getName());
+public class ActivityLoggerStorageEngine {
+    private static final Logger logger = Logger.getLogger(ActivityLoggerStorageEngine.class.getName());
 
     public static void logActivity(String userID, String activity, String details) throws SQLException {
         String query = "INSERT INTO activity_log (user_id, activity, details) VALUES(?, ?, ?)";

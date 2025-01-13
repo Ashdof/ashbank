@@ -180,7 +180,7 @@ public class InitializePlatform {
                 "current_balance DECIMAL(15, 2) DEFAULT 0.00," +
                 "account_currency TEXT DEFAULT 'GHS'," +
                 "date_created TEXT NOT NULL," +
-                "lastTransactionDate DATE," +
+                "last_transaction_date DATE," +
                 "account_status TEXT DEFAULT 'Active'," +
                 "FOREIGN KEY (customer_id) REFERENCES customers (id)" +
                 ");";
@@ -189,7 +189,7 @@ public class InitializePlatform {
 
         String createCustomerAccountTransactionsDataTable = "CREATE TABLE IF NOT EXISTS customers_account_transactions (" +
                 "id TEXT PRIMARY KEY," +
-                "account_id TEXT," +
+                "account_id TEXT NOT NULL," +
                 "transaction_type TEXT NOT NULL," +
                 "transaction_amount DECIMAL(15, 2) NOT NULL," +
                 "transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +

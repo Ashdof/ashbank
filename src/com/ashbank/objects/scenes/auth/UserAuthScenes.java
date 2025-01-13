@@ -1,6 +1,6 @@
 package com.ashbank.objects.scenes.auth;
 
-import com.ashbank.db.db.engines.ActivityLogger;
+import com.ashbank.db.db.engines.ActivityLoggerStorageEngine;
 import com.ashbank.db.db.engines.AuthStorageEngine;
 import com.ashbank.objects.people.Users;
 import com.ashbank.objects.utility.CustomDialogs;
@@ -135,7 +135,7 @@ public class UserAuthScenes {
         btnCancel.setId("btn-fail");
         btnCancel.setOnAction(e -> {
             try {
-                ActivityLogger.logActivity(id, activity, success_details);
+                ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }

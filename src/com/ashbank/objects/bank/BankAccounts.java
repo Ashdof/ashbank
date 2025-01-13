@@ -57,6 +57,24 @@ public class BankAccounts {
     }
 
     /**
+     * Bank Account Object:
+     * create a new bank account object with the provided
+     * values
+     * @param accountID the ID of the bank account
+     * @param accountType the account type of the bank account
+     * @param accountCurrency the currency of the bank account
+     * @param accountNumber the account number of the bank account
+     * @param accountStatus the status of the bank account
+     */
+    public BankAccounts(String accountID, String accountType, String accountCurrency, String accountNumber, String accountStatus) {
+        this.accountID = accountID;
+        this.accountType = accountType;
+        this.accountCurrency = accountCurrency;
+        this.accountNumber = accountNumber;
+        this.accountStatus = accountStatus;
+    }
+
+    /**
      * Bank Account:
      * create a new bank account object from an existing
      * bank account object

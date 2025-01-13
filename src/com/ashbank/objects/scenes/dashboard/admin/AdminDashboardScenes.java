@@ -1,10 +1,11 @@
 package com.ashbank.objects.scenes.dashboard.admin;
 
-import com.ashbank.db.db.engines.ActivityLogger;
+import com.ashbank.db.db.engines.ActivityLoggerStorageEngine;
 import com.ashbank.objects.people.Users;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import com.ashbank.objects.scenes.dashboard.CustomerScenes;
 import com.ashbank.objects.scenes.dashboard.BankAccountsScenes;
+import com.ashbank.objects.scenes.dashboard.TransactionsScenes;
 import com.ashbank.objects.utility.UserSession;
 
 import javafx.geometry.Insets;
@@ -18,7 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
-import java.util.Objects;
 
 public class AdminDashboardScenes {
 
@@ -29,6 +29,7 @@ public class AdminDashboardScenes {
     private UserAuthScenes userAuthScenes;
     private CustomerScenes customerScenes = new CustomerScenes();
     private BankAccountsScenes bankAccountsScenes = new BankAccountsScenes();
+    private TransactionsScenes transactionsScenes = new TransactionsScenes();
 
     /* ================ CONSTRUCTOR ================ */
     public AdminDashboardScenes(Stage stage) {
@@ -59,7 +60,7 @@ public class AdminDashboardScenes {
         menuItemSignOut = new MenuItem("Sign out");
         menuItemSignOut.setOnAction(e -> {
             try {
-                ActivityLogger.logActivity(id, activity, success_details);
+                ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -158,6 +159,13 @@ public class AdminDashboardScenes {
 
         // Create Transactions Menu and Items
         menuItemCashTransactions = new MenuItem("New Cash Transaction");
+        menuItemCashTransactions.setOnAction(e -> {
+            try {
+                centerBorderPane.setCenter(transactionsScenes.createNewBankAccountTransactionsScene());
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         menuItemFunTransfer = new MenuItem("New Fund Transfer");
         menuItemBillPayment = new MenuItem("New Bill Payment");
         menuItemViewByAccount = new MenuItem("By Account");

@@ -6,6 +6,7 @@ import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.Security;
+
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -482,14 +483,13 @@ public class BankAccountsScenes {
         if (accountNumber.isEmpty()) {
             customDialogs.showErrInformation("Blank Field", "Account number field is empty.");
         } else if (accountType.equals("Select account type ...")) {
-            customDialogs.showErrInformation("Blank Field", "Account type field is not updated.");
+            customDialogs.showErrInformation("Invalid Field Value", "Account type field is not updated.");
         } else if (accountCurrency.equals("Select currency ...")) {
             customDialogs.showErrInformation("Blank Field", "Account currency field is not updated.");
         } else if (initialDeposit <= 0.0) {
             customDialogs.showErrInformation("Blank Field", "Value of initial deposit field is invalid.");
         } else {
             bankAccounts.setAccountID(accountID);
-//            bankAccounts.setCustomerID(customerID);
             bankAccounts.setAccountNumber(accountNumber);
             bankAccounts.setAccountType(accountType);
             bankAccounts.setAccountCurrency(accountCurrency);

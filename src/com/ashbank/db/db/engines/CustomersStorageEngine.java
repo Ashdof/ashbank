@@ -158,7 +158,7 @@ public class CustomersStorageEngine {
 
                 } else {
                     // Log this activity and the user undertaking it
-                    ActivityLogger.logActivity(UserSession.getUserID(), activity, activity_failure_details);
+                    ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_failure_details);
 
                     // Display failure message in a dialog to the user
                     customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
@@ -168,7 +168,7 @@ public class CustomersStorageEngine {
                 connection.commit();
 
                 // Log this activity and the user undertaking it
-                ActivityLogger.logActivity(UserSession.getUserID(), activity, activity_success_details);
+                ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
                 customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));

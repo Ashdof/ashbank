@@ -49,7 +49,7 @@ public class AuthStorageEngine {
         String failure_details = users.getUsername() + "'s login attempt unsuccessful.";
 
         if (users.getUsername().isEmpty() || users.getEmployeePosition().isEmpty() || users.getPassword().isEmpty()) {
-            ActivityLogger.logActivity(id, activity, failure_details);
+            ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
             return false;
         }
 
@@ -64,7 +64,7 @@ public class AuthStorageEngine {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    ActivityLogger.logActivity(id, activity, success_details);
+                    ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
                     customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
                     return true;
                 }
@@ -82,7 +82,7 @@ public class AuthStorageEngine {
         }
 
         customDialogs.showAlertInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
-        ActivityLogger.logActivity(id, activity, failure_details);
+        ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
         return false;
     }
 
@@ -120,7 +120,7 @@ public class AuthStorageEngine {
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
-                ActivityLogger.logActivity(id, activity, failure_details);
+                ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
                 customDialogs.showErrInformation(ERR_PASS_TITLE, ERR_PASS_MSG);
                 return false;
             }
@@ -133,11 +133,11 @@ public class AuthStorageEngine {
 
                 rows = updateStatement.executeUpdate();
                 if (rows > 0) {
-                    ActivityLogger.logActivity(id, activity, success_details);
+                    ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
                     customDialogs.showAlertInformation(INFO_RESET_TITLE, INFO_RESET_MSG);
                     return true;
                 } else {
-                    ActivityLogger.logActivity(id, activity, failure_details);
+                    ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
                     customDialogs.showErrInformation(ERR_RESET_TITLE, ERR_RESET_MSG);
                     return false;
                 }

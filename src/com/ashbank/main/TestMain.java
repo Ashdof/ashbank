@@ -1,6 +1,6 @@
 package com.ashbank.main;
 
-import com.ashbank.db.db.engines.ActivityLogger;
+import com.ashbank.db.db.engines.ActivityLoggerStorageEngine;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import javafx.application.Application;
 import javafx.scene.image.Image;
@@ -24,7 +24,7 @@ public class TestMain extends Application{
         String success_details = osUser + "'s platform startup successful.";
 
         try {
-            ActivityLogger.logActivity("No value", activity, success_details);
+            ActivityLoggerStorageEngine.logActivity("No value", activity, success_details);
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

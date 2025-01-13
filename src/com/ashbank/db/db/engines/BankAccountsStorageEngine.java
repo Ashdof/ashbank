@@ -5,9 +5,9 @@ import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.UserSession;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,13 +78,13 @@ public class BankAccountsStorageEngine {
             connection.commit();
 
             // Log this activity and the user undertaking it
-            ActivityLogger.logActivity(UserSession.getUserID(), activity, activity_success_details);
+            ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_success_details);
 
             // Display success message in a dialog to the user
             customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
-            ActivityLogger.logActivity(UserSession.getUserID(), activity, activity_failure_details);
+            ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_failure_details);
             customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
             // replace this error logging with actual file logging which can later be analyzed
@@ -100,5 +100,57 @@ public class BankAccountsStorageEngine {
                 }
             }
         }
+    }
+
+    /**
+     * Update Transaction Date:
+     * update the last transaction of a customer's bank account
+     * when a transaction is initiated
+     * @param date the date of the transaction
+     * @param customerID the ID of the customer
+     * @return true if success, false otherwise
+     * @throws SQLException if an occurs
+     */
+    public boolean updateLastTransactionDate(LocalDate date, String customerID) throws SQLException {
+        String query;
+        Connection connection;
+        PreparedStatement preparedStatement;
+
+        query = "UPDATE customers_bank_account SET last_transaction_date = ? WHERE customer_id = ?";
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
+        try {
+            connection.setAutoCommit(false);
+
+            preparedStatement.setDate(1, Date.valueOf(date));
+            preparedStatement.setString(2, customerID);
+            preparedStatement.executeUpdate();
+
+            connection.commit();
+
+            return true;
+        } catch (SQLException sqlException) {
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error update last transaction date of customer's account - " + sqlException.getMessage());
+
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
+            }
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return false;
     }
 }
