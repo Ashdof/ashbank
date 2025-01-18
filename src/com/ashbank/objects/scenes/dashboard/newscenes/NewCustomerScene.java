@@ -1,7 +1,8 @@
-package com.ashbank.objects.scenes.dashboard;
+package com.ashbank.objects.scenes.dashboard.newscenes;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,8 +21,9 @@ import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.Security;
+import com.ashbank.objects.utility.SceneController;
 
-public class CustomerScenes {
+public class NewCustomerScene {
 
     /* ================ DATA MEMBERS ================ */
     private final CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
@@ -29,6 +31,8 @@ public class CustomerScenes {
 
     private final Customers customers = new Customers();
     private final Security security = new Security();
+    private final SceneController sceneController;
+    private Scene newCustomerScene;
 
     private TextField txtLastName, txtFirstName, txtAge, txtProfession, txtWorkPlace, txtPosition, txtTown,
             txtSuburb, txtStreetName, txtHouseNumber, txtGPS, txtNationality, txtNationalCard, txtCardNumber,
@@ -40,9 +44,24 @@ public class CustomerScenes {
     private File selectedFile;
     private ImageView imageView;
 
-    private static final Logger logger = Logger.getLogger(CustomerScenes.class.getName());
+    private static final Logger logger = Logger.getLogger(NewCustomerScene.class.getName());
 
-    public ScrollPane getNewCustomer() {
+    /* ================ CONSTRUCTOR ================ */
+    public NewCustomerScene(SceneController sceneController) {
+        this.sceneController = sceneController;
+    }
+
+    /* ================ GET METHOD ================ */
+    public Scene getNewCustomerScene() {
+        return this.newCustomerScene;
+    }
+
+    /**
+     * Customer Scene Root:
+     * create a scene root with all elements to create a new customer object
+     * @return a scroll pane node
+     */
+    public ScrollPane createNewCustomerSceneRoot() {
 
         GridPane gridPaneBasicData, gridPaneProfData, gridPaneResidenceData, gridPaneNationalityData, gridPaneAddressData,
                 gridPaneKinData, gridPaneBeneficiaryData;
@@ -593,7 +612,9 @@ public class CustomerScenes {
         btnCancel.setPrefWidth(100);
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
+
             this.clearFields();
+//            sceneController.returnToMainDashboard();
         });
 
         btnSave = new Button(" _Save ");
@@ -695,14 +716,16 @@ public class CustomerScenes {
                 customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
 
                 try {
-                    this.copyUploadedCustomerPhoto();
-                    customersStorageEngine.saveCustomerData(customers);
-                    this.clearFields();
+                    if (customersStorageEngine.saveCustomerData(customers)) {
+                        this.copyUploadedCustomerPhoto();
+                    }
 
                 } catch (SQLException | IOException sqlException) {
                     logger.log(Level.SEVERE, "Error saving customer record - " + sqlException.getMessage());
                 }
             }
+
+            this.clearFields();
         });
 
         gridPane = new GridPane();

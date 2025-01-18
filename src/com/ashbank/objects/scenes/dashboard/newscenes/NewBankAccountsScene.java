@@ -1,10 +1,11 @@
-package com.ashbank.objects.scenes.dashboard;
+package com.ashbank.objects.scenes.dashboard.newscenes;
 
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.CustomDialogs;
+import com.ashbank.objects.utility.SceneController;
 import com.ashbank.objects.utility.Security;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -12,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,10 +29,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BankAccountsScenes {
+public class NewBankAccountsScene {
 
     /* ================ DATA MEMBERS ================ */
-    private static final Logger logger = Logger.getLogger(BankAccountsScenes.class.getName());
+    private static final Logger logger = Logger.getLogger(NewBankAccountsScene.class.getName());
 
     private Customers customers;
     private BankAccounts bankAccounts;
@@ -38,6 +40,8 @@ public class BankAccountsScenes {
     private final BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final Security security = new Security();
+    private final SceneController sceneController;
+    private Scene newBankAccountScene;
 
     private MenuButton mbAccountType, mbAccountCurrency, mbGender;
     private DatePicker dpDateCreated, dpBirthDate;
@@ -51,6 +55,17 @@ public class BankAccountsScenes {
     private File selectedFile;
     private ImageView imageView;
 
+    /* ================ CONSTRUCTOR ================ */
+    public NewBankAccountsScene(SceneController sceneController) {
+        this.sceneController = sceneController;
+    }
+
+    /* ================ GET METHOD ================ */
+
+    public Scene getNewBankAccountScene() {
+        return newBankAccountScene;
+    }
+
     /**
      * New Bank Account Scene:
      * create a scroll pane scene with elements to create
@@ -58,7 +73,7 @@ public class BankAccountsScenes {
      * @return the scroll pane scene
      * @throws SQLException if an error occurs
      */
-    public ScrollPane createNewBankAccountScene() throws SQLException {
+    public ScrollPane createNewBankAccountSceneRoot() throws SQLException {
 
         GridPane gridPaneAccountData, gridPaneButtons;
         ScrollPane scrollPane;
@@ -569,8 +584,10 @@ public class BankAccountsScenes {
                     this.copyUploadedCustomerPhoto();
                     this.getBankAccountData();
                     bankAccounts.setCustomerID(customerID);
-                    customersStorageEngine.saveCustomerData(customers);
-                    bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+
+                    if (customersStorageEngine.saveCustomerData(customers)) {
+                        bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                    }
                 }
 
             } catch (SQLException | IOException sqlException) {

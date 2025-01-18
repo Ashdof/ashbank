@@ -19,6 +19,7 @@ public class BankTransactionsStorageEngine {
 
     /*=================== DATA MEMBERS ===================*/
     private static final CustomDialogs customDialogs = new CustomDialogs();
+    private UserSession userSession = UserSession.getInstance();
     private static final Logger logger = Logger.getLogger(BankTransactionsStorageEngine.class.getName());
 
     /* =================== MESSAGES =================== */
@@ -42,8 +43,8 @@ public class BankTransactionsStorageEngine {
         PreparedStatement preparedStatement;
 
         activity = "New Transaction Record";
-        activity_success_details = UserSession.getUsername() + "'s attempt to record new bank account transaction successful.";
-        activity_failure_details = UserSession.getUsername() + "'s attempt to record new bank account transaction unsuccessful.";
+        activity_success_details = userSession.getUsername() + "'s attempt to record new bank account transaction successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to record new bank account transaction unsuccessful.";
 
         /*=================== SQL QUERIES ===================*/
         query = "INSERT INTO customers_account_transactions (id, account_id, transaction_type, transaction_amount, transaction_details)" +
@@ -64,7 +65,7 @@ public class BankTransactionsStorageEngine {
             // commit the query
             connection.commit();
             // Log this activity and the user undertaking it
-            ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_success_details);
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
             // Display success message in a dialog to the user
             customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
 
@@ -83,7 +84,7 @@ public class BankTransactionsStorageEngine {
         }
 
         // Log this activity and the user undertaking it
-        ActivityLoggerStorageEngine.logActivity(UserSession.getUserID(), activity, activity_failure_details);
+        ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
         customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
         return false;

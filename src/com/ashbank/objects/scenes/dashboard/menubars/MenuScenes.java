@@ -1,61 +1,51 @@
-package com.ashbank.objects.scenes.dashboard.admin;
+package com.ashbank.objects.scenes.dashboard.menubars;
 
 import com.ashbank.db.db.engines.ActivityLoggerStorageEngine;
-import com.ashbank.objects.people.Users;
-import com.ashbank.objects.scenes.auth.UserAuthScenes;
-import com.ashbank.objects.scenes.dashboard.CustomerScenes;
-import com.ashbank.objects.scenes.dashboard.BankAccountsScenes;
-import com.ashbank.objects.scenes.dashboard.TransactionsScenes;
+import com.ashbank.objects.utility.SceneController;
 import com.ashbank.objects.utility.UserSession;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 
 import java.sql.SQLException;
 
-public class AdminDashboardScenes {
+public class MenuScenes {
 
     /* ================ DATA MEMBERS ================ */
-    private final Stage stage;
-    private BorderPane borderPane, centerBorderPane;
 
-    private UserAuthScenes userAuthScenes;
-    private CustomerScenes customerScenes = new CustomerScenes();
-    private BankAccountsScenes bankAccountsScenes = new BankAccountsScenes();
-    private TransactionsScenes transactionsScenes = new TransactionsScenes();
+    private final SceneController sceneController;
+    private Scene menuScenes;
+    private UserSession userSession = UserSession.getInstance();
+
 
     /* ================ CONSTRUCTOR ================ */
-    public AdminDashboardScenes(Stage stage) {
-        this.stage = stage;
+
+    public MenuScenes(SceneController sceneController) {
+        this.sceneController = sceneController;
     }
 
-    /* ================ GET METHOD ================ */
-    public void getAdminMainDashboardScene(Users users) {
+    /* ================ GETTER METHOD ================ */
 
-        userAuthScenes = new UserAuthScenes(this.getStage());
+    public Scene getMenuScenes() {
+        return menuScenes;
+    }
+
+    /* ================ OTHER METHODS ================ */
+
+    public MenuBar createMenuBar() {
 
         Menu menuFile, menuManageUsers;
         MenuItem menuItemAddUser, menuItemRemoveUser, menuItemUpdateUserRole, menuItemViewUsers, menuItemMyProfile,
                 menuItemSignOut, menuItemHome;
         MenuBar menuBar;
-        ToolBar toolBarStatus;
-        Label lblCurrentUser;
-        Scene dashboardScene;
-        Separator separator = new Separator();
         SeparatorMenuItem separatorMenuItem = new SeparatorMenuItem();
 
-        lblCurrentUser = new Label("Current user: " + UserSession.getUsername());
-
-        String id = users.getUserID();
+        String id = userSession.getUserID();
         String activity = "Users Logout";
-        String success_details = UserSession.getUsername() + "'s logout attempt successful.";
+        String success_details = userSession.getUsername() + "'s logout attempt successful.";
 
         menuItemSignOut = new MenuItem("Sign out");
         menuItemSignOut.setOnAction(e -> {
@@ -65,12 +55,12 @@ public class AdminDashboardScenes {
                 throw new RuntimeException(ex);
             }
 
-            UserSession.clearSession();
-            userAuthScenes.getUserLoginScene();
+            userSession.clearSession();
+            sceneController.showUserAuthScene();
         });
 
         menuItemHome = new MenuItem("Home");
-        menuItemHome.setOnAction(e -> borderPane.setCenter(this.getCenterBorderPane()));
+        menuItemHome.setOnAction(e -> sceneController.returnToMainDashboard());
 
         // Create File Menu and Items
         menuItemAddUser = new MenuItem("Add New User");
@@ -89,22 +79,7 @@ public class AdminDashboardScenes {
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(menuFile, this.createAccountsMenu(), this.createCustomersMenu(), this.createTransactionsMenu(), this.createLoansMenu());
 
-        separator.setOrientation(Orientation.VERTICAL);
-
-        toolBarStatus = new ToolBar();
-        toolBarStatus.getItems().addAll(separator, lblCurrentUser);
-
-        borderPane = new BorderPane();
-        borderPane.setTop(menuBar);
-        borderPane.setCenter(this.getCenterBorderPane());
-        borderPane.setBottom(toolBarStatus);
-
-        dashboardScene = new Scene(borderPane, 1200, 1000);
-//        dashboardScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/com/ashbank/styles/authStyles.css")).toExternalForm());
-        this.stage.setMaximized(true);
-        this.stage.setResizable(true);
-        this.stage.setScene(dashboardScene);
-//        return dashboardScene;
+        return menuBar;
     }
 
     /**
@@ -124,7 +99,7 @@ public class AdminDashboardScenes {
         menuItemNewAccount = new MenuItem("New Account");
         menuItemNewAccount.setOnAction(e -> {
             try {
-                centerBorderPane.setCenter(bankAccountsScenes.createNewBankAccountScene());
+                sceneController.showNewBankAccountScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -161,11 +136,12 @@ public class AdminDashboardScenes {
         menuItemCashTransactions = new MenuItem("New Cash Transaction");
         menuItemCashTransactions.setOnAction(e -> {
             try {
-                centerBorderPane.setCenter(transactionsScenes.createNewBankAccountTransactionsScene());
+                sceneController.showNewTransactionScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
         });
+
         menuItemFunTransfer = new MenuItem("New Fund Transfer");
         menuItemBillPayment = new MenuItem("New Bill Payment");
         menuItemViewByAccount = new MenuItem("By Account");
@@ -222,17 +198,24 @@ public class AdminDashboardScenes {
      */
     private Menu createCustomersMenu() {
 
-        centerBorderPane = new BorderPane();
         Menu menuCustomers, menuViewCustomers, menuManageCustomers;
         MenuItem menuItemNewCustomer, menuItemUpdateCustomer, menuItemDeleteCustomer, menuItemActiveCustomers,
                 menuItemInactiveCustomers, menuItemSearchCustomer;
 
         // Create Customers Menu and Items
         menuItemNewCustomer = new MenuItem("New Customer");
-        menuItemNewCustomer.setOnAction(e -> centerBorderPane.setCenter(customerScenes.getNewCustomer()));
+        menuItemNewCustomer.setOnAction(e -> {
+            sceneController.showNewCustomerScene();
+        });
+
         menuItemUpdateCustomer = new MenuItem("Update Customer Record");
         menuItemDeleteCustomer = new MenuItem("Delete Customer Record");
+
         menuItemActiveCustomers = new MenuItem("Active Customers");
+        menuItemActiveCustomers.setOnAction(e -> {
+            sceneController.showCustomerRecordsScene();
+        });
+
         menuItemInactiveCustomers = new MenuItem("Inactive Customers");
         menuItemSearchCustomer = new MenuItem("Search Customers");
 
@@ -246,85 +229,5 @@ public class AdminDashboardScenes {
         menuCustomers.getItems().addAll(menuManageCustomers, menuViewCustomers, menuItemSearchCustomer);
 
         return menuCustomers;
-    }
-
-    /**
-     * Today's Business Node:
-     * create a summary of today's business activities
-     * @return a node with elements arranged vertically
-     */
-    private VBox getMainDashboardSummariesNoe() {
-
-        VBox root;
-        HBox hbDeposits, hbWithdraws, hbLoans, hbAccounts, hbCustomers, hbLoanApplications;
-        Label lblDeposits, lblWithdraws, lblLoans, lblAccounts, lblCustomers, lblLoanApplications,
-                lblTotalDeposits, lblTotalWithdraws, lblTotalLoans, lblNewAccounts, lblNewCustomers,
-                lblNewLoanApplications, lblTitle;
-
-        lblTitle = new Label("Today's Business");
-        lblDeposits = new Label("Total deposits: GHS");
-        lblWithdraws = new Label("Total withdraws: GHS");
-        lblLoans = new Label("Total loans: GHS");
-        lblAccounts = new Label("New Accounts: ");
-        lblCustomers = new Label("New Customers: ");
-        lblLoanApplications = new Label("New Loan Applications: ");
-        lblTotalDeposits = new Label("XXXXXX");
-        lblTotalWithdraws = new Label("XXXXXX");
-        lblTotalLoans = new Label("XXXXXX");
-        lblNewAccounts = new Label("XXXXXX");
-        lblNewCustomers = new Label("XXXXXX");
-        lblNewLoanApplications = new Label("XXXXXX");
-
-        hbDeposits = new HBox(10);
-        hbDeposits.setAlignment(Pos.CENTER_LEFT);
-        hbDeposits.getChildren().addAll(lblDeposits, lblTotalDeposits);
-
-        hbWithdraws = new HBox(10);
-        hbWithdraws.setAlignment(Pos.CENTER_LEFT);
-        hbWithdraws.getChildren().addAll(lblWithdraws, lblTotalWithdraws);
-
-        hbLoans = new HBox(10);
-        hbLoans.setAlignment(Pos.CENTER_LEFT);
-        hbLoans.getChildren().addAll(lblLoans, lblTotalLoans);
-
-        hbAccounts = new HBox(10);
-        hbAccounts.setAlignment(Pos.CENTER_LEFT);
-        hbAccounts.getChildren().addAll(lblAccounts, lblNewAccounts);
-
-        hbCustomers = new HBox(10);
-        hbCustomers.setAlignment(Pos.CENTER_LEFT);
-        hbCustomers.getChildren().addAll(lblCustomers, lblNewCustomers);
-
-        hbLoanApplications = new HBox(10);
-        hbLoanApplications.setAlignment(Pos.CENTER_LEFT);
-        hbLoanApplications.getChildren().addAll(lblLoanApplications, lblNewLoanApplications);
-
-        root = new VBox(10);
-        root.setPadding(new Insets(10));
-        root.setAlignment(Pos.TOP_LEFT);
-        root.getChildren().addAll(lblTitle, hbDeposits, hbWithdraws, hbLoans, hbAccounts, hbCustomers, hbLoanApplications);
-
-        return root;
-    }
-
-    private BorderPane getCenterBorderPane() {
-//        BorderPane borderPane;
-
-        centerBorderPane = new BorderPane();
-        Label lblInfo;
-
-        lblInfo = new Label(UserSession.getUsername() + "!\nWelcome to the ASHBank Dashboard");
-
-        centerBorderPane = new BorderPane();
-        centerBorderPane.setPadding(new Insets(0, 0, 0, 10));
-
-        centerBorderPane.setLeft(this.getMainDashboardSummariesNoe());
-        centerBorderPane.setCenter(lblInfo);
-
-        return centerBorderPane;
-    }
-
-    public Stage getStage() {
-        return stage;
     }
 }

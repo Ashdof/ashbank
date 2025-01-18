@@ -58,6 +58,31 @@ public class Person{
         this.photo = photo;
     }
 
+    public Person(String lastName, String firstName, String gender, String birthDate, int age, File photo,
+                  String nationality, String nationalCard, String nationalCardNumber, String townOfResidence,
+                  String suburbOfResidence, String streetNameOfResidence, String houseNumberOfResidence,
+                  String gpsAddressOfResidence, String postAddress, String emailAddress, String phoneNumber,
+                  String homePhoneNumber) {
+        this.lastName = lastName;
+        this.firstName = firstName;
+        this.gender = gender;
+        this.birthDate = birthDate;
+        this.age = age;
+        this.photo = photo;
+        this.nationality = nationality;
+        this.nationalCard = nationalCard;
+        this.nationalCardNumber = nationalCardNumber;
+        this.townOfResidence = townOfResidence;
+        this.suburbOfResidence = suburbOfResidence;
+        this.streetNameOfResidence = streetNameOfResidence;
+        this.houseNumberOfResidence = houseNumberOfResidence;
+        this.gpsAddressOfResidence = gpsAddressOfResidence;
+        this.postAddress = postAddress;
+        this.emailAddress = emailAddress;
+        this.phoneNumber = phoneNumber;
+        this.homePhoneNumber = homePhoneNumber;
+    }
+
     /**
      * Person from Person:
      * create a new person from an existing
