@@ -1,30 +1,37 @@
 package com.ashbank.objects.utility;
 
 public class UserSession {
-    private static String userID, username;
 
-    public UserSession(String userID, String username) {
-        UserSession.userID = userID;
-        UserSession.username = username;
+    private static UserSession instance;
+    private String userID, username;
+
+    private UserSession() {}
+
+    public static UserSession getInstance() {
+
+        if (instance == null)
+            instance = new UserSession();
+
+        return instance;
     }
 
-    public static void setUsername(String user) {
-        UserSession.username = user;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public static void setUserID(String userID) {
-        UserSession.userID = userID;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
-    public static String getUsername() {
+    public String getUsername() {
         return username;
     }
 
-    public static String getUserID() {
+    public String getUserID() {
         return userID;
     }
 
-    public static void clearSession() {
+    public void clearSession() {
         username = null;
     }
 }

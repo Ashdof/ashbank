@@ -64,6 +64,7 @@ public class AuthStorageEngine {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
+
                     ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
                     customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
                     return true;
@@ -84,6 +85,52 @@ public class AuthStorageEngine {
         customDialogs.showAlertInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
         ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
         return false;
+    }
+
+    /**
+     * User ID:
+     * get the ID of the given user
+     * @param username the username of the user
+     * @return the ID of the user
+     * @throws SQLException if an error occurs
+     */
+    public String getUserID(String username) throws SQLException {
+
+        String userID, query;
+
+        userID = null;
+        query = "SELECT id FROM bank_users WHERE username = ?";
+        Connection connection = BankConnection.getBankConnection();
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+
+            preparedStatement.setString(1, username);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                if (resultSet.next())
+                    userID = resultSet.getString("id");
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error fetching user ID - " + sqlException.getMessage());
+            } finally {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
+                }
+            }
+        } catch (SQLException sqlException) {
+            logger.log(Level.SEVERE, "Error searching for user - " + sqlException.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return userID;
     }
 
     /**
@@ -111,7 +158,7 @@ public class AuthStorageEngine {
 
         Connection connection = BankConnection.getBankConnection();
 
-        // Verify users's credentials
+        // Verify user's credentials
         try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
 
             preparedStatement.setString(1, users.getUsername());
@@ -163,6 +210,13 @@ public class AuthStorageEngine {
         }
     }
 
+    /**
+     * Hashed Password:
+     * get the hashed password of the provided username account
+     * @param username the username of the account
+     * @return the hashed password, or null if not found
+     * @throws SQLException if an error occurs
+     */
     public String getHashedPassword(String username) throws SQLException {
         Connection connection = BankConnection.getBankConnection();
         String query = "SELECT password FROM bank_users WHERE username = ?";

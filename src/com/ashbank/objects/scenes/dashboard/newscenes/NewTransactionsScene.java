@@ -1,4 +1,4 @@
-package com.ashbank.objects.scenes.dashboard;
+package com.ashbank.objects.scenes.dashboard.newscenes;
 
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
@@ -7,6 +7,7 @@ import com.ashbank.objects.bank.BankAccountTransactions;
 import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.CustomDialogs;
+import com.ashbank.objects.utility.SceneController;
 import com.ashbank.objects.utility.Security;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -14,27 +15,27 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TransactionsScenes {
+public class NewTransactionsScene {
 
     /* ================ DATA MEMBERS ================ */
-    private static final Logger logger = Logger.getLogger(TransactionsScenes.class.getName());
+    private static final Logger logger = Logger.getLogger(NewTransactionsScene.class.getName());
 
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final Security security = new Security();
     private BankAccountTransactions bankAccountTransactions = new BankAccountTransactions();
     private final BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
     private final BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
+    private final SceneController sceneController;
 
     private ObservableList<Customers> customersObservableList;
     private TableView<Customers> customersTableView;
@@ -42,13 +43,25 @@ public class TransactionsScenes {
     private final TableView<BankAccounts> bankAccountsTableView = new TableView<>();
     private List<BankAccounts> bankAccountsList;
     private TitledPane customersTitlePane, accountsTitlePane;
+    private Scene newTransactionScene;
 
     private String accountID, customerID;
     private TextField txtAccountID, txtAccountStatus, txtTransactionAmount;
     private TextArea taTransactDetails;
     private MenuButton mbTransactionType;
 
-    public ScrollPane createNewBankAccountTransactionsScene() throws SQLException {
+    /* ================ CONSTRUCTOR ================ */
+    public NewTransactionsScene(SceneController sceneController) {
+        this.sceneController = sceneController;
+    }
+
+    /* ================ GET METHOD ================ */
+
+    public Scene getNewTransactionScene() {
+        return newTransactionScene;
+    }
+
+    public ScrollPane createNewTransactionsRoot() throws SQLException {
 
         ScrollPane scrollPane;
         TitledPane customersPane, accountsPane;

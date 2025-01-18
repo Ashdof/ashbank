@@ -34,7 +34,6 @@ public class InitializePlatform {
         activateEmployeeAddressData(conn);
         activateEmployeeUserData(conn);
         activateEmployeeProfileData(conn);
-//        activateActivityLogTable(conn);
 
         System.out.println("Database initialization successful.");
     }
