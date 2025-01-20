@@ -1,6 +1,7 @@
 package com.ashbank.objects.utility;
 
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
+import com.ashbank.objects.scenes.dashboard.details.BankAccountDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.CustomerDetailsScene;
 import com.ashbank.objects.scenes.dashboard.editscenes.CustomersEditScene;
 import com.ashbank.objects.scenes.dashboard.maindashboard.MainDashboardScene;
@@ -9,6 +10,7 @@ import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewBankAccountsScene;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewCustomerScene;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewTransactionsScene;
+import com.ashbank.objects.scenes.dashboard.records.BankAccountRecordsScene;
 import com.ashbank.objects.scenes.dashboard.records.CustomerRecordsScene;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
@@ -31,6 +33,8 @@ public class SceneController {
     private final CustomerRecordsScene customerRecordsScene;
     private final CustomerDetailsScene customerDetailsScene;
     private final CustomersEditScene customersEditScene;
+    private final BankAccountRecordsScene bankAccountRecordsScene;
+    private final BankAccountDetailsScene bankAccountDetailsScene;
 
     // Main scenes
     private Scene mainDashboardScene;
@@ -40,14 +44,17 @@ public class SceneController {
     private final Scene addCustomerRecordsScene;
     private final Scene addCustomerDetailsScene;
     private final Scene addCustomersEditScene;
+    private final Scene addBankAccountsRecordsScene;
+    private final Scene addBankAccountDetailScene;
     private Scene addMainDashboardScene;
 
     // Main Dashboard Component
     private BorderPane mainDashboardRoot;
 
     // Sub scenes
-    private ScrollPane addNewCustomerRoot, addNewBankAccountRoot, addNewTransactionRoot, addCustomerRecordsRoot;
-    private ScrollPane addCustomerDetailsRoot, addCustomerEditRoot, addMainDashboardRoot;
+    private ScrollPane addNewCustomerRoot, addNewBankAccountRoot, addNewTransactionRoot, addCustomerRecordsRoot,
+            addCustomerDetailsRoot, addCustomerEditRoot, addMainDashboardRoot, addBankAccountsRecordsRoot,
+            addBankAccountDetailRoot;
 
 
     /**
@@ -65,32 +72,40 @@ public class SceneController {
 
         /* ============= INITIALIZE MAIN DASHBOARD SCENE ============= */
         this.mainDashboard = new MainDashboardScene(this);
-        this.mainDashboardScene = mainDashboard.getMainDashboardScene();
-        this.mainDashboardRoot = mainDashboard.getMainDashboardRoot();
+        this.mainDashboardScene = this.mainDashboard.getMainDashboardScene();
+        this.mainDashboardRoot = this.mainDashboard.getMainDashboardRoot();
 
         /* ============= INITIALIZE NEW CUSTOMER SCENE ============= */
         this.newCustomerScene = new NewCustomerScene(this);
-        this.addNewCustomerScene = newCustomerScene.getNewCustomerScene();
+        this.addNewCustomerScene = this.newCustomerScene.getNewCustomerScene();
 
         /* ============= INITIALIZE NEW BANK ACCOUNT SCENE ============= */
         this.newBankAccountsScene = new NewBankAccountsScene(this);
-        this.addNewBankAccountScene = newBankAccountsScene.getNewBankAccountScene();
+        this.addNewBankAccountScene = this.newBankAccountsScene.getNewBankAccountScene();
 
         /* ============= INITIALIZE NEW TRANSACTION SCENE ============= */
         this.newTransactionsScene = new NewTransactionsScene(this);
-        this.addNewTransactionScene = newTransactionsScene.getNewTransactionScene();
+        this.addNewTransactionScene = this.newTransactionsScene.getNewTransactionScene();
 
         /* ============= INITIALIZE CUSTOMER RECORDS SCENE ============= */
         this.customerRecordsScene = new CustomerRecordsScene(this);
-        this.addCustomerRecordsScene = customerRecordsScene.getCustomerRecordsScene();
+        this.addCustomerRecordsScene = this.customerRecordsScene.getCustomerRecordsScene();
 
         /* ============= INITIALIZE CUSTOMER DETAILS SCENE ============= */
         this.customerDetailsScene = new CustomerDetailsScene(this);
-        this.addCustomerDetailsScene = customerDetailsScene.getCustomerDetailsScene();
+        this.addCustomerDetailsScene = this.customerDetailsScene.getCustomerDetailsScene();
 
         /* ============= INITIALIZE CUSTOMER EDIT SCENE ============= */
         this.customersEditScene = new CustomersEditScene(this);
-        this.addCustomersEditScene = customersEditScene.getCustomerEditScene();
+        this.addCustomersEditScene = this.customersEditScene.getCustomerEditScene();
+
+        /* ============= INITIALIZE BANK ACCOUNTS RECORDS SCENE ============= */
+        this.bankAccountRecordsScene = new BankAccountRecordsScene(this);
+        this.addBankAccountsRecordsScene = this.bankAccountRecordsScene.getBankAccountRecordsScene();
+
+        /* ============= INITIALIZE BANK ACCOUNT DETAILS SCENE ============= */
+        this.bankAccountDetailsScene = new BankAccountDetailsScene(this);
+        this.addBankAccountDetailScene = this.bankAccountDetailsScene.getBankAccountDetailsScene();
     }
 
     /* ================ SET METHODS ================ */
@@ -160,6 +175,22 @@ public class SceneController {
     }
 
     /**
+     * Bank Accounts Records Scene:
+     * renders the scene for displaying the records of all bank
+     * accounts
+     * @throws SQLException if an error occurs
+     */
+    public void showBankAccountsRecordsScene() throws SQLException {
+        addBankAccountsRecordsRoot = bankAccountRecordsScene.createBankAccountRecordRoot();
+        mainDashboardRoot.setCenter(addBankAccountsRecordsRoot);
+    }
+
+    public void showBankAccountDetailsScene(String accountID) throws SQLException {
+        addBankAccountDetailRoot = bankAccountDetailsScene.createBankAccountDetailRoot(accountID);
+        mainDashboardRoot.setCenter(addBankAccountDetailRoot);
+    }
+
+    /**
      * New Transaction Scene:
      * renders scene for recording new transactions
      * @throws SQLException if an error occurs
@@ -173,7 +204,7 @@ public class SceneController {
      * Customer Records Scene:
      * renders scene for displaying records of customers
      */
-    public void showCustomerRecordsScene() {
+    public void showCustomerRecordsScene() throws SQLException {
         addCustomerRecordsRoot = customerRecordsScene.getCustomersRecordsRoot();
         mainDashboardRoot.setCenter(addCustomerRecordsRoot);
     }
@@ -183,7 +214,7 @@ public class SceneController {
      * renders scene to display the details of a selected customer object
      * @param customerID the ID of the selected customer object
      */
-    public void showCustomerDetailsScene(String customerID) {
+    public void showCustomerDetailsScene(String customerID) throws SQLException {
         addCustomerDetailsRoot = customerDetailsScene.getSelectedCustomerDetailsRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerDetailsRoot);
     }
@@ -194,7 +225,7 @@ public class SceneController {
      * customer object
      * @param customerID the id of the selected customer object
      */
-    public void showCustomerEditScene(String customerID) {
+    public void showCustomerEditScene(String customerID) throws SQLException {
         addCustomerEditRoot = customersEditScene.createEditCustomerRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerEditRoot);
     }

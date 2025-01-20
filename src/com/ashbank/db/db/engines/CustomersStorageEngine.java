@@ -391,7 +391,7 @@ public class CustomersStorageEngine {
      * fetch all customer objects from the basic data table
      * @return return an array list of customers
      */
-    public static List<Customers> getAllCustomersBasicData() {
+    public static List<Customers> getAllCustomersBasicData() throws SQLException {
 
         List<Customers> customersList = new ArrayList<>();
         Customers customers;
@@ -416,9 +416,10 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_nationality cn ON c.id = cn.customer_id " +
                 "INNER JOIN customers_address ca ON c.id = ca.customer_id";
 
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
         try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -486,6 +487,13 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
         }
 
         return customersList;
@@ -498,7 +506,7 @@ public class CustomersStorageEngine {
      * @param customerID the ID of the customer
      * @return a new customer object
      */
-    public Customers getCustomerDataByID(String customerID) {
+    public Customers getCustomerDataByID(String customerID) throws SQLException {
 
         Customers customers;
         Connection connection;
@@ -530,9 +538,10 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_account_beneficiary cb ON c.id = cb.customer_id " +
                 "WHERE c.id = ?";
 
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
         try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, customerID);
             resultSet = preparedStatement.executeQuery();
@@ -628,6 +637,13 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
         }
 
         return customers;

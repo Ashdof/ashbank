@@ -1,5 +1,7 @@
 package com.ashbank.objects.bank;
 
+import java.sql.Date;
+
 public class BankAccounts {
 
     /*=================== DEFAULT DATA MEMBERS ===================*/
@@ -8,8 +10,9 @@ public class BankAccounts {
 
     /*=================== DATA MEMBERS ===================*/
     private String accountID, customerID, accountNumber, accountType, accountCurrency, dateCreated,
-            accountStatus, lastTransactionDate;
-    private double accountBalance;
+            accountStatus;
+    private Date lastTransactionDate;
+    private double accountBalance, initialDeposit;
 
     /**
      * Initialize Default Object:
@@ -21,11 +24,12 @@ public class BankAccounts {
         this.customerID = DEFAULT_TEXT;
         this.accountNumber = DEFAULT_TEXT;
         this.accountType = DEFAULT_TEXT;
+        this.initialDeposit = DEFAULT_BALANCE;
         this.accountBalance = DEFAULT_BALANCE;
         this.accountCurrency = DEFAULT_TEXT;
         this.dateCreated = DEFAULT_TEXT;
         this.accountStatus = DEFAULT_TEXT;
-        this.lastTransactionDate = DEFAULT_TEXT;
+        this.lastTransactionDate = null;
 
     }
 
@@ -44,12 +48,13 @@ public class BankAccounts {
      * @param lastTransactionDate the last transaction date of the bank account
      */
     public BankAccounts(String accountID, String customerID, String accountNumber, String accountType, double initialDeposit, String accountCurrency,
-                        String dateCreated, String accountStatus, String lastTransactionDate) {
+                        String dateCreated, String accountStatus, Date lastTransactionDate) {
         this.accountID = accountID;
         this.customerID = customerID;
         this.accountNumber = accountNumber;
         this.accountType = accountType;
-        this.accountBalance = initialDeposit;
+        this.initialDeposit = initialDeposit;
+        this.accountBalance += initialDeposit;
         this.accountCurrency = accountCurrency;
         this.dateCreated = dateCreated;
         this.accountStatus = accountStatus;
@@ -72,6 +77,11 @@ public class BankAccounts {
         this.accountCurrency = accountCurrency;
         this.accountNumber = accountNumber;
         this.accountStatus = accountStatus;
+        this.accountBalance = DEFAULT_BALANCE;
+        this.initialDeposit = DEFAULT_BALANCE;
+        this.dateCreated = DEFAULT_TEXT;
+        this.lastTransactionDate = null;
+        this.customerID = DEFAULT_TEXT;
     }
 
     /**
@@ -85,6 +95,7 @@ public class BankAccounts {
         this.customerID = bankAccounts.getCustomerID();
         this.accountNumber = bankAccounts.getAccountNumber();
         this.accountType = bankAccounts.getAccountType();
+        this.initialDeposit += bankAccounts.getAccountBalance();
         this.accountBalance = bankAccounts.getAccountBalance();
         this.accountCurrency = bankAccounts.getAccountCurrency();
         this.dateCreated = bankAccounts.getDateCreated();
@@ -110,6 +121,10 @@ public class BankAccounts {
         this.accountType = accountType;
     }
 
+    public void setInitialDeposit(double initialDeposit) {
+        this.initialDeposit = initialDeposit;
+    }
+
     public void setAccountBalance(double accountBalance) {
         this.accountBalance = accountBalance;
     }
@@ -126,7 +141,7 @@ public class BankAccounts {
         this.dateCreated = dateCreated;
     }
 
-    public void setLastTransactionDate(String lastTransactionDate) {
+    public void setLastTransactionDate(Date lastTransactionDate) {
         this.lastTransactionDate = lastTransactionDate;
     }
 
@@ -148,6 +163,10 @@ public class BankAccounts {
         return accountType;
     }
 
+    public double getInitialDeposit() {
+        return initialDeposit;
+    }
+
     public double getAccountBalance() {
         return accountBalance;
     }
@@ -164,7 +183,7 @@ public class BankAccounts {
         return dateCreated;
     }
 
-    public String getLastTransactionDate() {
+    public Date getLastTransactionDate() {
         return lastTransactionDate;
     }
 
@@ -176,6 +195,8 @@ public class BankAccounts {
                 "Account Type:\t\t\t" + this.getAccountType() + "\n" +
                 "Account number:\t\t" + this.getAccountNumber()  + "\n" +
                 "Account currency:\t\t" + this.getAccountCurrency() +  "\n" +
+                "Initial deposit:\t\t" + this.getInitialDeposit() +  "\n" +
+                "Account balance:\t\t" + this.getAccountBalance() +  "\n" +
                 "Last transaction date:\t" + this.getLastTransactionDate()  + "\n" +
                 "Account status:\t\t\t" + this.getAccountStatus();
     }

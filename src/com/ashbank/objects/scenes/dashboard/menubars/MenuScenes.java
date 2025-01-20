@@ -92,7 +92,8 @@ public class MenuScenes {
 
         Menu menuAccounts, menuManageAccounts, menuViewAccounts;
         MenuItem menuItemNewAccount, menuItemUpdateAccount, menuItemCloseAccount, menuItemSavingsAccount, menuItemFixedAccounts,
-                menuItemCurrentAccounts;
+                menuItemCurrentAccounts, menuItemAllAccounts;
+        SeparatorMenuItem sep;
 
         // Create Accounts Menu and Items
         menuManageAccounts = new Menu("Manage Accounts");
@@ -110,10 +111,21 @@ public class MenuScenes {
         menuManageAccounts.getItems().addAll(menuItemNewAccount, menuItemUpdateAccount, menuItemCloseAccount);
 
         menuViewAccounts = new Menu("View Accounts");
+        menuItemAllAccounts = new MenuItem("All Bank Accounts");
+        menuItemAllAccounts.setOnAction(e -> {
+            try {
+                sceneController.showBankAccountsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        sep = new SeparatorMenuItem();
+
         menuItemSavingsAccount = new MenuItem("Savings Accounts");
         menuItemCurrentAccounts = new MenuItem("Current Accounts");
         menuItemFixedAccounts = new MenuItem("Fixed Accounts");
-        menuViewAccounts.getItems().addAll(menuItemSavingsAccount, menuItemCurrentAccounts, menuItemFixedAccounts);
+        menuViewAccounts.getItems().addAll(menuItemAllAccounts, sep, menuItemSavingsAccount, menuItemCurrentAccounts, menuItemFixedAccounts);
 
         menuAccounts = new Menu("Accounts");
         menuAccounts.getItems().addAll(menuManageAccounts, menuViewAccounts);
@@ -213,7 +225,11 @@ public class MenuScenes {
 
         menuItemActiveCustomers = new MenuItem("Active Customers");
         menuItemActiveCustomers.setOnAction(e -> {
-            sceneController.showCustomerRecordsScene();
+            try {
+                sceneController.showCustomerRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         menuItemInactiveCustomers = new MenuItem("Inactive Customers");
