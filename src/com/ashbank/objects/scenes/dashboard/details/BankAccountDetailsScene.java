@@ -3,7 +3,6 @@ package com.ashbank.objects.scenes.dashboard.details;
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccounts;
-import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.SceneController;
 
 import javafx.geometry.Insets;
@@ -16,7 +15,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
 
 public class BankAccountDetailsScene {
 
@@ -25,9 +23,8 @@ public class BankAccountDetailsScene {
     private SceneController sceneController;
 
     private Scene bankAccountDetailsScene;
-    private MenuButton mbAccountType, mbAccountCurrency;
-    private DatePicker dpDateCreated;
-    private TextField txtAccountNumber, txtInitialDeposit;
+    private Label lblAccountTypeValue, lblAccountCurrencyValue, lblDateCreatedValue, lblAccountNumberValue,
+            lblInitialDepositValue, lblAccountOwnerValue;
 
     /* ================ CONSTRUCTOR ================ */
     public BankAccountDetailsScene(SceneController sceneController) {
@@ -56,7 +53,7 @@ public class BankAccountDetailsScene {
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
         accountOwner = new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName();
 
-        lblInstruction = new Label("Record Details of " + accountOwner + "'s " + bankAccounts.getAccountType() + " Account");
+        lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccounts.getAccountType());
         lblInstruction.setId("title");
 
         bankAccountDataPane = this.createCustomerBankAccountPane(bankAccounts);
@@ -80,13 +77,11 @@ public class BankAccountDetailsScene {
      * create form to create new customer bank account
      * @return the account form
      */
-    private GridPane createCustomerBankAccountPane(BankAccounts bankAccounts) {
+    private GridPane createCustomerBankAccountPane(BankAccounts bankAccounts) throws SQLException {
 
         GridPane gridPane;
-        MenuItem miSavingsAccount, miFixedAccount, miCurrentAccount, miInvestmentAccount, miGhanaCedi,
-                miUSDollar, miGBPounds, miGBEuros, miNigerianNaira, miIndianRupee, miChineseYuan, miSARand;
         Label lblInstruction, lblAccountNumber, lblAccountType, lblAccountCurrency, lblInitialDeposit,
-                lblDateCreated;
+                lblDateCreated, lblAccountOwner;
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -94,83 +89,47 @@ public class BankAccountDetailsScene {
         gridPane.setAlignment(Pos.TOP_LEFT);
         gridPane.setPadding(new Insets(10));
 
-        lblInstruction = new Label("Add account information");
+        lblInstruction = new Label("Account information");
         gridPane.add(lblInstruction, 0, 0, 5, 1);
 
-        lblAccountNumber = new Label("Account number: ");
-        gridPane.add(lblAccountNumber, 0, 1);
+        lblAccountOwner = new Label("Account owner: ");
+        gridPane.add(lblAccountOwner, 0, 1);
 
-        txtAccountNumber = new TextField();
-        txtAccountNumber.setText(bankAccounts.getAccountNumber());
-        gridPane.add(txtAccountNumber, 1, 1);
+        lblAccountOwnerValue = new Label();
+        lblAccountOwnerValue.setText(
+                new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName()
+        );
+        gridPane.add(lblAccountOwnerValue, 1, 1);
+
+        lblAccountNumber = new Label("Account number: ");
+        gridPane.add(lblAccountNumber, 0, 2);
+
+        lblAccountNumberValue = new Label(bankAccounts.getAccountNumber());
+        gridPane.add(lblAccountNumberValue, 1, 2);
 
         lblAccountType = new Label("Account type: ");
-        gridPane.add(lblAccountType, 3, 1);
+        gridPane.add(lblAccountType, 0, 3);
 
-        miSavingsAccount = new MenuItem("Savings Account");
-        miSavingsAccount.setOnAction(e -> mbAccountType.setText(miSavingsAccount.getText()));
-
-        miCurrentAccount = new MenuItem("Current Account");
-        miCurrentAccount.setOnAction(e -> mbAccountType.setText(miCurrentAccount.getText()));
-
-        miFixedAccount = new MenuItem("Fixed Account");
-        miFixedAccount.setOnAction(e -> mbAccountType.setText(miFixedAccount.getText()));
-
-        miInvestmentAccount = new MenuItem("Investment Account");
-        miInvestmentAccount.setOnAction(e -> mbAccountType.setText(miInvestmentAccount.getText()));
-
-        mbAccountType = new MenuButton(bankAccounts.getAccountType());
-        mbAccountType.prefWidthProperty().bind(txtAccountNumber.widthProperty());
-        mbAccountType.getItems().addAll(miSavingsAccount, miCurrentAccount, miFixedAccount, miInvestmentAccount);
-        gridPane.add(mbAccountType, 4, 1);
+        lblAccountTypeValue = new Label(bankAccounts.getAccountType());
+        gridPane.add(lblAccountTypeValue, 1, 3);
 
         lblAccountCurrency = new Label("Account Currency: ");
-        gridPane.add(lblAccountCurrency, 0, 2);
+        gridPane.add(lblAccountCurrency, 0, 4);
 
-        miGBEuros = new MenuItem("EUR");
-        miGBEuros.setOnAction(e -> mbAccountCurrency.setText(miGBEuros.getText()));
-
-        miGhanaCedi = new MenuItem("GHS");
-        miGhanaCedi.setOnAction(e -> mbAccountCurrency.setText(miGhanaCedi.getText()));
-
-        miGBPounds = new MenuItem("GB Pounds");
-        miGBPounds.setOnAction(e -> mbAccountCurrency.setText(miGBPounds.getText()));
-
-        miChineseYuan = new MenuItem("Yuan");
-        miChineseYuan.setOnAction(e -> mbAccountCurrency.setText(miChineseYuan.getText()));
-
-        miIndianRupee = new MenuItem("Rupee");
-        miIndianRupee.setOnAction(e -> mbAccountCurrency.setText(miInvestmentAccount.getText()));
-
-        miUSDollar = new MenuItem("US Dollar");
-        miUSDollar.setOnAction(e -> mbAccountCurrency.setText(miUSDollar.getText()));
-
-        miSARand = new MenuItem("SA Rand");
-        miSARand.setOnAction(e -> mbAccountCurrency.setText(miSARand.getText()));
-
-        miNigerianNaira = new MenuItem("Naira");
-        miNigerianNaira.setOnAction(e -> mbAccountCurrency.setText(miNigerianNaira.getText()));
-
-        mbAccountCurrency = new MenuButton(bankAccounts.getAccountCurrency());
-        mbAccountCurrency.prefWidthProperty().bind(txtAccountNumber.widthProperty());
-        mbAccountCurrency.getItems().addAll(miGBEuros, miGBPounds, miUSDollar, miGhanaCedi, miChineseYuan,
-                miSARand, miIndianRupee, miNigerianNaira);
-        gridPane.add(mbAccountCurrency, 1, 2);
+        lblAccountCurrencyValue = new Label(bankAccounts.getAccountCurrency());
+        gridPane.add(lblAccountCurrencyValue, 1, 4);
 
         lblInitialDeposit = new Label("Initial deposit: ");
-        gridPane.add(lblInitialDeposit, 3, 2);
+        gridPane.add(lblInitialDeposit, 0, 5);
 
-        txtInitialDeposit = new TextField();
-        txtInitialDeposit.setText(String.valueOf(bankAccounts.getInitialDeposit()));
-        gridPane.add(txtInitialDeposit, 4, 2);
+        lblInitialDepositValue = new Label(String.valueOf(bankAccounts.getInitialDeposit()));
+        gridPane.add(lblInitialDepositValue, 1, 5);
 
         lblDateCreated = new Label("Date: ");
-        gridPane.add(lblDateCreated, 6, 1);
+        gridPane.add(lblDateCreated, 0, 6);
 
-        dpDateCreated = new DatePicker();
-        dpDateCreated.setValue(LocalDate.parse(bankAccounts.getDateCreated()));
-        dpDateCreated.prefWidthProperty().bind(txtAccountNumber.widthProperty());
-        gridPane.add(dpDateCreated, 7, 1);
+        lblDateCreatedValue = new Label(bankAccounts.getDateCreated());
+        gridPane.add(lblDateCreatedValue, 1, 6);
 
         return gridPane;
     }
@@ -204,7 +163,13 @@ public class BankAccountDetailsScene {
         btnHideRecord.setPrefWidth(120);
 
         btnUpdateRecord = new Button("Edit Record");
-//        btnUpdateRecord.setOnAction(e -> sceneController.showCustomerEditScene(customers.getCustomerID()));
+        btnUpdateRecord.setOnAction(e -> {
+            try {
+                sceneController.showBankAccountEditScene(bankAccounts.getAccountID());
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         btnUpdateRecord.setPrefWidth(120);
 
         lblSpace = new Label("      ");

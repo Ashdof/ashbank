@@ -61,6 +61,8 @@ public class NewTransactionsScene {
         return newTransactionScene;
     }
 
+    /* ================ OTHER METHODS ================ */
+
     public ScrollPane createNewTransactionsRoot() throws SQLException {
 
         ScrollPane scrollPane;
@@ -276,6 +278,15 @@ public class NewTransactionsScene {
 
         TableColumn<Customers, String> firstNameCol, lastNameCol, genderCol;
         TableColumn<Customers, Integer> ageCol;
+        TableColumn<Customers, Number> numberTableColumn;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(customersTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         firstNameCol = new TableColumn<>("First Name");
         firstNameCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getFirstName()));
@@ -289,7 +300,7 @@ public class NewTransactionsScene {
         ageCol = new TableColumn<>("Age");
         ageCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAge()));
 
-        customersTableView.getColumns().addAll(lastNameCol, firstNameCol, genderCol, ageCol);
+        customersTableView.getColumns().addAll(numberTableColumn, lastNameCol, firstNameCol, genderCol, ageCol);
     }
 
     /**
@@ -299,6 +310,15 @@ public class NewTransactionsScene {
     private void initializeBankAccountDataTable() {
 
         TableColumn<BankAccounts, String> accountTypeCole, accountNumberCol, accountCurrencyCol, accountStatusCol;
+        TableColumn<BankAccounts, Number> numberTableColumn;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(bankAccountsTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         accountTypeCole = new TableColumn<>("Account Type");
         accountTypeCole.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountType()));
@@ -312,7 +332,7 @@ public class NewTransactionsScene {
         accountStatusCol = new TableColumn<>("Status");
         accountStatusCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountStatus()));
 
-        bankAccountsTableView.getColumns().addAll(accountTypeCole, accountCurrencyCol, accountNumberCol, accountStatusCol);
+        bankAccountsTableView.getColumns().addAll(numberTableColumn, accountTypeCole, accountCurrencyCol, accountNumberCol, accountStatusCol);
     }
 
     /**
@@ -388,20 +408,29 @@ public class NewTransactionsScene {
         btnCancel = new Button(" _Cancel ");
         btnCancel.setPrefWidth(100);
         btnCancel.setId("btn-warn");
-        btnCancel.setOnAction(e -> this.resetFields());
+        btnCancel.setOnAction(e -> {
+            try {
+                this.resetFields();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnSave = new Button(" _Save ");
         btnSave.setPrefWidth(100);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
             try {
-                boolean result, dateResult;
+                boolean result, dateResult, balanceResult;
 
                 this.getTransactionsData();
                 result = bankTransactionsStorageEngine.saveNewBankAccountTransaction(bankAccountTransactions);
                 dateResult = bankAccountsStorageEngine.updateLastTransactionDate(today, customerID);
+                balanceResult = bankAccountsStorageEngine.updateAccountBalance(bankAccountTransactions);
 
-                if (result && dateResult) {
+                if (result && dateResult && balanceResult) {
+                    sceneController.showMainDashboardSummaries();
+                    sceneController.showPlatformBottomToolbar();
                     this.resetFields();
                 }
 
@@ -426,13 +455,7 @@ public class NewTransactionsScene {
     /**
      * Clear the fields of all values
      */
-    private void resetFields() {
-
-        accountsTitlePane.setDisable(true);
-        txtAccountID.clear();
-        txtAccountStatus.clear();
-        mbTransactionType.setText("Type of transaction ...");
-        txtTransactionAmount.clear();
-        taTransactDetails.clear();
+    private void resetFields() throws SQLException {
+        sceneController.showNewTransactionScene();
     }
 }

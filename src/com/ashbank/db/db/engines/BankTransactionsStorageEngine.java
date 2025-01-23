@@ -5,11 +5,9 @@ import com.ashbank.objects.bank.BankAccountTransactions;
 import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.UserSession;
+import javafx.scene.chart.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,13 +36,21 @@ public class BankTransactionsStorageEngine {
      */
     public boolean saveNewBankAccountTransaction(BankAccountTransactions bankAccountTransactions) throws SQLException {
 
-        String activity, activity_success_details, activity_failure_details, query;
+        String activity, activity_success_details, activity_failure_details, query, transactionType,
+                notificationSuccessMessage, notificationFailMessage, transactionCurrency;
         Connection connection;
         PreparedStatement preparedStatement;
+        double transactionAmount;
 
         activity = "New Transaction Record";
         activity_success_details = userSession.getUsername() + "'s attempt to record new bank account transaction successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to record new bank account transaction unsuccessful.";
+
+        transactionType = bankAccountTransactions.getTransactionType();
+        transactionAmount = bankAccountTransactions.getTransactionAmount();
+        transactionCurrency = new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getAccountCurrency();
+        notificationSuccessMessage = transactionType + " of " + transactionCurrency + transactionAmount + " is successful.";
+        notificationFailMessage = transactionType + " of " + transactionCurrency + transactionAmount + " is unsuccessful.";
 
         /*=================== SQL QUERIES ===================*/
         query = "INSERT INTO customers_account_transactions (id, account_id, transaction_type, transaction_amount, transaction_details)" +
@@ -66,8 +72,10 @@ public class BankTransactionsStorageEngine {
             connection.commit();
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-            // Display success message in a dialog to the user
-            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
+
+            // Display success notificationMessage in a dialog to the user
+            UserSession.addNotification(notificationSuccessMessage);
+//            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
 
             return true;
         } catch (SQLException sqlException) {
@@ -85,9 +93,213 @@ public class BankTransactionsStorageEngine {
 
         // Log this activity and the user undertaking it
         ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+        UserSession.addNotification(notificationFailMessage);
+//        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
         return false;
+    }
+
+    /**
+     * Transaction Objects:
+     * fetch all transaction objects from the database
+     * @return a list of all transaction objects
+     */
+    public static List<BankAccountTransactions> getAllBankAccountTransactions() {
+
+        BankAccountTransactions bankAccountTransactions;
+        List<BankAccountTransactions> bankAccountTransactionsList;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, transactionID, accountID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
+
+        bankAccountTransactionsList = new ArrayList<>();
+        query = "SELECT * FROM customers_account_transactions";
+
+        try {
+            connection = BankConnection.getBankConnection();
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                transactionID = resultSet.getString("id");
+                accountID = resultSet.getString("account_id");
+                transactionType = resultSet.getString("transaction_type");
+                transactionAmount = resultSet.getDouble("transaction_amount");
+                transactionDate = resultSet.getTimestamp("transaction_date");
+                transactionDetails = resultSet.getString("transaction_details");
+
+                bankAccountTransactions = new BankAccountTransactions();
+                bankAccountTransactions.setTransactionID(transactionID);
+                bankAccountTransactions.setAccountID(accountID);
+                bankAccountTransactions.setTransactionType(transactionType);
+                bankAccountTransactions.setTransactionAmount(transactionAmount);
+                bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                bankAccountTransactions.setTransactionDetails(transactionDetails);
+
+                bankAccountTransactionsList.add(bankAccountTransactions);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
+        }
+
+        return bankAccountTransactionsList;
+    }
+
+    /**
+     * Bank Transaction Object:
+     * create new bank transaction object with data from the database using
+     * the provided transaction ID
+     * @param transactionID the ID of the transaction
+     * @return a new transaction object
+     * @throws SQLException if an error occurs
+     */
+    public BankAccountTransactions getBankTransactionDataByID(String transactionID) throws SQLException {
+
+        BankAccountTransactions bankAccountTransactions;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, accountID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
+
+        bankAccountTransactions = new BankAccountTransactions();
+        connection = BankConnection.getBankConnection();
+        query = "SELECT * FROM customers_account_transactions WHERE id = ?";
+        preparedStatement = connection.prepareStatement(query);
+
+        try {
+
+            preparedStatement.setString(1, transactionID);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                accountID = resultSet.getString("account_id");
+                transactionType = resultSet.getString("transaction_type");
+                transactionAmount = resultSet.getDouble("transaction_amount");
+                transactionDate = resultSet.getTimestamp("transaction_date");
+                transactionDetails = resultSet.getString("transaction_details");
+
+                bankAccountTransactions = new BankAccountTransactions();
+                bankAccountTransactions.setTransactionID(transactionID);
+                bankAccountTransactions.setAccountID(accountID);
+                bankAccountTransactions.setTransactionType(transactionType);
+                bankAccountTransactions.setTransactionAmount(transactionAmount);
+                bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                bankAccountTransactions.setTransactionDetails(transactionDetails);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return bankAccountTransactions;
+    }
+
+    /**
+     * Update Transaction Object:
+     * update the data of a transaction object
+     * @param bankAccountTransactions the transaction object
+     * @return true if successful, false otherwise
+     */
+    public boolean updateBankTransactionData(BankAccountTransactions bankAccountTransactions) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, update_fail_msg,
+                update_success_msg, notificationSuccessMessage, notificationFailMessage, accountOwner;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        boolean status;
+
+        activity = "Bank Account Transaction Data Update";
+        update_success_msg = "Bank account transaction data update successful";
+        update_fail_msg = "Bank account transaction data update unsuccessful";
+        activity_success_details = userSession.getUsername() + "'s attempt to update bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to update bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID()
+        ).getFullName();
+        notificationSuccessMessage = "Update of " + accountOwner + "'s data is successful.";
+        notificationFailMessage = "Update of " + accountOwner + "'s data is unsuccessful.";
+
+        query = "UPDATE customers_account_transactions SET transaction_type = ?, transaction_amount = ?, transaction_date = ?, transaction_details = ? " +
+                "WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        status = false;
+
+        try {
+            connection.setAutoCommit(false);
+
+            preparedStatement = connection.prepareStatement(query);
+
+            try {
+                preparedStatement.setString(1, bankAccountTransactions.getTransactionType());
+                preparedStatement.setDouble(2, bankAccountTransactions.getTransactionAmount());
+                preparedStatement.setTimestamp(3, Timestamp.valueOf(bankAccountTransactions.getTransactionDate()));
+                preparedStatement.setString(4, bankAccountTransactions.getTransactionDetails());
+                preparedStatement.setString(5, bankAccountTransactions.getTransactionID());
+                preparedStatement.executeUpdate();
+
+                // commit the query
+                connection.commit();
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Display success message in a dialog to the user
+//                customDialogs.showAlertInformation(activity, update_success_msg);
+                status = true;
+            } catch (SQLException  sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                connection.rollback();
+                logger.log(Level.SEVERE, "Error updating transaction record - " + sqlException.getMessage());
+            } finally {
+                // Close the prepared statements
+                try {
+                    preparedStatement.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
+                }
+            }
+        } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, update_fail_msg);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error updating bank account transaction data - " + sqlException.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return status;
     }
 
     /**
@@ -128,5 +340,228 @@ public class BankTransactionsStorageEngine {
         }
 
         return bankAccountsList;
+    }
+
+    /**
+     * Recent Transactions:
+     * fetch the recent transactions according the number provided
+     * @param limit the number of recent transaction objects to fetch
+     * @return a list of recent transaction objects
+     */
+    public List<BankAccountTransactions> getRecentTransactions(int limit) {
+
+        BankAccountTransactions transactions;
+        List<BankAccountTransactions> bankAccountTransactionsList;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, transactionID, accountID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
+
+        bankAccountTransactionsList = new ArrayList<>();
+        query = "SELECT * FROM customers_account_transactions WHERE DATE(transaction_date) = DATE('now') " +
+                "ORDER BY transaction_date DESC LIMIT ?";
+
+        try {
+            connection = BankConnection.getBankConnection();
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, limit);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                transactionID = resultSet.getString("id");
+                accountID = resultSet.getString("account_id");
+                transactionType = resultSet.getString("transaction_type");
+                transactionAmount = resultSet.getDouble("transaction_amount");
+                transactionDate = resultSet.getTimestamp("transaction_date");
+                transactionDetails = resultSet.getString("transaction_details");
+
+                transactions = new BankAccountTransactions();
+                transactions.setTransactionID(transactionID);
+                transactions.setAccountID(accountID);
+                transactions.setTransactionType(transactionType);
+                transactions.setTransactionAmount(transactionAmount);
+                transactions.setTransactionDate(String.valueOf(transactionDate));
+                transactions.setTransactionDetails(transactionDetails);
+
+                bankAccountTransactionsList.add(transactions);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
+        }
+
+        return bankAccountTransactionsList;
+    }
+
+    /**
+     * Bar Chart:
+     * create a bar chart to represent transaction objects
+     * @return the bar chart
+     */
+    public BarChart<String, Number> createBarChart() {
+
+        String query, transactionType;
+        double totalAmount;
+
+        BarChart<String, Number> barChart;
+        XYChart.Series<String, Number> series;
+        CategoryAxis xAxis;
+        NumberAxis yAxis;
+
+        xAxis = new CategoryAxis();
+        xAxis.setLabel("Transaction Type");
+
+        yAxis = new NumberAxis();
+        yAxis.setLabel("Total Amount");
+
+        barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Summary of Transactions");
+
+        series = new XYChart.Series<>();
+        series.setName("Transactions");
+
+        query = "SELECT transaction_type, SUM(transaction_amount) AS total FROM customers_account_transactions " +
+                "WHERE DATE(transaction_date) = DATE('now') GROUP BY transaction_type";
+
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                transactionType = resultSet.getString("transaction_type");
+                totalAmount = resultSet.getDouble("total");
+
+                series.getData().add(new XYChart.Data<>(transactionType, totalAmount));
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error creating bar chart - " + sqlException.getMessage());
+        }
+
+        barChart.getData().add(series);
+
+        return barChart;
+    }
+
+    /**
+     * Pie Chart:
+     * create a pie chart to represent transaction objects
+     * @return the pie chart
+     */
+    public PieChart createPieChart() {
+
+        PieChart pieChart;
+        String query, transactionType;
+        double totalAmount;
+
+        pieChart = new PieChart();
+        pieChart.setTitle("Transaction Distribution");
+
+        query = "SELECT transaction_type, SUM(transaction_amount) AS total FROM customers_account_transactions " +
+                "WHERE DATE(transaction_date) = DATE('now') GROUP BY transaction_type";
+
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()){
+
+            while (resultSet.next()) {
+                transactionType = resultSet.getString("transaction_type");
+                totalAmount = resultSet.getDouble("total");
+
+                pieChart.getData().add(new PieChart.Data(transactionType, totalAmount));
+            }
+
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error creating pie chart - " + sqlException.getMessage());
+        }
+
+        return pieChart;
+    }
+
+    /**
+     * Total Deposit:
+     * compute the total of all deposits for the current day
+     * @return the of deposits
+     * @throws SQLException if an error occurs
+     */
+    public double getTodayTotalDeposit() throws SQLException {
+
+        String query;
+        double totalAmount;
+        PreparedStatement preparedStatement;
+        Connection connection;
+        ResultSet resultSet;
+
+        query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
+                "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Deposit' ";
+        connection = BankConnection.getBankConnection();
+        totalAmount = 0.00;
+
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                totalAmount = resultSet.getDouble("total");
+            }
+
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error computing total deposits - " + sqlException.getMessage());
+        } finally {
+            try {
+                connection.close();
+            }  catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
+            }
+        }
+
+        return totalAmount;
+    }
+
+    /**
+     * Total Withdrawals:
+     * compute the total of all withdrawals for the current day
+     * @return the sum of withdrawals
+     * @throws SQLException if an error occurs
+     */
+    public double getTodayTotalWithdrawals() throws SQLException {
+
+        String query;
+        double totalAmount;
+        PreparedStatement preparedStatement;
+        Connection connection;
+        ResultSet resultSet;
+
+        query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
+                "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Withdrawal' ";
+        connection = BankConnection.getBankConnection();
+        totalAmount = 0.00;
+
+        try {
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                totalAmount = resultSet.getDouble("total");
+            }
+
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error computing total withdrawals - " + sqlException.getMessage());
+        } finally {
+            try {
+                connection.close();
+            }  catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
+            }
+        }
+
+        return totalAmount;
     }
 }

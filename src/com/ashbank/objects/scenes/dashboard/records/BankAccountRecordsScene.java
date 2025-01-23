@@ -82,9 +82,8 @@ public class BankAccountRecordsScene {
      * create a vertical vox object containing a table list of all
      * bank account objects
      * @return the VBox object
-     * @throws SQLException if an error occurs
      */
-    private VBox getListOfAllBankAccounts() throws SQLException {
+    private VBox getListOfAllBankAccounts() {
 
         TextField txtSearch;
         VBox vBox;
@@ -139,8 +138,17 @@ public class BankAccountRecordsScene {
 
         TableColumn<BankAccounts, String> accountNumber, accountType, accountCurrency, dateCreated, accountStatus,
                 customerName;
-        TableColumn<BankAccounts, Double> accountBalance;
+        TableColumn<BankAccounts, Double> accountBalance, initialDeposit;
+        TableColumn<BankAccounts, Number> numberTableColumn;
         TableColumn<BankAccounts, Date> lastTransactionDate;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(bankAccountsTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         accountNumber = new TableColumn<>("Account Number");
         accountNumber.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountNumber()));
@@ -157,6 +165,9 @@ public class BankAccountRecordsScene {
         accountBalance = new TableColumn<>("Current Balance");
         accountBalance.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountBalance()));
 
+        initialDeposit = new TableColumn<>("Initial Deposit");
+        initialDeposit.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getInitialDeposit()));
+
         lastTransactionDate = new TableColumn<>("Last Transaction Date");
         lastTransactionDate.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getLastTransactionDate()));
 
@@ -172,7 +183,7 @@ public class BankAccountRecordsScene {
             }
         });
 
-        bankAccountsTableView.getColumns().addAll(accountNumber, accountType, accountCurrency, dateCreated, accountBalance, lastTransactionDate, accountStatus, customerName);
+        bankAccountsTableView.getColumns().addAll(numberTableColumn, accountNumber, accountType, accountCurrency, dateCreated, initialDeposit, accountBalance, lastTransactionDate, accountStatus, customerName);
     }
 
     /**
@@ -259,7 +270,13 @@ public class BankAccountRecordsScene {
         });
 
         btnEdit = new Button("Edit Record");
-//        btnEdit.setOnAction(e -> sceneController.showCustomerEditScene(customerID));
+        btnEdit.setOnAction(e -> {
+            try {
+                sceneController.showBankAccountEditScene(accountID);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         btnEdit.setPrefWidth(120);
 
         gridPane = new GridPane();

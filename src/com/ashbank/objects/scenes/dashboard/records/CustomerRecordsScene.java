@@ -145,6 +145,15 @@ public class CustomerRecordsScene {
         TableColumn<Customers, String> firstNameCol, lastNameCol, genderCol, birthDate, profession, workPlace,
                 nationality, national_card, town, suburb, postalAddress, emailAddress, phoneNumber;
         TableColumn<Customers, Integer> ageCol;
+        TableColumn<Customers, Number> numberTableColumn;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(customersTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         firstNameCol = new TableColumn<>("First Name");
         firstNameCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getFirstName()));
@@ -176,7 +185,7 @@ public class CustomerRecordsScene {
         phoneNumber = new TableColumn<>("Phone Number");
         phoneNumber.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPhoneNumber()));
 
-        customersTableView.getColumns().addAll(lastNameCol, firstNameCol, genderCol, birthDate, ageCol, nationality, profession, suburb, emailAddress, phoneNumber);
+        customersTableView.getColumns().addAll(numberTableColumn, lastNameCol, firstNameCol, genderCol, birthDate, ageCol, nationality, profession, suburb, emailAddress, phoneNumber);
     }
 
     /**

@@ -33,4 +33,21 @@ public class CustomDialogs {
         alert.showAndWait();
     }
 
+    /**
+     * Confirmation Dialog:
+     * show a dialog to confirm the execution of an operation
+     *
+     * @param title   the title of the message
+     * @param message the content of the message
+     * @return true
+     */
+    public boolean showConfirmInformation(String title, String message) {
+        alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
+
+        return true;
+    }
+
 }

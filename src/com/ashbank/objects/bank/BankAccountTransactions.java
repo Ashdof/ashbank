@@ -62,6 +62,12 @@ public class BankAccountTransactions {
         this.transactionDetails = bankAccountTransactions.getTransactionDetails();
     }
 
+    public BankAccountTransactions(String accountID, String transactionType, double transactionAmount) {
+        this.accountID = accountID;
+        this.transactionType = transactionType;
+        this.transactionAmount = transactionAmount;
+    }
+
     /*=================== SETTERS ===================*/
 
     public void setAccountID(String accountID) {

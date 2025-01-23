@@ -59,8 +59,14 @@ public class MenuScenes {
             sceneController.showUserAuthScene();
         });
 
-        menuItemHome = new MenuItem("Home");
-        menuItemHome.setOnAction(e -> sceneController.returnToMainDashboard());
+        menuItemHome = new MenuItem("Dashboard");
+        menuItemHome.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         // Create File Menu and Items
         menuItemAddUser = new MenuItem("Add New User");
@@ -100,6 +106,7 @@ public class MenuScenes {
         menuItemNewAccount = new MenuItem("New Account");
         menuItemNewAccount.setOnAction(e -> {
             try {
+                sceneController.showMainDashboardSummaries();
                 sceneController.showNewBankAccountScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -114,6 +121,7 @@ public class MenuScenes {
         menuItemAllAccounts = new MenuItem("All Bank Accounts");
         menuItemAllAccounts.setOnAction(e -> {
             try {
+                sceneController.showMainDashboardSummaries();
                 sceneController.showBankAccountsRecordsScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -142,12 +150,13 @@ public class MenuScenes {
     private Menu createTransactionsMenu() {
         Menu menuNonCashTransactions, menuViewTransactions, menuTransactions;
         MenuItem menuItemCashTransactions, menuItemFunTransfer, menuItemBillPayment, menuItemViewByAccount,
-                menuItemViewByDate;
+                menuItemViewByDate, menuItemViewAllTransactions;
 
         // Create Transactions Menu and Items
         menuItemCashTransactions = new MenuItem("New Cash Transaction");
         menuItemCashTransactions.setOnAction(e -> {
             try {
+                sceneController.showMainDashboardSummaries();
                 sceneController.showNewTransactionScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -162,8 +171,18 @@ public class MenuScenes {
         menuNonCashTransactions = new Menu("Non-cash Transactions");
         menuNonCashTransactions.getItems().addAll(menuItemFunTransfer, menuItemBillPayment);
 
+        menuItemViewAllTransactions = new MenuItem("View All Transactions");
+        menuItemViewAllTransactions.setOnAction(e -> {
+            try {
+                sceneController.showMainDashboardSummaries();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            sceneController.showTransactionsRecordsScene();
+        });
+
         menuViewTransactions = new Menu("View Transactions");
-        menuViewTransactions.getItems().addAll(menuItemViewByAccount, menuItemViewByDate);
+        menuViewTransactions.getItems().addAll(menuItemViewAllTransactions, menuItemViewByAccount, menuItemViewByDate);
 
         menuTransactions = new Menu("Transactions");
         menuTransactions.getItems().addAll(menuItemCashTransactions, menuNonCashTransactions, menuViewTransactions);
@@ -217,6 +236,11 @@ public class MenuScenes {
         // Create Customers Menu and Items
         menuItemNewCustomer = new MenuItem("New Customer");
         menuItemNewCustomer.setOnAction(e -> {
+            try {
+                sceneController.showMainDashboardSummaries();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
             sceneController.showNewCustomerScene();
         });
 
@@ -226,6 +250,7 @@ public class MenuScenes {
         menuItemActiveCustomers = new MenuItem("Active Customers");
         menuItemActiveCustomers.setOnAction(e -> {
             try {
+                sceneController.showMainDashboardSummaries();
                 sceneController.showCustomerRecordsScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);

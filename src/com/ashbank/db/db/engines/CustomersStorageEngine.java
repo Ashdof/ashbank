@@ -41,7 +41,7 @@ public class CustomersStorageEngine {
         Security security;
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
-                activity_failure_details;
+                activity_failure_details, notificationSuccessMessage, notificationFailMessage;
         Connection connection;
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
                 nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
@@ -52,6 +52,9 @@ public class CustomersStorageEngine {
         activity = "Add New Customer Record";
         activity_success_details = userSession.getUsername() + "'s attempt to add new customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to add new customer record unsuccessful.";
+
+        notificationSuccessMessage = customers.getFullName() + "'s record is successfully saved.";
+        notificationFailMessage = customers.getFullName() + "'s record is unsuccessfully saved.";
 
         /*=================== SQL QUERIES ===================*/
         basicQuery = "INSERT INTO customers (id, last_name, first_name, gender, birth_date, age, photo)" +
@@ -162,7 +165,10 @@ public class CustomersStorageEngine {
                     ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
                     // Display failure message in a dialog to the user
-                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+//                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+
+                    // Display success notificationMessage in a dialog to the user
+                    UserSession.addNotification(notificationFailMessage);
                 }
 
                 // commit the query
@@ -173,7 +179,11 @@ public class CustomersStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+
+                // Display success notificationMessage in a dialog to the user
+                UserSession.addNotification(notificationSuccessMessage);
+
             } catch (IllegalArgumentException illegalArgumentException) {
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error uploading customer photo - " + illegalArgumentException.getMessage());
@@ -223,7 +233,7 @@ public class CustomersStorageEngine {
 
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
-                activity_failure_details;
+                activity_failure_details, notificationSuccessMessage, notificationFailMessage;
         Connection connection;
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
                 nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
@@ -233,6 +243,9 @@ public class CustomersStorageEngine {
         activity = "Update New Customer Record";
         activity_success_details = userSession.getUsername() + "'s attempt to update customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to update customer record unsuccessful.";
+
+        notificationSuccessMessage = "Update of " + customers.getFullName() + "'s record is successful.";
+        notificationFailMessage = "Update of " + customers.getFullName() + "'s record is unsuccessful.";
 
         /*=================== SQL QUERIES ===================*/
         basicQuery = "UPDATE customers SET last_name = ?, first_name = ?, gender = ?, birth_date = ?, age = ?, photo = ?" +
@@ -336,7 +349,11 @@ public class CustomersStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+
+                // Display success notificationMessage in a dialog to the user
+                UserSession.addNotification(notificationSuccessMessage);
+
                 status = true;
 
             } catch (IllegalArgumentException illegalArgumentException) {
@@ -367,8 +384,11 @@ public class CustomersStorageEngine {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
+            // Display success notificationMessage in a dialog to the user
+            UserSession.addNotification(notificationFailMessage);
+
             // Display failure message in a dialog to the user
-            customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+//            customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());

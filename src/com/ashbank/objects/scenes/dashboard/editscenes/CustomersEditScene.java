@@ -705,6 +705,8 @@ public class CustomersEditScene {
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
             try {
+                sceneController.showMainDashboardSummaries();
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showCustomerRecordsScene();
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -818,8 +820,11 @@ public class CustomersEditScene {
                             this.copyUploadedCustomerPhoto();
                             this.deleteOldCustomerPhoto(oldImageFile.getPath());
                         }
-                        this.clearFields();
+
+                        sceneController.showMainDashboardSummaries();
+                        sceneController.showPlatformBottomToolbar();
                         sceneController.showCustomerRecordsScene();
+                        this.clearFields();
                     }
                 } catch (SQLException | IOException sqlException) {
                     logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
