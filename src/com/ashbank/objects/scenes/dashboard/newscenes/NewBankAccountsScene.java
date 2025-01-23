@@ -366,6 +366,15 @@ public class NewBankAccountsScene {
 
         TableColumn<Customers, String> firstNameCol, lastNameCol, genderCol;
         TableColumn<Customers, Integer> ageCol;
+        TableColumn<Customers, Number> numberTableColumn;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(customersTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         firstNameCol = new TableColumn<>("First Name");
         firstNameCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getFirstName()));
@@ -379,7 +388,7 @@ public class NewBankAccountsScene {
         ageCol = new TableColumn<>("Age");
         ageCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAge()));
 
-        customersTableView.getColumns().addAll(lastNameCol, firstNameCol, genderCol, ageCol);
+        customersTableView.getColumns().addAll(numberTableColumn, lastNameCol, firstNameCol, genderCol, ageCol);
     }
 
     /**
@@ -485,7 +494,7 @@ public class NewBankAccountsScene {
      */
     private void getBankAccountData() {
         String accountID, accountNumber, accountType, accountCurrency, dateCreated;
-        double initialDeposit;
+        double initialDeposit, currentBalance;
 
         bankAccounts = new BankAccounts();
         accountID = security.generateUUID();
@@ -494,6 +503,7 @@ public class NewBankAccountsScene {
         accountCurrency = mbAccountCurrency.getText();
         initialDeposit = Double.parseDouble(txtInitialDeposit.getText().trim());
         dateCreated = String.valueOf(dpDateCreated.getValue());
+        currentBalance = bankAccounts.getAccountBalance() + initialDeposit;
 
         if (accountNumber.isEmpty()) {
             customDialogs.showErrInformation("Blank Field", "Account number field is empty.");
@@ -508,7 +518,8 @@ public class NewBankAccountsScene {
             bankAccounts.setAccountNumber(accountNumber);
             bankAccounts.setAccountType(accountType);
             bankAccounts.setAccountCurrency(accountCurrency);
-            bankAccounts.setAccountBalance(initialDeposit);
+            bankAccounts.setInitialDeposit(initialDeposit);
+            bankAccounts.setAccountBalance(currentBalance);
             bankAccounts.setDateCreated(dateCreated);
         }
     }
@@ -577,6 +588,8 @@ public class NewBankAccountsScene {
                     this.getBankAccountData();
                     bankAccounts.setCustomerID(customerID);
                     bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                    sceneController.showMainDashboardSummaries();
+                    sceneController.showPlatformBottomToolbar();
 
                 } else if (toggleGroup.getSelectedToggle().equals(rbNewCustomer)) {
 
@@ -587,6 +600,8 @@ public class NewBankAccountsScene {
 
                     if (customersStorageEngine.saveCustomerData(customers)) {
                         bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                        sceneController.showMainDashboardSummaries();
+                        sceneController.showPlatformBottomToolbar();
                     }
                 }
 
@@ -630,5 +645,9 @@ public class NewBankAccountsScene {
         mbAccountType.setText("Select account type ...");
         mbAccountCurrency.setText("Select currency ...");
         txtInitialDeposit.clear();
+    }
+
+    private void resetFields() throws SQLException {
+        sceneController.showNewBankAccountScene();
     }
 }

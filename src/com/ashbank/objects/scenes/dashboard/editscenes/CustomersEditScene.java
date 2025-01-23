@@ -62,7 +62,7 @@ public class CustomersEditScene {
      * @param customerID the ID of the customer object
      * @return a scroll pane node with the scene
      */
-    public ScrollPane createEditCustomerRoot(String customerID) {
+    public ScrollPane createEditCustomerRoot(String customerID) throws SQLException {
 
         GridPane gridPaneBasicData, gridPaneProfData, gridPaneResidenceData, gridPaneNationalityData, gridPaneAddressData,
                 gridPaneKinData, gridPaneBeneficiaryData;
@@ -704,7 +704,13 @@ public class CustomersEditScene {
         btnCancel.setPrefWidth(100);
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
-            sceneController.showCustomerRecordsScene();
+            try {
+                sceneController.showMainDashboardSummaries();
+                sceneController.showPlatformBottomToolbar();
+                sceneController.showCustomerRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         btnSave = new Button(" _Update Record ");
@@ -814,8 +820,11 @@ public class CustomersEditScene {
                             this.copyUploadedCustomerPhoto();
                             this.deleteOldCustomerPhoto(oldImageFile.getPath());
                         }
-                        this.clearFields();
+
+                        sceneController.showMainDashboardSummaries();
+                        sceneController.showPlatformBottomToolbar();
                         sceneController.showCustomerRecordsScene();
+                        this.clearFields();
                     }
                 } catch (SQLException | IOException sqlException) {
                     logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());

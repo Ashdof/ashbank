@@ -176,6 +176,7 @@ public class InitializePlatform {
                 "customer_id TEXT," +
                 "account_number TEXT NOT NULL UNIQUE," +
                 "account_type TEXT NOT NULL," +
+                "initial_deposit DECIMAL(15, 2) DEFAULT 0.00," +
                 "current_balance DECIMAL(15, 2) DEFAULT 0.00," +
                 "account_currency TEXT DEFAULT 'GHS'," +
                 "date_created TEXT NOT NULL," +

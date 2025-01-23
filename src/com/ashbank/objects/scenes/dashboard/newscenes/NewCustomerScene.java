@@ -718,6 +718,8 @@ public class NewCustomerScene {
                 try {
                     if (customersStorageEngine.saveCustomerData(customers)) {
                         this.copyUploadedCustomerPhoto();
+                        sceneController.showPlatformBottomToolbar();
+                        sceneController.showMainDashboardSummaries();
                     }
 
                 } catch (SQLException | IOException sqlException) {

@@ -41,7 +41,7 @@ public class CustomersStorageEngine {
         Security security;
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
-                activity_failure_details;
+                activity_failure_details, notificationSuccessMessage, notificationFailMessage;
         Connection connection;
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
                 nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
@@ -52,6 +52,9 @@ public class CustomersStorageEngine {
         activity = "Add New Customer Record";
         activity_success_details = userSession.getUsername() + "'s attempt to add new customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to add new customer record unsuccessful.";
+
+        notificationSuccessMessage = customers.getFullName() + "'s record is successfully saved.";
+        notificationFailMessage = customers.getFullName() + "'s record is unsuccessfully saved.";
 
         /*=================== SQL QUERIES ===================*/
         basicQuery = "INSERT INTO customers (id, last_name, first_name, gender, birth_date, age, photo)" +
@@ -162,7 +165,10 @@ public class CustomersStorageEngine {
                     ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
                     // Display failure message in a dialog to the user
-                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+//                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+
+                    // Display success notificationMessage in a dialog to the user
+                    UserSession.addNotification(notificationFailMessage);
                 }
 
                 // commit the query
@@ -173,7 +179,11 @@ public class CustomersStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+
+                // Display success notificationMessage in a dialog to the user
+                UserSession.addNotification(notificationSuccessMessage);
+
             } catch (IllegalArgumentException illegalArgumentException) {
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error uploading customer photo - " + illegalArgumentException.getMessage());
@@ -223,7 +233,7 @@ public class CustomersStorageEngine {
 
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
-                activity_failure_details;
+                activity_failure_details, notificationSuccessMessage, notificationFailMessage;
         Connection connection;
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
                 nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
@@ -233,6 +243,9 @@ public class CustomersStorageEngine {
         activity = "Update New Customer Record";
         activity_success_details = userSession.getUsername() + "'s attempt to update customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to update customer record unsuccessful.";
+
+        notificationSuccessMessage = "Update of " + customers.getFullName() + "'s record is successful.";
+        notificationFailMessage = "Update of " + customers.getFullName() + "'s record is unsuccessful.";
 
         /*=================== SQL QUERIES ===================*/
         basicQuery = "UPDATE customers SET last_name = ?, first_name = ?, gender = ?, birth_date = ?, age = ?, photo = ?" +
@@ -336,7 +349,11 @@ public class CustomersStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+
+                // Display success notificationMessage in a dialog to the user
+                UserSession.addNotification(notificationSuccessMessage);
+
                 status = true;
 
             } catch (IllegalArgumentException illegalArgumentException) {
@@ -367,8 +384,11 @@ public class CustomersStorageEngine {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
+            // Display success notificationMessage in a dialog to the user
+            UserSession.addNotification(notificationFailMessage);
+
             // Display failure message in a dialog to the user
-            customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+//            customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
@@ -391,7 +411,7 @@ public class CustomersStorageEngine {
      * fetch all customer objects from the basic data table
      * @return return an array list of customers
      */
-    public static List<Customers> getAllCustomersBasicData() {
+    public static List<Customers> getAllCustomersBasicData() throws SQLException {
 
         List<Customers> customersList = new ArrayList<>();
         Customers customers;
@@ -416,9 +436,10 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_nationality cn ON c.id = cn.customer_id " +
                 "INNER JOIN customers_address ca ON c.id = ca.customer_id";
 
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
         try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
             resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
@@ -486,6 +507,13 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
         }
 
         return customersList;
@@ -498,7 +526,7 @@ public class CustomersStorageEngine {
      * @param customerID the ID of the customer
      * @return a new customer object
      */
-    public Customers getCustomerDataByID(String customerID) {
+    public Customers getCustomerDataByID(String customerID) throws SQLException {
 
         Customers customers;
         Connection connection;
@@ -530,9 +558,10 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_account_beneficiary cb ON c.id = cb.customer_id " +
                 "WHERE c.id = ?";
 
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
         try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, customerID);
             resultSet = preparedStatement.executeQuery();
@@ -628,6 +657,13 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
         }
 
         return customers;

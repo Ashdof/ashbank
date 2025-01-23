@@ -14,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class CustomerRecordsScene {
@@ -52,7 +53,7 @@ public class CustomerRecordsScene {
      * create a layout for the display of customer records
      * @return a scroll pane node as the root layout
      */
-    public ScrollPane getCustomersRecordsRoot() {
+    public ScrollPane getCustomersRecordsRoot() throws SQLException {
 
         ScrollPane scrollPane;
         VBox vBoxCustomersRecords;
@@ -74,7 +75,7 @@ public class CustomerRecordsScene {
                 this.createTableOfCustomers(),
                 this.createNavigationButtons(),
                 sep2,
-                createRecordsSceneButtons()
+                this.createRecordsSceneButtons()
         );
 
         scrollPane = new ScrollPane(vBoxCustomersRecords);
@@ -89,7 +90,7 @@ public class CustomerRecordsScene {
      * @return a VBox node containing the table and the
      * search box.
      */
-    private VBox createTableOfCustomers() {
+    private VBox createTableOfCustomers() throws SQLException {
 
         VBox vBox;
         TextField txtSearch;
@@ -113,7 +114,11 @@ public class CustomerRecordsScene {
                 Customers customers = customersTableView.getSelectionModel().getSelectedItem();
                 customerID = customers.getCustomerID();
 
-                sceneController.showCustomerDetailsScene(customerID);
+                try {
+                    sceneController.showCustomerDetailsScene(customerID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
@@ -140,6 +145,15 @@ public class CustomerRecordsScene {
         TableColumn<Customers, String> firstNameCol, lastNameCol, genderCol, birthDate, profession, workPlace,
                 nationality, national_card, town, suburb, postalAddress, emailAddress, phoneNumber;
         TableColumn<Customers, Integer> ageCol;
+        TableColumn<Customers, Number> numberTableColumn;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(customersTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
 
         firstNameCol = new TableColumn<>("First Name");
         firstNameCol.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getFirstName()));
@@ -171,7 +185,7 @@ public class CustomerRecordsScene {
         phoneNumber = new TableColumn<>("Phone Number");
         phoneNumber.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPhoneNumber()));
 
-        customersTableView.getColumns().addAll(lastNameCol, firstNameCol, genderCol, birthDate, ageCol, nationality, profession, suburb, emailAddress, phoneNumber);
+        customersTableView.getColumns().addAll(numberTableColumn, lastNameCol, firstNameCol, genderCol, birthDate, ageCol, nationality, profession, suburb, emailAddress, phoneNumber);
     }
 
     /**
@@ -245,10 +259,22 @@ public class CustomerRecordsScene {
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
-        btnDetails.setOnAction(e -> sceneController.showCustomerDetailsScene(customerID));
+        btnDetails.setOnAction(e -> {
+            try {
+                sceneController.showCustomerDetailsScene(customerID);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnEdit = new Button("Edit Record");
-        btnEdit.setOnAction(e -> sceneController.showCustomerEditScene(customerID));
+        btnEdit.setOnAction(e -> {
+            try {
+                sceneController.showCustomerEditScene(customerID);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         btnEdit.setPrefWidth(120);
 
         gridPane = new GridPane();

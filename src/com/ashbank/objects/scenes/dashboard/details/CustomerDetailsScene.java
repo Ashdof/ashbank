@@ -17,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.io.File;
+import java.sql.SQLException;
 
 public class CustomerDetailsScene {
 
@@ -45,7 +46,7 @@ public class CustomerDetailsScene {
      * Details Scene:
      * display the details of a selected customer
      */
-    public ScrollPane getSelectedCustomerDetailsRoot(String customerID) {
+    public ScrollPane getSelectedCustomerDetailsRoot(String customerID) throws SQLException {
 
         Customers customers;
         ScrollPane scrollPane;
@@ -582,7 +583,13 @@ public class CustomerDetailsScene {
 
         btnBack = new Button("Back");
         btnBack.setPrefWidth(100);
-        btnBack.setOnAction(e -> sceneController.showCustomerRecordsScene());
+        btnBack.setOnAction(e -> {
+            try {
+                sceneController.showCustomerRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
@@ -591,7 +598,13 @@ public class CustomerDetailsScene {
         btnHideRecord.setPrefWidth(120);
 
         btnUpdateRecord = new Button("Edit Record");
-        btnUpdateRecord.setOnAction(e -> sceneController.showCustomerEditScene(customers.getCustomerID()));
+        btnUpdateRecord.setOnAction(e -> {
+            try {
+                sceneController.showCustomerEditScene(customers.getCustomerID());
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         btnUpdateRecord.setPrefWidth(120);
 
         lblSpace = new Label("      ");

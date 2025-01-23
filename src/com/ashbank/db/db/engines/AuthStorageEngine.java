@@ -3,6 +3,7 @@ package com.ashbank.db.db.engines;
 import com.ashbank.objects.people.Users;
 import com.ashbank.db.BankConnection;
 import com.ashbank.objects.utility.CustomDialogs;
+import com.ashbank.objects.utility.UserSession;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,15 +44,22 @@ public class AuthStorageEngine {
      * exists
      */
     public boolean userLogin(Users users) throws SQLException {
-        String id = users.getUserID();
-        String activity = "Users Login";
-        String success_details = users.getUsername() + "'s login attempt successful.";
-        String failure_details = users.getUsername() + "'s login attempt unsuccessful.";
+
+        String id, activity,  success_details, failure_details, notificationSuccessMessage, notificationFailMessage, accountOwner;
+
+        id = users.getUserID();
+        activity = "Users Login";
+        success_details = users.getUsername() + "'s login attempt successful.";
+        failure_details = users.getUsername() + "'s login attempt unsuccessful.";
 
         if (users.getUsername().isEmpty() || users.getEmployeePosition().isEmpty() || users.getPassword().isEmpty()) {
             ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
             return false;
         }
+
+        accountOwner = users.getUsername();
+        notificationSuccessMessage = accountOwner + "'s login is successful.";
+        notificationFailMessage = accountOwner + "'s login is unsuccessful.";
 
         String query = "SELECT * FROM bank_users WHERE role = ? AND username = ? AND password = ?";
         Connection connection = BankConnection.getBankConnection();
@@ -66,7 +74,8 @@ public class AuthStorageEngine {
                 if (resultSet.next()) {
 
                     ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
-                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
+                    UserSession.addNotification(notificationSuccessMessage);
+//                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
                     return true;
                 }
             }
@@ -82,7 +91,8 @@ public class AuthStorageEngine {
             }
         }
 
-        customDialogs.showAlertInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
+        UserSession.addNotification(notificationFailMessage);
+//        customDialogs.showAlertInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
         ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
         return false;
     }
@@ -142,19 +152,26 @@ public class AuthStorageEngine {
      */
     public boolean resetPassword(Users users) throws SQLException {
 
-        String id = users.getUserID();
-        String activity = "Password Reset";
-        String success_details = users.getUsername() + "'s password reset attempt successful.";
-        String failure_details = users.getUsername() + "'s password reset attempt unsuccessful.";
+        String activity, id, selectQuery, updateQuery, success_details, failure_details, notificationSuccessMessage,
+                notificationFailMessage, accountOwner;
+        int rows;
 
-        String selectQuery = """
+        id = users.getUserID();
+        activity = "Password Reset";
+        success_details = users.getUsername() + "'s password reset attempt successful.";
+        failure_details = users.getUsername() + "'s password reset attempt unsuccessful.";
+
+        accountOwner = users.getUsername();
+        notificationSuccessMessage = accountOwner + "'s password reset is successful.";
+        notificationFailMessage = accountOwner + "'s password reset is unsuccessful.";
+
+        selectQuery = """
                 SELECT p.security_question, p.security_answer, u.username
                 FROM bank_users_profile p
                 JOIN bank_users u ON p.employee_id = u.employee_id
                 WHERE username = ? AND security_question = ? AND security_answer = ?
                 """;
-        String updateQuery = "UPDATE bank_users SET password = ? WHERE username = ?";
-        int rows;
+        updateQuery = "UPDATE bank_users SET password = ? WHERE username = ?";
 
         Connection connection = BankConnection.getBankConnection();
 
@@ -166,25 +183,28 @@ public class AuthStorageEngine {
             preparedStatement.setString(3, users.getSecurityAnswer());
 
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (!resultSet.next()) {
-                ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
-                customDialogs.showErrInformation(ERR_PASS_TITLE, ERR_PASS_MSG);
-                return false;
-            }
 
 
             // Reset password
-            try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)){
+            try (resultSet; PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+                if (!resultSet.next()) {
+                    ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
+                    UserSession.addNotification(notificationFailMessage);
+                    customDialogs.showErrInformation(ERR_PASS_TITLE, ERR_PASS_MSG);
+                    return false;
+                }
                 updateStatement.setString(1, users.getPassword());
                 updateStatement.setString(2, users.getUsername());
 
                 rows = updateStatement.executeUpdate();
                 if (rows > 0) {
                     ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
+                    UserSession.addNotification(notificationSuccessMessage);
                     customDialogs.showAlertInformation(INFO_RESET_TITLE, INFO_RESET_MSG);
                     return true;
                 } else {
                     ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
+                    UserSession.addNotification(notificationFailMessage);
                     customDialogs.showErrInformation(ERR_RESET_TITLE, ERR_RESET_MSG);
                     return false;
                 }
@@ -192,8 +212,6 @@ public class AuthStorageEngine {
                 logger.log(Level.SEVERE, "Error resetting password - " + sqlException.getMessage());
 
                 return false;
-            } finally {
-                resultSet.close();
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error resetting password - " + sqlException.getMessage());
