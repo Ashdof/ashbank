@@ -10,7 +10,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -121,129 +120,80 @@ public class BankAccountsStorageEngine {
     }
 
     /**
-     * Bank Account Objects:
-     * fetch all bank account objects
-     * @return a list of bank account objects
+     * Delete Bank Account Object:
+     * removes from the database a customer bank account object of the
+     * provided ID
+     * @param bankAccountID the ID of the bank account object to delete
+     * @return true if successful, false otherwise
      */
-    public static List<BankAccounts> getAllBankAccountData() {
+    public boolean deleteCustomerBankAccount(String bankAccountID) throws SQLException {
 
-        List<BankAccounts> accountsList = new ArrayList<>();
-        BankAccounts bankAccounts;
+        String query, activity, activity_success_details, activity_failure_details, accountType, accountOwner,
+                notificationSuccessMessage, notificationFailMessage;
+        int affectedRows;
+        boolean status;
         Connection connection;
         PreparedStatement preparedStatement;
-        ResultSet resultSet;
-        String query, customerID, accountID, accountNumber, accountType, accountCurrency, accountStatus,
-                dateCreated;
-        double currentBalance, initialDeposit;
-        Date lastTransactionDate;
 
-        query = "SELECT * FROM customers_bank_account";
+        /*=================== MESSAGES ===================*/
+        activity = "Delete Customer Bank Account";
+        activity_success_details = userSession.getUsername() + "'s attempt to delete customer bank account successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to delete customer bank account unsuccessful.";
 
-        try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        accountType = new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountID).getAccountType();
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountID).getCustomerID()
+        ).getFullName();
+        notificationSuccessMessage = "Deleting " + accountOwner + "'s " + accountType + " is successful.";
+        notificationFailMessage = "Deleting " + accountOwner + "'s " + accountType + " is unsuccessful.";
 
-            while (resultSet.next()) {
-                accountID = resultSet.getString("id");
-                customerID = resultSet.getString("customer_id");
-                accountNumber = resultSet.getString("account_number");
-                accountType = resultSet.getString("account_type");
-                accountCurrency = resultSet.getString("account_currency");
-                initialDeposit = resultSet.getDouble("initial_deposit");
-                currentBalance = resultSet.getDouble("current_balance");
-                dateCreated = resultSet.getString("date_created");
-                lastTransactionDate = resultSet.getDate("last_transaction_date");
-                accountStatus = resultSet.getString("account_status");
+        /*=================== SQL QUERIES ===================*/
 
-                bankAccounts = new BankAccounts();
-                bankAccounts.setAccountID(accountID);
-                bankAccounts.setCustomerID(customerID);
-                bankAccounts.setAccountNumber(accountNumber);
-                bankAccounts.setAccountType(accountType);
-                bankAccounts.setInitialDeposit(initialDeposit);
-                bankAccounts.setAccountCurrency(accountCurrency);
-                bankAccounts.setAccountBalance(currentBalance);
-                bankAccounts.setDateCreated(dateCreated);
-                bankAccounts.setLastTransactionDate(lastTransactionDate);
-                bankAccounts.setAccountStatus(accountStatus);
-
-                accountsList.add(bankAccounts);
-            }
-        } catch (SQLException sqlException) {
-            // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
-        }
-
-        return accountsList;
-    }
-
-    /**
-     * Bank Account:
-     * create a new bank account object with data from the database
-     * using the provided bank account ID
-     * @param accountID the ID of the bank account
-     * @return the bank account object
-     */
-    public BankAccounts getBankAccountsDataByID(String accountID) throws SQLException {
-
-        BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
-        String query, customerID, accountNumber, accountType, accountCurrency, accountStatus,
-                dateCreated;
-        double currentBalance, initialDeposit;
-        Date lastTransactionDate;
-
-        bankAccounts = new BankAccounts();
-        query = "SELECT * FROM customers_bank_account WHERE id = ?";
-
+        query = "DELETE FROM customers_bank_account WHERE id = ?";
+        status = false;
         connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
 
         try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(query);
 
-            preparedStatement.setString(1, accountID);
-            resultSet = preparedStatement.executeQuery();
+            preparedStatement.setString(1, bankAccountID);
+            affectedRows = preparedStatement.executeUpdate();
 
-            while (resultSet.next()) {
-                customerID = resultSet.getString("customer_id");
-                accountNumber = resultSet.getString("account_number");
-                accountType = resultSet.getString("account_type");
-                accountCurrency = resultSet.getString("account_currency");
-                initialDeposit = resultSet.getDouble("initial_deposit");
-                currentBalance = resultSet.getDouble("current_balance");
-                dateCreated = resultSet.getString("date_created");
-                lastTransactionDate = resultSet.getDate("last_transaction_date");
-                accountStatus = resultSet.getString("account_status");
+            if (affectedRows > 0) {
 
-                // Create Bank Account Object
-                bankAccounts = new BankAccounts();
-                bankAccounts.setAccountID(accountID);
-                bankAccounts.setCustomerID(customerID);
-                bankAccounts.setAccountNumber(accountNumber);
-                bankAccounts.setAccountType(accountType);
-                bankAccounts.setInitialDeposit(initialDeposit);
-                bankAccounts.setAccountCurrency(accountCurrency);
-                bankAccounts.setAccountBalance(currentBalance);
-                bankAccounts.setDateCreated(dateCreated);
-                bankAccounts.setLastTransactionDate(lastTransactionDate);
-                bankAccounts.setAccountStatus(accountStatus);
+                status = true;
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
             }
         } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
             // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
+            logger.log(Level.SEVERE, "Error deleting customer bank account record - " + sqlException.getMessage());
+
         } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
             }
         }
 
-        return bankAccounts;
+        return status;
     }
 
     /**
@@ -408,65 +358,6 @@ public class BankAccountsStorageEngine {
     }
 
     /**
-     * Account Balance:
-     * fetch the current balance of a bank account of the provided
-     * account ID
-     * @param accountID the ID of the bank account
-     * @return the value of the current balance
-     * @throws SQLException if an error occurs
-     */
-    public double getCustomerAccountBalance(String accountID) throws SQLException {
-
-        String amountQuery;
-        double accountBalance;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
-
-        amountQuery = "SELECT current_balance FROM customers_bank_account WHERE id = ?";
-        connection = BankConnection.getBankConnection();
-        accountBalance = 0.00;
-
-        try {
-            preparedStatement = connection.prepareStatement(amountQuery);
-
-            preparedStatement.setString(1, accountID);
-
-            try {
-                resultSet = preparedStatement.executeQuery();
-                if (resultSet.next()) {
-                    accountBalance = resultSet.getDouble("current_balance");
-                }
-            } catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error fetching account balance - " + sqlException.getMessage());
-            } finally {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
-            }
-        } catch (SQLException sqlException) {
-
-            // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error searching for customer - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
-        }
-
-        return accountBalance;
-    }
-
-    /**
      * Update Account Balance:
      * update the account balance of a customer's bank account when a
      * transaction is initiated
@@ -576,6 +467,355 @@ public class BankAccountsStorageEngine {
         }
 
         return status;
+    }
+
+    /**
+     * Update Account Balance:
+     * update the balance of a bank account object
+     * @param accountID the ID of the bank account object
+     * @param transactionID the ID of the transaction object which is
+     *                      associated by the ID of the account object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean updateBankAccountBalance(String accountID, String transactionID) throws SQLException {
+
+        String activity, activity_success_details, activity_fail_details, query, notificationSuccessMessage,
+                notificationFailMessage, accountType, accountOwner;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        boolean status;
+        double totalAmount, transactionAmount;
+
+        activity = "Update Account Balance";
+        activity_success_details = "Customer's account balance update successful.";
+        activity_fail_details = "Customer's account balance update unsuccessful.";
+
+        accountType = new BankAccountsStorageEngine().getBankAccountsDataByID(accountID).getAccountType();
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(accountID).getCustomerID()
+        ).getFullName();
+        notificationSuccessMessage = "Update of " + accountOwner + "'s " + accountType + " balance is successful.";
+        notificationFailMessage = "Update of " + accountOwner + "'s " + accountType + " balance is unsuccessful.";
+
+        query = "UPDATE customers_bank_account SET current_balance = ? WHERE id = ?";
+        transactionAmount = new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getTransactionAmount();
+        totalAmount = this.getCustomerAccountBalance(accountID) - transactionAmount;
+        connection = BankConnection.getBankConnection();
+        status = false;
+
+        try {
+            connection.setAutoCommit(false);
+
+            preparedStatement = connection.prepareStatement(query);
+
+            try {
+                preparedStatement.setDouble(1, totalAmount);
+                preparedStatement.setString(2, accountID);
+                preparedStatement.executeUpdate();
+
+                connection.commit();
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                status = true;
+            } catch (SQLException sqlException) {
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_fail_details);
+
+                // Display notification
+                UserSession.addNotification(notificationFailMessage);
+
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
+            } finally {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
+                }
+            }
+        } catch (SQLException sqlException) {
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
+
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException sqlException) {
+
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Bank Account Objects:
+     * fetch all bank account objects
+     * @return a list of bank account objects
+     */
+    public static List<BankAccounts> getAllBankAccountData() {
+
+        List<BankAccounts> accountsList = new ArrayList<>();
+        BankAccounts bankAccounts;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, customerID, accountID, accountNumber, accountType, accountCurrency, accountStatus,
+                dateCreated;
+        double currentBalance, initialDeposit;
+        Date lastTransactionDate;
+
+        query = "SELECT * FROM customers_bank_account";
+
+        try {
+            connection = BankConnection.getBankConnection();
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                accountID = resultSet.getString("id");
+                customerID = resultSet.getString("customer_id");
+                accountNumber = resultSet.getString("account_number");
+                accountType = resultSet.getString("account_type");
+                accountCurrency = resultSet.getString("account_currency");
+                initialDeposit = resultSet.getDouble("initial_deposit");
+                currentBalance = resultSet.getDouble("current_balance");
+                dateCreated = resultSet.getString("date_created");
+                lastTransactionDate = resultSet.getDate("last_transaction_date");
+                accountStatus = resultSet.getString("account_status");
+
+                bankAccounts = new BankAccounts();
+                bankAccounts.setAccountID(accountID);
+                bankAccounts.setCustomerID(customerID);
+                bankAccounts.setAccountNumber(accountNumber);
+                bankAccounts.setAccountType(accountType);
+                bankAccounts.setInitialDeposit(initialDeposit);
+                bankAccounts.setAccountCurrency(accountCurrency);
+                bankAccounts.setAccountBalance(currentBalance);
+                bankAccounts.setDateCreated(dateCreated);
+                bankAccounts.setLastTransactionDate(lastTransactionDate);
+                bankAccounts.setAccountStatus(accountStatus);
+
+                accountsList.add(bankAccounts);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
+        }
+
+        return accountsList;
+    }
+
+    /**
+     * Bank Account:
+     * create a new bank account object with data from the database
+     * using the provided bank account ID
+     * @param accountID the ID of the bank account
+     * @return the bank account object
+     */
+    public BankAccounts getBankAccountsDataByID(String accountID) throws SQLException {
+
+        BankAccounts bankAccounts;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, customerID, accountNumber, accountType, accountCurrency, accountStatus,
+                dateCreated;
+        double currentBalance, initialDeposit;
+        Date lastTransactionDate;
+
+        bankAccounts = new BankAccounts();
+        query = "SELECT * FROM customers_bank_account WHERE id = ?";
+
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
+        try {
+
+            preparedStatement.setString(1, accountID);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                customerID = resultSet.getString("customer_id");
+                accountNumber = resultSet.getString("account_number");
+                accountType = resultSet.getString("account_type");
+                accountCurrency = resultSet.getString("account_currency");
+                initialDeposit = resultSet.getDouble("initial_deposit");
+                currentBalance = resultSet.getDouble("current_balance");
+                dateCreated = resultSet.getString("date_created");
+                lastTransactionDate = resultSet.getDate("last_transaction_date");
+                accountStatus = resultSet.getString("account_status");
+
+                // Create Bank Account Object
+                bankAccounts = new BankAccounts();
+                bankAccounts.setAccountID(accountID);
+                bankAccounts.setCustomerID(customerID);
+                bankAccounts.setAccountNumber(accountNumber);
+                bankAccounts.setAccountType(accountType);
+                bankAccounts.setInitialDeposit(initialDeposit);
+                bankAccounts.setAccountCurrency(accountCurrency);
+                bankAccounts.setAccountBalance(currentBalance);
+                bankAccounts.setDateCreated(dateCreated);
+                bankAccounts.setLastTransactionDate(lastTransactionDate);
+                bankAccounts.setAccountStatus(accountStatus);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return bankAccounts;
+    }
+
+    /**
+     * Bank Account:
+     * create a new bank account object with data from the database
+     * using the provided customer ID
+     * @param customerID the ID of the customer
+     * @return the bank account object
+     */
+    public BankAccounts getBankAccountsDataByCustomerID(String customerID) throws SQLException {
+
+        BankAccounts bankAccounts;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, accountID, accountNumber, accountType, accountCurrency, accountStatus,
+                dateCreated;
+        double currentBalance, initialDeposit;
+        Date lastTransactionDate;
+
+        bankAccounts = new BankAccounts();
+        query = "SELECT * FROM customers_bank_account WHERE customer_id = ?";
+
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
+        try {
+
+            preparedStatement.setString(1, customerID);
+            resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                accountID = resultSet.getString("id");
+                accountNumber = resultSet.getString("account_number");
+                accountType = resultSet.getString("account_type");
+                accountCurrency = resultSet.getString("account_currency");
+                initialDeposit = resultSet.getDouble("initial_deposit");
+                currentBalance = resultSet.getDouble("current_balance");
+                dateCreated = resultSet.getString("date_created");
+                lastTransactionDate = resultSet.getDate("last_transaction_date");
+                accountStatus = resultSet.getString("account_status");
+
+                // Create Bank Account Object
+                bankAccounts = new BankAccounts();
+                bankAccounts.setAccountID(accountID);
+                bankAccounts.setCustomerID(customerID);
+                bankAccounts.setAccountNumber(accountNumber);
+                bankAccounts.setAccountType(accountType);
+                bankAccounts.setInitialDeposit(initialDeposit);
+                bankAccounts.setAccountCurrency(accountCurrency);
+                bankAccounts.setAccountBalance(currentBalance);
+                bankAccounts.setDateCreated(dateCreated);
+                bankAccounts.setLastTransactionDate(lastTransactionDate);
+                bankAccounts.setAccountStatus(accountStatus);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return bankAccounts;
+    }
+
+    /**
+     * Account Balance:
+     * fetch the current balance of a bank account of the provided
+     * account ID
+     * @param accountID the ID of the bank account
+     * @return the value of the current balance
+     * @throws SQLException if an error occurs
+     */
+    public double getCustomerAccountBalance(String accountID) throws SQLException {
+
+        String amountQuery;
+        double accountBalance;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+
+        amountQuery = "SELECT current_balance FROM customers_bank_account WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        accountBalance = 0.00;
+
+        try {
+            preparedStatement = connection.prepareStatement(amountQuery);
+
+            preparedStatement.setString(1, accountID);
+
+            try {
+                resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()) {
+                    accountBalance = resultSet.getDouble("current_balance");
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error fetching account balance - " + sqlException.getMessage());
+            } finally {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
+                }
+            }
+        } catch (SQLException sqlException) {
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error searching for customer - " + sqlException.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return accountBalance;
     }
 
     /**

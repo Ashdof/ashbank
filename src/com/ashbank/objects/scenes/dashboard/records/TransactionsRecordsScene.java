@@ -235,6 +235,7 @@ public class TransactionsRecordsScene {
         });
 
         btnEdit = new Button("Edit Record");
+        btnEdit.setPrefWidth(120);
         btnEdit.setOnAction(e -> {
             try {
                 sceneController.showTransactionEditScene(transactionID);
@@ -242,7 +243,6 @@ public class TransactionsRecordsScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnEdit.setPrefWidth(120);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);

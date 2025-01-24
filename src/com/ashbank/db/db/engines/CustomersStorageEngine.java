@@ -23,6 +23,8 @@ public class CustomersStorageEngine {
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private UserSession userSession = UserSession.getInstance();
     private static final Logger logger = Logger.getLogger(CustomersStorageEngine.class.getName());
+    private static final BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
+    private static final BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
 
     /* =================== MESSAGES =================== */
     private static final String SAVE_TITLE = "New Customer Record";
@@ -348,9 +350,6 @@ public class CustomersStorageEngine {
                 // Log this activity and the user undertaking it
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
-                // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
-
                 // Display success notificationMessage in a dialog to the user
                 UserSession.addNotification(notificationSuccessMessage);
 
@@ -397,6 +396,80 @@ public class CustomersStorageEngine {
                 try {
                     connection.close();
                 } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Delete Customer Object:
+     * remove a customer object of the provided ID from the database
+     * @param customerID the ID of the customer object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteCustomerData(String customerID) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, transactionType,
+                notificationSuccessMessage, notificationFailMessage, accountOwner;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        boolean status;
+        int affectedRows;
+
+        activity = "Delete Bank Account Transaction Data";
+        activity_success_details = userSession.getUsername() + "'s attempt to delete customer record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to delete customer record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(customerID).getFullName();
+        notificationSuccessMessage = "Deleting " + accountOwner + "'s data is successful.";
+        notificationFailMessage = "Deleting " + accountOwner + "'s data is unsuccessful.";
+
+        query = "DELETE FROM customers WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        status = false;
+
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(query);
+
+            preparedStatement.setString(1, customerID);
+            affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows > 0) {
+
+                status = true;
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+            } else {
+                UserSession.addNotification("No customer object found with the given ID");
+                Logger.getLogger(getClass().getName()).warning("No rows affected. Possible invalid customer ID: " + customerID);
+            }
+        } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
+
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+
                     // replace this error logging with actual file logging which can later be analyzed
                     logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
                 }
@@ -569,7 +642,7 @@ public class CustomersStorageEngine {
             while (resultSet.next()) {
 
                 // Basic Data
-                id = resultSet.getString("id");
+//                id = resultSet.getString("id");
                 lastName = resultSet.getString("last_name");
                 firstName = resultSet.getString("first_name");
                 gender = resultSet.getString("gender");
@@ -615,7 +688,7 @@ public class CustomersStorageEngine {
                 beneficiaryPhoneNumber = resultSet.getString("beneficiary_phone_number");
 
                 // Create New Customer Object
-                customers.setCustomerID(id);
+                customers.setCustomerID(customerID);
                 customers.setLastName(lastName);
                 customers.setFirstName(firstName);
                 customers.setGender(gender);

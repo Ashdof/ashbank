@@ -268,6 +268,7 @@ public class CustomerRecordsScene {
         });
 
         btnEdit = new Button("Edit Record");
+        btnEdit.setPrefWidth(120);
         btnEdit.setOnAction(e -> {
             try {
                 sceneController.showCustomerEditScene(customerID);
@@ -275,7 +276,6 @@ public class CustomerRecordsScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnEdit.setPrefWidth(120);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
