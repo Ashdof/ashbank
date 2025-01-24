@@ -17,6 +17,7 @@ ASHBank is a simple banking platform which aims to deliver a robust, secure, and
   - [Lessons Learned](#lessons-learned)
   - [Next Steps](#next-steps)
 - [Conclusion](#conclusion)
+- [Team Members](#team-members)
 
 ## Architecture
 The platform follows a modular architecture for scalability and maintainability, divided into:
@@ -72,3 +73,6 @@ I avoided third-party libraries for this initial implementation to strengthen my
 Building this banking platform has been a transformative journey for me, blending theoretical knowledge with practical application. While I have celebrated notable successes, I also faced challenges that taught me resilience and adaptability.
 This project strengthened my technical skills, teamwork (with **ChatGPT**), and understanding of user-centric development.
 As I move forward, I am excited to enhance this platform into a robust and scalable solution, bringing me closer to my goal of driving innovation in FinTech.
+
+## Team Members
+[Emmanuel Enchill](https://github.com/Ashdof) is a fullstack software engineer who enjoys working on both back-end and front-end.
