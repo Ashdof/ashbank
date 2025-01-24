@@ -1,7 +1,6 @@
 # ASHBank
-<a>
-    <img src="com/ashbank/resources/photos/ashbank/github_banner.png" alt="ashpense github banner">
-</a>
+![AshBank Banner](src/com/ashbank/resources/photos/ashbank/github_banner.png)
+
 
 ## ABOUT ASHBANK
 ASHBank is a simple banking platform which aims to deliver a robust, secure, and user-friendly application to manage core banking functionalities such as account creation, deposits, withdrawals, balance inquiries, and transaction tracking. Our vision is to build a foundation for integrating future FinTech innovations like advanced analytics and personalized financial services.
