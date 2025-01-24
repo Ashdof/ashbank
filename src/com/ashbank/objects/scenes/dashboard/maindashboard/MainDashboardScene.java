@@ -305,6 +305,19 @@ public class MainDashboardScene {
             if (newValue != null)
                 transactionID = newValue.getTransactionID();
         });
+        bankAccountTransactionsTableView.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2 && !bankAccountTransactionsTableView.getSelectionModel().isEmpty()) {
+                BankAccountTransactions bankAccountTransactions = bankAccountTransactionsTableView.getSelectionModel().getSelectedItem();
+
+                transactionID = bankAccountTransactions.getTransactionID();
+
+                try {
+                    sceneController.showTransactionDetailsScene(transactionID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));

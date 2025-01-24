@@ -230,7 +230,7 @@ public class InitializePlatform {
                 "role TEXT," +
                 "username TEXT," +
                 "password TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
         String createUsersProfileTable = "CREATE TABLE IF NOT EXISTS bank_users_profile (" +
@@ -238,7 +238,7 @@ public class InitializePlatform {
                 "employee_id TEXT," +
                 "security_question TEXT," +
                 "security_answer TEXT," +
-                "FOREIGN KEY (employee_id) REFERENCES employee (id) ON DELETE CASCADE" +
+                "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
         /* =================== ACTIVITY LOG TABLE =================== **/

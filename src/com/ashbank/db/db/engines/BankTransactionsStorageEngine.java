@@ -100,6 +100,178 @@ public class BankTransactionsStorageEngine {
     }
 
     /**
+     * Update Transaction Object:
+     * update the data of a transaction object
+     * @param bankAccountTransactions the transaction object
+     * @return true if successful, false otherwise
+     */
+    public boolean updateBankTransactionData(BankAccountTransactions bankAccountTransactions) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, update_fail_msg,
+                update_success_msg, notificationSuccessMessage, notificationFailMessage, accountOwner;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        boolean status;
+
+        activity = "Bank Account Transaction Data Update";
+        update_success_msg = "Bank account transaction data update successful";
+        update_fail_msg = "Bank account transaction data update unsuccessful";
+        activity_success_details = userSession.getUsername() + "'s attempt to update bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to update bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID()
+        ).getFullName();
+        notificationSuccessMessage = "Update of " + accountOwner + "'s data is successful.";
+        notificationFailMessage = "Update of " + accountOwner + "'s data is unsuccessful.";
+
+        query = "UPDATE customers_account_transactions SET transaction_type = ?, transaction_amount = ?, transaction_date = ?, transaction_details = ? " +
+                "WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        status = false;
+
+        try {
+            connection.setAutoCommit(false);
+
+            preparedStatement = connection.prepareStatement(query);
+
+            try {
+                preparedStatement.setString(1, bankAccountTransactions.getTransactionType());
+                preparedStatement.setDouble(2, bankAccountTransactions.getTransactionAmount());
+                preparedStatement.setTimestamp(3, Timestamp.valueOf(bankAccountTransactions.getTransactionDate()));
+                preparedStatement.setString(4, bankAccountTransactions.getTransactionDetails());
+                preparedStatement.setString(5, bankAccountTransactions.getTransactionID());
+                preparedStatement.executeUpdate();
+
+                // commit the query
+                connection.commit();
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Display success message in a dialog to the user
+//                customDialogs.showAlertInformation(activity, update_success_msg);
+                status = true;
+            } catch (SQLException  sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                connection.rollback();
+                logger.log(Level.SEVERE, "Error updating transaction record - " + sqlException.getMessage());
+            } finally {
+                // Close the prepared statements
+                try {
+                    preparedStatement.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
+                }
+            }
+        } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, update_fail_msg);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error updating bank account transaction data - " + sqlException.getMessage());
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Delete Transaction Object:
+     * remove a transaction object of the provided ID from the database
+     * @param transactionID the ID of the transaction object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteBankAccountTransactionObject(String transactionID) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, transactionType,
+                notificationSuccessMessage, notificationFailMessage, accountOwner;
+        Connection connection;
+        PreparedStatement preparedStatement;
+        boolean status;
+        int affectedRows;
+
+        activity = "Delete Bank Account Transaction Data";
+        activity_success_details = userSession.getUsername() + "'s attempt to delete bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to delete bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(
+                        new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getAccountID()
+                ).getCustomerID()
+        ).getFullName();
+        transactionType = new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getTransactionType();
+
+        notificationSuccessMessage = "Deleting " + accountOwner + "'s " + transactionType + " transaction data is successful.";
+        notificationFailMessage = "Deleting " + accountOwner + "'s " + transactionType + " transaction data is unsuccessful.";
+
+        query = "DELETE FROM customers_account_transactions WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        status = false;
+
+        try {
+            connection.setAutoCommit(false);
+            preparedStatement = connection.prepareStatement(query);
+
+            preparedStatement.setString(1, transactionID);
+            affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows > 0) {
+
+                status = true;
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+            }
+        } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error deleting bank account transaction record - " + sqlException.getMessage());
+
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException sqlException) {
+
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+                }
+            }
+        }
+
+        return status;
+    }
+
+    /**
      * Transaction Objects:
      * fetch all transaction objects from the database
      * @return a list of all transaction objects
@@ -208,98 +380,61 @@ public class BankTransactionsStorageEngine {
     }
 
     /**
-     * Update Transaction Object:
-     * update the data of a transaction object
-     * @param bankAccountTransactions the transaction object
-     * @return true if successful, false otherwise
+     * Bank Transaction Object:
+     * create new bank transaction object with data from the database using
+     * the provided account ID
+     * @param accountID the ID of the bank account
+     * @return a new transaction object
+     * @throws SQLException if an error occurs
      */
-    public boolean updateBankTransactionData(BankAccountTransactions bankAccountTransactions) throws SQLException {
+    public BankAccountTransactions getBankTransactionDataByAccountID(String accountID) throws SQLException {
 
-        String activity, activity_success_details, activity_failure_details, query, update_fail_msg,
-                update_success_msg, notificationSuccessMessage, notificationFailMessage, accountOwner;
+        BankAccountTransactions bankAccountTransactions;
         Connection connection;
         PreparedStatement preparedStatement;
-        boolean status;
+        ResultSet resultSet;
+        String query, transactionID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
 
-        activity = "Bank Account Transaction Data Update";
-        update_success_msg = "Bank account transaction data update successful";
-        update_fail_msg = "Bank account transaction data update unsuccessful";
-        activity_success_details = userSession.getUsername() + "'s attempt to update bank account transaction record successful.";
-        activity_failure_details = userSession.getUsername() + "'s attempt to update bank account transaction record unsuccessful.";
-
-        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
-                new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID()
-        ).getFullName();
-        notificationSuccessMessage = "Update of " + accountOwner + "'s data is successful.";
-        notificationFailMessage = "Update of " + accountOwner + "'s data is unsuccessful.";
-
-        query = "UPDATE customers_account_transactions SET transaction_type = ?, transaction_amount = ?, transaction_date = ?, transaction_details = ? " +
-                "WHERE id = ?";
+        bankAccountTransactions = new BankAccountTransactions();
         connection = BankConnection.getBankConnection();
-        status = false;
+        query = "SELECT * FROM customers_account_transactions WHERE id = ?";
+        preparedStatement = connection.prepareStatement(query);
 
         try {
-            connection.setAutoCommit(false);
 
-            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, accountID);
+            resultSet = preparedStatement.executeQuery();
 
-            try {
-                preparedStatement.setString(1, bankAccountTransactions.getTransactionType());
-                preparedStatement.setDouble(2, bankAccountTransactions.getTransactionAmount());
-                preparedStatement.setTimestamp(3, Timestamp.valueOf(bankAccountTransactions.getTransactionDate()));
-                preparedStatement.setString(4, bankAccountTransactions.getTransactionDetails());
-                preparedStatement.setString(5, bankAccountTransactions.getTransactionID());
-                preparedStatement.executeUpdate();
+            while (resultSet.next()) {
+                transactionID = resultSet.getString("id");
+                transactionType = resultSet.getString("transaction_type");
+                transactionAmount = resultSet.getDouble("transaction_amount");
+                transactionDate = resultSet.getTimestamp("transaction_date");
+                transactionDetails = resultSet.getString("transaction_details");
 
-                // commit the query
-                connection.commit();
-
-                // Log this activity and the user undertaking it
-                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-
-                // Display notification
-                UserSession.addNotification(notificationSuccessMessage);
-
-                // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(activity, update_success_msg);
-                status = true;
-            } catch (SQLException  sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                connection.rollback();
-                logger.log(Level.SEVERE, "Error updating transaction record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
+                bankAccountTransactions = new BankAccountTransactions();
+                bankAccountTransactions.setTransactionID(transactionID);
+                bankAccountTransactions.setAccountID(accountID);
+                bankAccountTransactions.setTransactionType(transactionType);
+                bankAccountTransactions.setTransactionAmount(transactionAmount);
+                bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                bankAccountTransactions.setTransactionDetails(transactionDetails);
             }
         } catch (SQLException sqlException) {
-            // Log this activity and the user undertaking it
-            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-
-            // Display notification
-            UserSession.addNotification(notificationFailMessage);
-
-            // Display failure message in a dialog to the user
-            customDialogs.showErrInformation(activity, update_fail_msg);
-
             // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error updating bank account transaction data - " + sqlException.getMessage());
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
         } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
             }
         }
 
-        return status;
+        return bankAccountTransactions;
     }
 
     /**

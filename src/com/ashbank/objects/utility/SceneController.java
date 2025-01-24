@@ -1,5 +1,8 @@
 package com.ashbank.objects.utility;
 
+import com.ashbank.db.db.engines.BankAccountsStorageEngine;
+import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
+import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
 import com.ashbank.objects.scenes.dashboard.details.BankAccountDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.CustomerDetailsScene;
@@ -302,13 +305,10 @@ public class SceneController {
      * renders the scene to display a list of all notifications
      */
     public void showNotificationsScene() {
-
         NotificationsScene notificationsScene;
-        Scene addNotificationsScene;
         ScrollPane addNotificationsRoot;
 
         notificationsScene = new NotificationsScene(this);
-        addNotificationsScene = notificationsScene.getNotificationsScene();
         addNotificationsRoot = notificationsScene.createNotificationsRoot();
 
         mainDashboardRoot.setCenter(addNotificationsRoot);
@@ -324,5 +324,91 @@ public class SceneController {
 
         toolBar = mainDashboard.createToolBarRoot();
         mainDashboardRoot.setBottom(toolBar);
+    }
+
+    /**
+     * Delete Customer Record:
+     * execute the functionality to delete a customer's record
+     * @param customerID the ID of the customer's record
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteCustomerRecord(String customerID) throws SQLException {
+        CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
+        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
+        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
+
+        String accountID, transactionID;
+        boolean status = false;
+
+        accountID = bankAccountsStorageEngine.getBankAccountsDataByCustomerID(customerID).getAccountID();
+        transactionID = bankTransactionsStorageEngine.getBankTransactionDataByAccountID(accountID).getTransactionID();
+
+        if (this.deleteTransactionsRecord(transactionID) || !(this.deleteTransactionsRecord(transactionID))) {
+            if (this.deleteBankAccountRecord(accountID) || !(this.deleteBankAccountRecord(accountID))) {
+                if (customersStorageEngine.deleteCustomerData(customerID)) {
+                    status = true;
+                }
+            }
+        }
+
+//        if (customersStorageEngine.deleteCustomerData(customerID)) {
+//            if (this.deleteBankAccountRecord(accountID)) {
+//                if (this.deleteTransactionsRecord(transactionID))
+//                        status = true;
+//            }
+//        }
+
+        return status;
+    }
+
+    /**
+     * Delete Bank Account Record:
+     * execute the functionality to delete a bank account record
+     * @param accountID the ID of the bank account record
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteBankAccountRecord(String accountID) throws SQLException {
+        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
+
+        return bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
+    }
+
+    /**
+     * Delete Transaction Record:
+     * execute the functionality to delete a transaction record
+     * @param transactionID the ID of the transaction record
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteTransactionsRecord(String transactionID) throws SQLException {
+        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
+        boolean status = false;
+
+        if (bankTransactionsStorageEngine.deleteBankAccountTransactionObject(transactionID)) {
+            if (this.updateBankAccountBalance(transactionID)) {
+                status = true;
+            }
+        }
+
+        return status;
+    }
+
+    /**
+     * Update Bank Account Balance:
+     * update the balance of a bank account upon deleting a transaction object
+     * @param transactionID the ID of the transaction object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean updateBankAccountBalance(String transactionID) throws SQLException {
+
+        BankTransactionsStorageEngine bankTransactionsStorageEngine;
+        BankAccountsStorageEngine bankAccountsStorageEngine;
+        String accountID;
+
+        bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
+        bankAccountsStorageEngine = new BankAccountsStorageEngine();
+        accountID = bankTransactionsStorageEngine.getBankTransactionDataByID(transactionID).getAccountID();
+
+        return bankAccountsStorageEngine.updateBankAccountBalance(accountID, transactionID);
     }
 }

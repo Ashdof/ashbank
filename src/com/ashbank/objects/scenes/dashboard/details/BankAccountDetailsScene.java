@@ -158,6 +158,14 @@ public class BankAccountDetailsScene {
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                if (sceneController.deleteBankAccountRecord(bankAccounts.getAccountID()))
+                    sceneController.showBankAccountsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnHideRecord = new Button("Hide Record");
         btnHideRecord.setPrefWidth(120);

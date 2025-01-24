@@ -165,6 +165,14 @@ public class TransactionDetailsScene {
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                if (sceneController.deleteTransactionsRecord(bankAccountTransactions.getTransactionID()))
+                    sceneController.showTransactionsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnUpdateRecord = new Button("Edit Record");
         btnUpdateRecord.setOnAction(e -> {
