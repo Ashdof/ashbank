@@ -575,7 +575,7 @@ public class NewBankAccountsScene {
             newCustomerTitledPane.setDisable(true);
             existingCustomerTitledPane.setDisable(true);
             try {
-                sceneController.showMainDashboard();
+                sceneController.returnToMainDashboard();
             } catch (SQLException sqlException) {
                 logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
             }
