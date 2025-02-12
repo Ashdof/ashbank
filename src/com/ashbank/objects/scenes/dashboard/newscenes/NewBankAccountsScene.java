@@ -574,46 +574,60 @@ public class NewBankAccountsScene {
 
             newCustomerTitledPane.setDisable(true);
             existingCustomerTitledPane.setDisable(true);
-            toggleGroup.getSelectedToggle().setSelected(false);
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
+            }
         });
 
         btnSave = new Button(" _Save ");
         btnSave.setPrefWidth(100);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
-            try {
+            String title = "Customer Information";
+            String message = """
+                        No customer information provided. Either
+                        add the information of a new customer or
+                        select one from the table on the right.
+                        """;
 
-                if (toggleGroup.getSelectedToggle().equals(rbExistingCustomer)) {
+            if (customerID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
 
-                    this.getBankAccountData();
-                    bankAccounts.setCustomerID(customerID);
-                    bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
-                    sceneController.showMainDashboardSummaries();
-                    sceneController.showPlatformBottomToolbar();
-
-                } else if (toggleGroup.getSelectedToggle().equals(rbNewCustomer)) {
-
-                    this.getCustomersBasicData();
-                    this.copyUploadedCustomerPhoto();
-                    this.getBankAccountData();
-                    bankAccounts.setCustomerID(customerID);
-
-                    if (customersStorageEngine.saveCustomerData(customers)) {
+                    if (toggleGroup.getSelectedToggle().equals(rbExistingCustomer)) {
+                        this.getBankAccountData();
+                        bankAccounts.setCustomerID(customerID);
                         bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
                         sceneController.showMainDashboardSummaries();
                         sceneController.showPlatformBottomToolbar();
+
+                    } else if (toggleGroup.getSelectedToggle().equals(rbNewCustomer)) {
+
+                        this.getCustomersBasicData();
+                        this.copyUploadedCustomerPhoto();
+                        this.getBankAccountData();
+                        bankAccounts.setCustomerID(customerID);
+
+                        if (customersStorageEngine.saveCustomerData(customers)) {
+                            bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                            sceneController.showMainDashboardSummaries();
+                            sceneController.showPlatformBottomToolbar();
+                        }
                     }
+
+                } catch (SQLException | IOException sqlException) {
+                    logger.log(Level.SEVERE, "Error saving customer bank account record - " + sqlException.getMessage());
                 }
 
-            } catch (SQLException | IOException sqlException) {
-                logger.log(Level.SEVERE, "Error saving customer bank account record - " + sqlException.getMessage());
+                newCustomerTitledPane.setDisable(true);
+                existingCustomerTitledPane.setDisable(true);
+                toggleGroup.getSelectedToggle().setSelected(false);
+                this.clearCustomerBasicDataFields();
+                this.clearBankAccountDataFields();
             }
-
-            newCustomerTitledPane.setDisable(true);
-            existingCustomerTitledPane.setDisable(true);
-            toggleGroup.getSelectedToggle().setSelected(false);
-            this.clearCustomerBasicDataFields();
-            this.clearBankAccountDataFields();
         });
 
         gridPane = new GridPane();

@@ -195,13 +195,12 @@ public class BankAccountEditScene {
      * @param bankAccounts the bank account object
      */
     private void getAccountFormValues(BankAccounts bankAccounts) {
-        String accountCurrency, accountNumber, accountType, dateCreated;
-        double initialDeposit;
+        String accountCurrency, accountNumber, accountType, dateCreated, depositText;
 
         accountNumber = txtAccountNumber.getText().trim();
         accountType = mbAccountType.getText();
         accountCurrency = mbAccountCurrency.getText();
-        initialDeposit = Double.parseDouble(txtInitialDeposit.getText().trim());
+        depositText =  txtInitialDeposit.getText().trim();
         dateCreated = String.valueOf(dpDateCreated.getValue());
 
         if (accountNumber.isEmpty()) {
@@ -210,13 +209,15 @@ public class BankAccountEditScene {
             customDialogs.showErrInformation("Invalid Field Value", "Account type field is not updated.");
         } else if (accountCurrency.equals("Select currency ...")) {
             customDialogs.showErrInformation("Blank Field", "Account currency field is not updated.");
-        } else if (initialDeposit <= 0.0) {
-            customDialogs.showErrInformation("Blank Field", "Value of initial deposit field is invalid.");
+        } else if (depositText.isEmpty()) {
+            customDialogs.showErrInformation("Blank Field", "Initial deposit field is empty.");
+        } else if (Double.parseDouble(depositText) <= 0.0) {
+            customDialogs.showErrInformation("Invalid Value", "Value for initial deposit is invalid.");
         } else {
             bankAccounts.setAccountNumber(accountNumber);
             bankAccounts.setAccountType(accountType);
             bankAccounts.setAccountCurrency(accountCurrency);
-            bankAccounts.setInitialDeposit(initialDeposit);
+            bankAccounts.setInitialDeposit(Double.parseDouble(depositText));
             bankAccounts.setDateCreated(dateCreated);
         }
     }

@@ -614,6 +614,11 @@ public class NewCustomerScene {
         btnCancel.setOnAction(e -> {
 
             this.clearFields();
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
+            }
 //            sceneController.returnToMainDashboard();
         });
 
@@ -628,7 +633,7 @@ public class NewCustomerScene {
             String firstName = txtFirstName.getText().trim();
             String gender = mbGender.getText().trim();
             LocalDate birthDate = dpBirthDate.getValue();
-            int age = Integer.parseInt(txtAge.getText().trim());
+            String ageText = txtAge.getText().trim();
 
             // Professional Data
             String profession = txtProfession.getText().trim();
@@ -673,15 +678,17 @@ public class NewCustomerScene {
                 customDialogs.showErrInformation("Blank Field", "First name field is empty.");
             } else if (gender.equals("Gender")) {
                 customDialogs.showErrInformation("Blank Field", "Gender field is not updated.");
-            } else if (age <= 0) {
-                customDialogs.showErrInformation("Blank Field", "Value of age field is invalid.");
-            } else {
+            } else if (ageText.isEmpty()) {
+                customDialogs.showErrInformation("Blank Field", "Age field is empty.");
+            } else if (Integer.parseInt(ageText) <= 0) {
+                customDialogs.showErrInformation("Invalid Age Value", "Value of age field is invalid.");
+            }else {
                 customers.setCustomerID(customerID);
                 customers.setLastName(lastName);
                 customers.setFirstName(firstName);
                 customers.setGender(gender);
                 customers.setBirthDate(birthDate.toString());
-                customers.setAge(age);
+                customers.setAge(Integer.parseInt(ageText));
                 customers.setPhoto(selectedFile);
 
                 customers.setProfession(profession);

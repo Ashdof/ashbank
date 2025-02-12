@@ -364,33 +364,35 @@ public class NewTransactionsScene {
      */
     private void getTransactionsData() {
 
-        String transactionID, bankAccountID, transactionTYpe, transactionDetails, message;
+        String transactionID, bankAccountID, transactionTYpe, transactionDetails, textAmount, message;
         double transactionAmount;
 
         transactionID = security.generateUUID();
         bankAccountID = accountID;
         transactionTYpe = mbTransactionType.getText();
-        transactionAmount = Double.parseDouble(txtTransactionAmount.getText().trim());
+        textAmount = txtTransactionAmount.getText().trim();
         transactionDetails = taTransactDetails.getText().trim();
         message = """
-                Transaction ID field is empty. Select a customer from the
-                Customers Table. Next select an account from the Accounts
-                Table to automatically fill the Account ID field.
+                No bank account information selected.
+                Select a customer from the Customers Table.
+                Next select an account from the Accounts Table.
                 """;
 
         if (bankAccountID.isEmpty()) {
             customDialogs.showErrInformation("Blank Field", message);
         } else if (transactionTYpe.equals("Type of transaction ...")) {
             customDialogs.showErrInformation("Invalid Field Value", "Transaction type field is not updated.");
-        } else if (transactionAmount <= 0) {
-            customDialogs.showErrInformation("Invalid Field Value", "Transaction amount field is an invalid value.");
+        } else if (textAmount.isEmpty()) {
+            customDialogs.showErrInformation("Blank Field", "Transaction amount field is blank.");
         } else if (transactionDetails.isEmpty()) {
             customDialogs.showErrInformation("Blank Field", "Transaction details field is blank.");
+        } else if (Double.parseDouble(textAmount) <= 0) {
+            customDialogs.showErrInformation("Invalid Value", "Value for transaction amount is invalid.");
         } else {
             bankAccountTransactions.setTransactionID(transactionID);
             bankAccountTransactions.setAccountID(bankAccountID);
             bankAccountTransactions.setTransactionType(transactionTYpe);
-            bankAccountTransactions.setTransactionAmount(transactionAmount);
+            bankAccountTransactions.setTransactionAmount(Double.parseDouble(textAmount));
             bankAccountTransactions.setTransactionDetails(transactionDetails);
         }
     }
@@ -410,9 +412,9 @@ public class NewTransactionsScene {
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
             try {
-                this.resetFields();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.returnToMainDashboard();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
             }
         });
 
@@ -420,22 +422,32 @@ public class NewTransactionsScene {
         btnSave.setPrefWidth(100);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
-            try {
-                boolean result, dateResult, balanceResult;
+            String message = """
+                No bank account information selected.
+                Select a customer from the Customers Table.
+                Next select an account from the Accounts Table.
+                """;
+            String title = "Bank Account Information";
+            if (accountID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    boolean result, dateResult, balanceResult;
 
-                this.getTransactionsData();
-                result = bankTransactionsStorageEngine.saveNewBankAccountTransaction(bankAccountTransactions);
-                dateResult = bankAccountsStorageEngine.updateLastTransactionDate(today, customerID);
-                balanceResult = bankAccountsStorageEngine.updateAccountBalance(bankAccountTransactions);
+                    this.getTransactionsData();
+                    result = bankTransactionsStorageEngine.saveNewBankAccountTransaction(bankAccountTransactions);
+                    dateResult = bankAccountsStorageEngine.updateLastTransactionDate(today, customerID);
+                    balanceResult = bankAccountsStorageEngine.updateAccountBalance(bankAccountTransactions);
 
-                if (result && dateResult && balanceResult) {
-                    sceneController.showMainDashboardSummaries();
-                    sceneController.showPlatformBottomToolbar();
-                    this.resetFields();
+                    if (result && dateResult && balanceResult) {
+                        sceneController.showMainDashboardSummaries();
+                        sceneController.showPlatformBottomToolbar();
+                        this.resetFields();
+                    }
+
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error saving transaction record - " + sqlException.getMessage());
                 }
-
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error saving transaction record - " + sqlException.getMessage());
             }
         });
 

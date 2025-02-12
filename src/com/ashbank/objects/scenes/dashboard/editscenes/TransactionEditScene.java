@@ -178,22 +178,23 @@ public class TransactionEditScene {
      */
     private void getTransactionsData(BankAccountTransactions bankAccountTransactions) {
 
-        String transactionType, transactionDetails;
-        double transactionAmount;
+        String transactionType, transactionDetails, textAmount;
 
         transactionType = mbTransactionType.getText();
-        transactionAmount = Double.parseDouble(txtTransactionAmount.getText().trim());
-        newAmount = Double.parseDouble(txtTransactionAmount.getText().trim());
+        textAmount = txtTransactionAmount.getText().trim();
         transactionDetails = taTransactDetails.getText().trim();
 
         if (transactionType.equals("Type of transaction ...")) {
-            customDialogs.showErrInformation("Invalid Field Value", "Transaction type field is not updated.");
-        } else if (transactionAmount <= 0) {
-            customDialogs.showErrInformation("Invalid Field Value", "Transaction amount field is an invalid value.");
+            customDialogs.showErrInformation("Invalid Value", "Transaction type field is not updated.");
+        } else if (textAmount.isEmpty()) {
+            customDialogs.showErrInformation("Blank Field", "Transaction amount field is blank.");
+        } else if (Double.parseDouble(textAmount) <= 0.0) {
+            customDialogs.showErrInformation("Invalid Value", "Transaction amount value is invalid.");
         } else if (transactionDetails.isEmpty()) {
             customDialogs.showErrInformation("Blank Field", "Transaction details field is blank.");
         } else {
 
+            newAmount = Double.parseDouble(textAmount);
             if (originalAmount != newAmount) {
                 if (transactionType.equals("Deposit")) {
                     differenceAmount = newAmount - originalAmount;
@@ -204,8 +205,7 @@ public class TransactionEditScene {
                 differenceAmount = 0.00;
             }
             bankAccountTransactions.setTransactionType(transactionType);
-            bankAccountTransactions.setTransactionAmount(transactionAmount);
-//            bankAccountTransactions.setTransactionAmount(differenceAmount);
+            bankAccountTransactions.setTransactionAmount(Double.parseDouble(textAmount));
             bankAccountTransactions.setTransactionDetails(transactionDetails);
         }
     }
