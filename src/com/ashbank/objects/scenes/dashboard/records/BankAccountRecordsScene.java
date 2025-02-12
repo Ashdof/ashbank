@@ -264,7 +264,7 @@ public class BankAccountRecordsScene {
         btnDetails.setOnAction(e -> {
             String title = "Bank Account Information";
             String message = """
-                    No bank account information selected.
+                    No bank account record selected.
                     """;
             if (accountID == null) {
                 customDialogs.showErrInformation(title, message);
@@ -282,7 +282,7 @@ public class BankAccountRecordsScene {
         btnEdit.setOnAction(e -> {
             String title = "Bank Account Information";
             String message = """
-                    No bank account information selected.
+                    No bank account record selected.
                     """;
             if (accountID == null) {
                 customDialogs.showErrInformation(title, message);

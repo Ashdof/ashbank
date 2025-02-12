@@ -20,6 +20,7 @@ import java.util.List;
 public class CustomerRecordsScene {
 
     /* ================ DATA MEMBERS ================ */
+    private static final CustomDialogs customDialogs = new CustomDialogs();
     private final SceneController sceneController;
     private Scene customerRecordsScene;
 
@@ -260,20 +261,38 @@ public class CustomerRecordsScene {
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
         btnDetails.setOnAction(e -> {
-            try {
-                sceneController.showCustomerDetailsScene(customerID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Customer Information";
+            String message = """
+                    No customer record selected.
+                    """;
+
+            if (customerID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showCustomerDetailsScene(customerID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
         btnEdit = new Button("Edit Record");
         btnEdit.setPrefWidth(120);
         btnEdit.setOnAction(e -> {
-            try {
-                sceneController.showCustomerEditScene(customerID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Customer Information";
+            String message = """
+                    No customer record selected.
+                    """;
+
+            if (customerID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showCustomerEditScene(customerID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
