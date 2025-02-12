@@ -262,20 +262,36 @@ public class BankAccountRecordsScene {
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
         btnDetails.setOnAction(e -> {
-            try {
-                sceneController.showBankAccountDetailsScene(accountID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Bank Account Information";
+            String message = """
+                    No bank account information selected.
+                    """;
+            if (accountID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showBankAccountDetailsScene(accountID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
         btnEdit = new Button("Edit Record");
         btnEdit.setPrefWidth(120);
         btnEdit.setOnAction(e -> {
-            try {
-                sceneController.showBankAccountEditScene(accountID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Bank Account Information";
+            String message = """
+                    No bank account information selected.
+                    """;
+            if (accountID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showBankAccountEditScene(accountID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
