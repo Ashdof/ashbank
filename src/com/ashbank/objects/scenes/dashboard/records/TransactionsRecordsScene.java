@@ -227,20 +227,36 @@ public class TransactionsRecordsScene {
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
         btnDetails.setOnAction(e -> {
-            try {
-                sceneController.showTransactionDetailsScene(transactionID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Transaction Information";
+            String message = """
+                    No transaction record selected.
+                    """;
+            if (transactionID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showTransactionDetailsScene(transactionID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
         btnEdit = new Button("Edit Record");
         btnEdit.setPrefWidth(120);
         btnEdit.setOnAction(e -> {
-            try {
-                sceneController.showTransactionEditScene(transactionID);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            String title = "Transaction Information";
+            String message = """
+                    No transaction record selected.
+                    """;
+            if (transactionID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showTransactionEditScene(transactionID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
