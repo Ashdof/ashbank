@@ -584,7 +584,16 @@ public class NewCustomerScene {
      * customers photo directory
      */
     private void copyUploadedCustomerPhoto() {
-        if (selectedFile != null) {
+        String title, message, fullName;
+
+        title = "Customer's Photo";
+        fullName = txtLastName.getText() + ", " + txtFirstName.getText();
+        message = String.format("%s's photo file missing.%n", fullName);
+
+        if (selectedFile == null) {
+            logger.log(Level.SEVERE, message);
+            customDialogs.showErrInformation(title, message);
+        } else {
             try {
                 File targetDirectory = new File("com/ashbank/resources/photos/customers");
                 File targetFile = new File(targetDirectory, selectedFile.getName());
@@ -592,8 +601,6 @@ public class NewCustomerScene {
             } catch (IOException ioException) {
                 logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
             }
-        } else {
-            logger.log(Level.SEVERE, "No customer photo selected.");
         }
     }
 
@@ -619,7 +626,6 @@ public class NewCustomerScene {
             } catch (SQLException sqlException) {
                 logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
             }
-//            sceneController.returnToMainDashboard();
         });
 
         btnSave = new Button(" _Save ");
@@ -682,7 +688,12 @@ public class NewCustomerScene {
                 customDialogs.showErrInformation("Blank Field", "Age field is empty.");
             } else if (Integer.parseInt(ageText) <= 0) {
                 customDialogs.showErrInformation("Invalid Age Value", "Value of age field is invalid.");
-            }else {
+            } else if (selectedFile == null) {
+                String title = "Customer's Photo";
+                String message = String.format("%s's photo file missing.%n", (lastName + ", " + firstName));
+                customDialogs.showErrInformation(title, message);
+                logger.log(Level.SEVERE, message);
+            } else {
                 customers.setCustomerID(customerID);
                 customers.setLastName(lastName);
                 customers.setFirstName(firstName);
