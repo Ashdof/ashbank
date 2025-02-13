@@ -283,7 +283,16 @@ public class NewBankAccountsScene {
      * customers photo directory
      */
     private void copyUploadedCustomerPhoto() {
-        if (selectedFile != null) {
+        String title, message, fullName;
+
+        title = "Customer's Photo";
+        fullName = txtLastName.getText() + ", " + txtFirstName.getText();
+        message = String.format("%s's photo file missing.%n", fullName);
+
+        if (selectedFile == null) {
+            logger.log(Level.SEVERE, message);
+            customDialogs.showErrInformation(title, message);
+        } else {
             try {
                 File targetDirectory = new File("com/ashbank/resources/photos/customers");
                 File targetFile = new File(targetDirectory, selectedFile.getName());
@@ -291,8 +300,6 @@ public class NewBankAccountsScene {
             } catch (IOException ioException) {
                 logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
             }
-        } else {
-            logger.log(Level.SEVERE, "No customer photo selected.");
         }
     }
 
@@ -549,9 +556,11 @@ public class NewBankAccountsScene {
             customDialogs.showErrInformation("Blank Field", "Gender field is not updated.");
         } else if (age <= 0) {
             customDialogs.showErrInformation("Blank Field", "Value of age field is invalid.");
+        } else if (selectedFile == null) {
+            String title = "Customer's Photo";
+            String message = String.format("%s's photo file missing.%n", (lastName + ", " + firstName));
+            customDialogs.showErrInformation(title, message);
         } else {
-
-//            customers.setCustomerID(newValue.getCustomerID());
             customers = new Customers(newCustomerID, lastName, firstName, gender, birthDate, age, selectedFile);
         }
     }
@@ -594,6 +603,9 @@ public class NewBankAccountsScene {
 
             if (customerID == null) {
                 customDialogs.showErrInformation(title, message);
+            } else if (selectedFile == null) {
+                logger.log(Level.SEVERE, String.format("%s's photo file missing.%n", customers.getFullName()));
+                customDialogs.showErrInformation("Customer's Photo", String.format("%s's photo file missing.%n", customers.getFullName()));
             } else {
                 try {
 
@@ -605,16 +617,20 @@ public class NewBankAccountsScene {
                         sceneController.showPlatformBottomToolbar();
 
                     } else if (toggleGroup.getSelectedToggle().equals(rbNewCustomer)) {
+                        if (selectedFile == null) {
+                            logger.log(Level.SEVERE, String.format("%s's photo file missing.%n", customers.getFullName()));
+                            customDialogs.showErrInformation("Customer's Photo", String.format("%s's photo file missing.%n", customers.getFullName()));
+                        } else {
+                            this.getCustomersBasicData();
+                            this.copyUploadedCustomerPhoto();
+                            this.getBankAccountData();
+                            bankAccounts.setCustomerID(customerID);
 
-                        this.getCustomersBasicData();
-                        this.copyUploadedCustomerPhoto();
-                        this.getBankAccountData();
-                        bankAccounts.setCustomerID(customerID);
-
-                        if (customersStorageEngine.saveCustomerData(customers)) {
-                            bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
-                            sceneController.showMainDashboardSummaries();
-                            sceneController.showPlatformBottomToolbar();
+                            if (customersStorageEngine.saveCustomerData(customers)) {
+                                bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                                sceneController.showMainDashboardSummaries();
+                                sceneController.showPlatformBottomToolbar();
+                            }
                         }
                     }
 
