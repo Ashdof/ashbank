@@ -22,7 +22,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -85,11 +84,13 @@ public class NewBankAccountsScene {
         lblInstruction = new Label("Create New Customer Bank Account");
         lblInstruction.setId("title");
 
-        rbNewCustomer = new RadioButton("Record new customer basic data");
-        rbExistingCustomer = new RadioButton("Select an existing customer");
-
         toggleGroup = new ToggleGroup();
-        toggleGroup.getToggles().addAll(rbNewCustomer, rbExistingCustomer);
+        rbNewCustomer = new RadioButton("Record new customer basic data");
+        rbNewCustomer.setToggleGroup(toggleGroup);
+        rbExistingCustomer = new RadioButton("Select an existing customer");
+        rbExistingCustomer.setToggleGroup(toggleGroup);
+
+//        toggleGroup.getToggles().addAll(rbNewCustomer, rbExistingCustomer);
         toggleGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
 
             if (newValue == rbExistingCustomer) {
@@ -275,32 +276,6 @@ public class NewBankAccountsScene {
         vBox.getChildren().addAll(imageView, btnUploadPhoto);
 
         return vBox;
-    }
-
-    /**
-     * Copy Photo:
-     * copy the selected photo of the customer to a dedicated
-     * customers photo directory
-     */
-    private void copyUploadedCustomerPhoto() {
-        String title, message, fullName;
-
-        title = "Customer's Photo";
-        fullName = txtLastName.getText() + ", " + txtFirstName.getText();
-        message = String.format("%s's photo file missing.%n", fullName);
-
-        if (selectedFile == null) {
-            logger.log(Level.SEVERE, message);
-            customDialogs.showErrInformation(title, message);
-        } else {
-            try {
-                File targetDirectory = new File("com/ashbank/resources/photos/customers");
-                File targetFile = new File(targetDirectory, selectedFile.getName());
-                Files.copy(selectedFile.toPath(), targetFile.toPath());
-            } catch (IOException ioException) {
-                logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
-            }
-        }
     }
 
     /**
@@ -601,30 +576,32 @@ public class NewBankAccountsScene {
                         select one from the table on the right.
                         """;
 
-            if (customerID == null) {
-                customDialogs.showErrInformation(title, message);
-            } else if (selectedFile == null) {
-                logger.log(Level.SEVERE, String.format("%s's photo file missing.%n", customers.getFullName()));
-                customDialogs.showErrInformation("Customer's Photo", String.format("%s's photo file missing.%n", customers.getFullName()));
-            } else {
-                try {
-
+            try {
+                if (toggleGroup.getSelectedToggle() == null) {
+                    customDialogs.showErrInformation(title, message);
+                } else {
                     if (toggleGroup.getSelectedToggle().equals(rbExistingCustomer)) {
                         this.getBankAccountData();
-                        bankAccounts.setCustomerID(customerID);
-                        bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
-                        sceneController.showMainDashboardSummaries();
-                        sceneController.showPlatformBottomToolbar();
 
+                        if (customerID == null) {
+                            customDialogs.showErrInformation(title, message);
+                        } else {
+                            bankAccounts.setCustomerID(customerID);
+                            bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
+                            sceneController.showMainDashboardSummaries();
+                            sceneController.showPlatformBottomToolbar();
+                        }
                     } else if (toggleGroup.getSelectedToggle().equals(rbNewCustomer)) {
-                        if (selectedFile == null) {
+                        this.getCustomersBasicData();
+
+                        if (customerID == null) {
+                            customDialogs.showErrInformation(title, message);
+                        } else if (selectedFile == null) {
                             logger.log(Level.SEVERE, String.format("%s's photo file missing.%n", customers.getFullName()));
                             customDialogs.showErrInformation("Customer's Photo", String.format("%s's photo file missing.%n", customers.getFullName()));
                         } else {
-                            this.getCustomersBasicData();
-                            this.copyUploadedCustomerPhoto();
                             this.getBankAccountData();
-                            bankAccounts.setCustomerID(customerID);
+                            bankAccounts.setCustomerID(customers.getCustomerID());
 
                             if (customersStorageEngine.saveCustomerData(customers)) {
                                 bankAccountsStorageEngine.saveNewCustomerBankAccount(bankAccounts);
@@ -633,17 +610,17 @@ public class NewBankAccountsScene {
                             }
                         }
                     }
-
-                } catch (SQLException | IOException sqlException) {
-                    logger.log(Level.SEVERE, "Error saving customer bank account record - " + sqlException.getMessage());
                 }
 
-                newCustomerTitledPane.setDisable(true);
-                existingCustomerTitledPane.setDisable(true);
-                toggleGroup.getSelectedToggle().setSelected(false);
-                this.clearCustomerBasicDataFields();
-                this.clearBankAccountDataFields();
+            } catch (SQLException | IOException sqlException) {
+                logger.log(Level.SEVERE, "Error saving customer bank account record - " + sqlException.getMessage());
             }
+
+            newCustomerTitledPane.setDisable(true);
+            existingCustomerTitledPane.setDisable(true);
+            toggleGroup.getSelectedToggle().setSelected(false);
+            this.clearCustomerBasicDataFields();
+            this.clearBankAccountDataFields();
         });
 
         gridPane = new GridPane();
@@ -675,9 +652,5 @@ public class NewBankAccountsScene {
         mbAccountType.setText("Select account type ...");
         mbAccountCurrency.setText("Select currency ...");
         txtInitialDeposit.clear();
-    }
-
-    private void resetFields() throws SQLException {
-        sceneController.showNewBankAccountScene();
     }
 }
