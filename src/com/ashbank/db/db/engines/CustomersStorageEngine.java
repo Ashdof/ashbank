@@ -11,7 +11,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -99,7 +102,7 @@ public class CustomersStorageEngine {
                 basicPreparedStatement.setString(5, customers.getBirthDate());
                 basicPreparedStatement.setInt(6, customers.getAge());
 
-                customerPhotosPath = saveCustomersPhotos(customers.getPhoto());
+                customerPhotosPath = saveCustomersPhotos(customers.getPhoto(), customers.getCustomerID());
                 basicPreparedStatement.setString(7, customerPhotosPath);
 
                 basicPreparedStatement.executeUpdate();
@@ -181,7 +184,7 @@ public class CustomersStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
+                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
 
                 // Display success notificationMessage in a dialog to the user
                 UserSession.addNotification(notificationSuccessMessage);
@@ -289,7 +292,7 @@ public class CustomersStorageEngine {
                 basicPreparedStatement.setString(4, customers.getBirthDate());
                 basicPreparedStatement.setInt(5, customers.getAge());
 
-                customerPhotosPath = saveCustomersPhotos(customers.getPhoto());
+                customerPhotosPath = saveCustomersPhotos(customers.getPhoto(), customers.getCustomerID());
                 basicPreparedStatement.setString(6, customerPhotosPath);
 
                 basicPreparedStatement.setString(7, customers.getCustomerID());
@@ -751,20 +754,36 @@ public class CustomersStorageEngine {
      * @throws IOException raise input-output exception if
      * photo upload fails
      */
-    private String saveCustomersPhotos(File customerPhoto) throws IOException {
-        String photoDirectory, photoPath;
+    private String saveCustomersPhotos(File customerPhoto, String customerID) throws IOException {
+        String fileExtension, newFileName, originalFileName, photoDirectory, photoPath, timeStamp;
+        int dotIndex;
 
-        if (customerPhoto == null) {
-            throw new IllegalArgumentException("The customer photo file cannot be null.");
+        if (customerPhoto == null || !customerPhoto.exists()) {
+            throw new IllegalArgumentException("The customer photo file does not exist.");
         }
 
+        if (customerID == null || customerID.trim().isEmpty()) {
+            throw new IllegalArgumentException("Error! Customer ID is null or empty");
+        }
+
+        // Photo directory
         photoDirectory = "com/ashbank/resources/photos/customers/";
-        photoPath = photoDirectory + customerPhoto.getName();
-        Files.createDirectories(Paths.get(photoDirectory));
 
-        try (FileOutputStream fileOutputStream = new FileOutputStream(photoPath)){
-            Files.copy(customerPhoto.toPath(), fileOutputStream);
+        // Extract file extension if any
+        originalFileName = customerPhoto.getName();
+        fileExtension = "";
+        dotIndex = originalFileName.lastIndexOf(".");
+        if (dotIndex != -1) {
+            fileExtension = originalFileName.substring(dotIndex); // this includes the dot
         }
+
+        timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        newFileName = customerID + "_" + timeStamp + fileExtension;
+        photoPath = photoDirectory + newFileName;
+
+        // Ensure directory exists
+        Files.createDirectories(Paths.get(photoDirectory));
+        Files.copy(customerPhoto.toPath(), Paths.get(photoPath), StandardCopyOption.REPLACE_EXISTING);
 
         return photoPath;
     }
