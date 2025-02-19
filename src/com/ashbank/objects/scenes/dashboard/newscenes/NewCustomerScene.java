@@ -11,7 +11,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.logging.Level;
@@ -32,8 +31,9 @@ public class NewCustomerScene {
     private final Customers customers = new Customers();
     private final Security security = new Security();
     private final SceneController sceneController;
-    private Scene newCustomerScene;
+    private final String customerID = security.generateUUID();
 
+    private Scene newCustomerScene;
     private TextField txtLastName, txtFirstName, txtAge, txtProfession, txtWorkPlace, txtPosition, txtTown,
             txtSuburb, txtStreetName, txtHouseNumber, txtGPS, txtNationality, txtNationalCard, txtCardNumber,
             txtKinName, txtKinRelation, txtKinPostalAddress, txtKinEmailAddress, txtKinPhoneNumber,
@@ -579,32 +579,6 @@ public class NewCustomerScene {
     }
 
     /**
-     * Copy Photo:
-     * copy the selected photo of the customer to a dedicated
-     * customers photo directory
-     */
-    private void copyUploadedCustomerPhoto() {
-        String title, message, fullName;
-
-        title = "Customer's Photo";
-        fullName = txtLastName.getText() + ", " + txtFirstName.getText();
-        message = String.format("%s's photo file missing.%n", fullName);
-
-        if (selectedFile == null) {
-            logger.log(Level.SEVERE, message);
-            customDialogs.showErrInformation(title, message);
-        } else {
-            try {
-                File targetDirectory = new File("com/ashbank/resources/photos/customers");
-                File targetFile = new File(targetDirectory, selectedFile.getName());
-                Files.copy(selectedFile.toPath(), targetFile.toPath());
-            } catch (IOException ioException) {
-                logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
-            }
-        }
-    }
-
-    /**
      * Buttons Layout:
      * create a layout for the buttons
      * using grid pane
@@ -634,7 +608,6 @@ public class NewCustomerScene {
         btnSave.setOnAction(e -> {
 
             // Basic Data
-            String customerID = security.generateUUID();
             String lastName = txtLastName.getText().trim();
             String firstName = txtFirstName.getText().trim();
             String gender = mbGender.getText().trim();
@@ -735,9 +708,10 @@ public class NewCustomerScene {
 
                 try {
                     if (customersStorageEngine.saveCustomerData(customers)) {
-                        this.copyUploadedCustomerPhoto();
                         sceneController.showPlatformBottomToolbar();
                         sceneController.showMainDashboardSummaries();
+                    } else {
+                        customDialogs.showAlertInformation("New Customer", String.format("Error saving %s's record.%n", customers.getFullName()));
                     }
 
                 } catch (SQLException | IOException sqlException) {
