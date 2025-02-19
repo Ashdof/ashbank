@@ -7,7 +7,6 @@ import com.ashbank.objects.utility.Security;
 import com.ashbank.objects.utility.UserSession;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,7 +23,7 @@ public class CustomersStorageEngine {
 
     /*=================== DATA MEMBERS ===================*/
     private static final CustomDialogs customDialogs = new CustomDialogs();
-    private UserSession userSession = UserSession.getInstance();
+    private static final UserSession userSession = UserSession.getInstance();
     private static final Logger logger = Logger.getLogger(CustomersStorageEngine.class.getName());
     private static final BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
     private static final BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
@@ -417,7 +416,7 @@ public class CustomersStorageEngine {
      */
     public boolean deleteCustomerData(String customerID) throws SQLException {
 
-        String activity, activity_success_details, activity_failure_details, query, transactionType,
+        String activity, activity_success_details, activity_failure_details, query, photoPath,
                 notificationSuccessMessage, notificationFailMessage, accountOwner;
         Connection connection;
         PreparedStatement preparedStatement;
@@ -446,6 +445,8 @@ public class CustomersStorageEngine {
             if (affectedRows > 0) {
 
                 status = true;
+                photoPath =  String.format("com/ashbank/resources/photos/customers/%s", getCustomerPhoto(customerID));
+                deleteCustomersPhoto(photoPath);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -609,7 +610,7 @@ public class CustomersStorageEngine {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
         String query;
-        String id, lastName, firstName, gender, birthDate, photoPath, profession, workPlace, position,
+        String lastName, firstName, gender, birthDate, photoPath, profession, workPlace, position,
                 town, suburb, streetName, houseNumber, gps, nationality, nationalCard, cardNumber, postalAddress,
                 emailAddress, phoneNumber, homeNumber, kinName, kinRelation, kinPostAddress, kinEmailAddress,
                 kinPhoneNumber, beneficiaryName, beneficiaryRelation, beneficiaryPostAddress, beneficiaryEmailAddress,
@@ -746,6 +747,46 @@ public class CustomersStorageEngine {
     }
 
     /**
+     * Fetch Photo:
+     * get the name of a customer's photo
+     * @param customerID the ID of the specified customer
+     * @return the name of the photo
+     * @throws SQLException if an error occurs
+     */
+    public String getCustomerPhoto(String customerID) throws SQLException {
+        Connection connection;
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String query, photo;
+
+        photo = null;
+        query = "SELECT photo FROM customers WHERE id = ?";
+        connection = BankConnection.getBankConnection();
+        preparedStatement = connection.prepareStatement(query);
+
+        try {
+            preparedStatement.setString(1, customerID);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                photo = resultSet.getString("photo");
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching customer's photo - " + sqlException.getMessage());
+        } finally {
+            try {
+                preparedStatement.close();
+                connection.close();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
+            }
+        }
+
+        return photo;
+    }
+
+    /**
      * Upload Photo:
      * copy the selected photo to the customers photo
      * resource directory
@@ -786,5 +827,42 @@ public class CustomersStorageEngine {
         Files.copy(customerPhoto.toPath(), Paths.get(photoPath), StandardCopyOption.REPLACE_EXISTING);
 
         return photoPath;
+    }
+
+    /**
+     * Delete Photo:
+     * deletes the photo of a customer upon record deletion
+     *
+     * @param photoPath the path to the customer's photo
+     */
+    private static void deleteCustomersPhoto(String photoPath) throws SQLException {
+        String activity, activity_success_details, activity_fail_details;
+        boolean status;
+
+        activity = "Delete Customer Photo";
+        activity_fail_details = "Error: failed to delete customer's photo";
+        activity_success_details = "Customer's photo successfully deleted.";
+
+        if (photoPath == null || photoPath.trim().isEmpty()) {
+            logger.log(Level.SEVERE, "Error: customer's photo path is empty.");
+            return;
+        }
+
+        File photoFile = new File(photoPath);
+        if (!photoFile.exists()) {
+            logger.log(Level.SEVERE, "Error: customer's photo does not exist.");
+            return;
+        }
+
+        try {
+//            status = Files.deleteIfExists(photoFile.toPath());
+            Files.deleteIfExists(photoFile.toPath());
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+        } catch (IOException | SQLException ioException) {
+            logger.log(Level.SEVERE, "Error deleting customer's photo - " + ioException.getMessage());
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_fail_details);
+            status = false;
+        }
+
     }
 }
