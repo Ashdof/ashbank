@@ -75,7 +75,7 @@ public class BankTransactionsStorageEngine {
 
             // Display success notificationMessage in a dialog to the user
             UserSession.addNotification(notificationSuccessMessage);
-//            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
+            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
 
             return true;
         } catch (SQLException sqlException) {
