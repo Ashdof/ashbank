@@ -94,7 +94,7 @@ public class BankTransactionsStorageEngine {
         // Log this activity and the user undertaking it
         ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
         UserSession.addNotification(notificationFailMessage);
-//        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
         return false;
     }
