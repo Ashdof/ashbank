@@ -35,7 +35,7 @@ public class CustomersEditScene {
             txtBeneficiaryPhoneNumber, txtPostalAddress, txtEmailAddress, txtPhoneNumber, txtHomeNumber;
     private DatePicker dpBirthDate;
     private MenuButton mbGender;
-    private File currentImageFile, newImageFile;
+    private File newImageFile = null;
     private ImageView imageView;
     private Scene customerEditScene;
 
@@ -619,7 +619,7 @@ public class CustomersEditScene {
 
         String imagePath = customers.getPhoto().getPath();
         if (!imagePath.isEmpty()) {
-            currentImageFile = new File(imagePath);
+            File currentImageFile = new File(imagePath);
             imageView.setImage(new Image(currentImageFile.toURI().toString()));
         }
     }
