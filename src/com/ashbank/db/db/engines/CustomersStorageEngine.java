@@ -233,7 +233,7 @@ public class CustomersStorageEngine {
      * update a customer object in the database
      * @param customers the customers object
      */
-    public boolean updateCustomerData(Customers customers) throws SQLException, IOException {
+    public boolean updateCustomerData(Customers customers, File newImageFile) throws SQLException, IOException {
 
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
@@ -242,7 +242,8 @@ public class CustomersStorageEngine {
         PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
                 nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
                 beneficiaryPreparedStatement;
-        boolean status;
+        boolean status, photoChanged;
+        File currentImageFile;
 
         activity = "Update New Customer Record";
         activity_success_details = userSession.getUsername() + "'s attempt to update customer record successful.";
@@ -250,6 +251,7 @@ public class CustomersStorageEngine {
 
         notificationSuccessMessage = "Update of " + customers.getFullName() + "'s record is successful.";
         notificationFailMessage = "Update of " + customers.getFullName() + "'s record is unsuccessful.";
+        currentImageFile = customers.getPhoto();
 
         /*=================== SQL QUERIES ===================*/
         basicQuery = "UPDATE customers SET last_name = ?, first_name = ?, gender = ?, birth_date = ?, age = ?, photo = ?" +
@@ -269,6 +271,23 @@ public class CustomersStorageEngine {
 
         connection = BankConnection.getBankConnection();
         status = false;
+        photoChanged = false;
+
+        if (newImageFile != null) {
+            if (!newImageFile.getAbsolutePath().contains("com/ashbank/resources/photos/customers/"))
+                photoChanged = true;
+        }
+
+        if (photoChanged) {
+            if (currentImageFile != null && !currentImageFile.toString().trim().isEmpty()) {
+                if (!deleteCustomerPhoto(currentImageFile)) {
+                    logger.log(Level.SEVERE, "Error deleting customer photo");
+                }
+            }
+
+//            this.saveCustomersPhotos(newImageFile, customers.getCustomerID());
+            customers.setPhoto(newImageFile);
+        }
 
         // Persist into basic table
         try {
@@ -354,6 +373,9 @@ public class CustomersStorageEngine {
 
                 // Display success notificationMessage in a dialog to the user
                 UserSession.addNotification(notificationSuccessMessage);
+
+                // Display success message in a dialog to the user
+                customDialogs.showAlertInformation("Customer Record Update", (customers.getFullName() + " updated successfully."));
 
                 status = true;
 
@@ -446,7 +468,8 @@ public class CustomersStorageEngine {
 
                 status = true;
                 photoPath =  String.format("com/ashbank/resources/photos/customers/%s", getCustomerPhoto(customerID));
-                deleteCustomersPhoto(photoPath);
+//                deleteCustomersPhoto(photoPath);
+                this.deleteCustomerPhoto(new File(photoPath));
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -864,5 +887,43 @@ public class CustomersStorageEngine {
             status = false;
         }
 
+    }
+
+    /**
+     * Delete Photo:
+     * delete the photo of a customer upon object deletion
+     * @param customerPhotoFile the photo of the customer object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    private boolean deleteCustomerPhoto(File customerPhotoFile) throws SQLException {
+
+        boolean status = false;
+        String activity, activity_success_details, activity_fail_details;
+
+        activity = "Delete Customer Photo";
+        activity_fail_details = "Error: failed to delete customer's photo";
+        activity_success_details = "Customer's photo successfully deleted.";
+
+        if (customerPhotoFile == null || customerPhotoFile.toString().trim().isEmpty()) {
+            logger.log(Level.SEVERE, "Error: customer's photo path is empty.");
+            return false;
+        }
+
+        if (!customerPhotoFile.exists()) {
+            logger.log(Level.SEVERE, "Error: customer's photo does not exist.");
+            return false;
+        }
+
+        try {
+            status = Files.deleteIfExists(customerPhotoFile.toPath());
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+        } catch (IOException | SQLException exception) {
+            logger.log(Level.SEVERE, "Error deleting customer's photo - " + exception.getMessage());
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_fail_details);
+            status = false;
+        }
+
+        return status;
     }
 }

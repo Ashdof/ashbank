@@ -16,7 +16,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.logging.Level;
@@ -36,7 +35,7 @@ public class CustomersEditScene {
             txtBeneficiaryPhoneNumber, txtPostalAddress, txtEmailAddress, txtPhoneNumber, txtHomeNumber;
     private DatePicker dpBirthDate;
     private MenuButton mbGender;
-    private File currentImageFile;
+    private File newImageFile = null;
     private ImageView imageView;
     private Scene customerEditScene;
 
@@ -594,8 +593,8 @@ public class CustomersEditScene {
 
             File photoFile = fileChooser.showOpenDialog(null);
             if (photoFile != null) {
-                currentImageFile = photoFile;
-                imageView.setImage(new Image(currentImageFile.toURI().toString()));
+                newImageFile = photoFile;
+                imageView.setImage(new Image(newImageFile.toURI().toString()));
             }
         });
 
@@ -604,29 +603,6 @@ public class CustomersEditScene {
         vBox.getChildren().addAll(imageView, btnUploadPhoto);
 
         return vBox;
-    }
-
-    /**
-     * Customer Image:
-     * display the image of the selected customer
-     * @param customerPhoto the customer's photo file
-     * @return a rendered image of the customer
-     */
-    private ImageView getCustomerPhotoView(File customerPhoto) {
-        ImageView imageView;
-        Image image;
-
-        imageView = new ImageView();
-        imageView.setFitWidth(200);
-        imageView.setFitHeight(200);
-        imageView.setPreserveRatio(true);
-
-        if (customerPhoto != null) {
-            image = new Image(customerPhoto.toURI().toString());
-            imageView.setImage(image);
-        }
-
-        return imageView;
     }
 
     /**
@@ -643,49 +619,8 @@ public class CustomersEditScene {
 
         String imagePath = customers.getPhoto().getPath();
         if (!imagePath.isEmpty()) {
-            currentImageFile = new File(imagePath);
+            File currentImageFile = new File(imagePath);
             imageView.setImage(new Image(currentImageFile.toURI().toString()));
-        }
-    }
-
-    /**
-     * Copy Photo:
-     * copy the selected photo of the customer to a dedicated
-     * customers photo directory
-     */
-    private void copyUploadedCustomerPhoto() {
-        if (currentImageFile != null) {
-            try {
-                File targetDirectory = new File("com/ashbank/resources/photos/customers");
-                File targetFile = new File(targetDirectory, currentImageFile.getName());
-                Files.copy(currentImageFile.toPath(), targetFile.toPath());
-            } catch (IOException ioException) {
-                logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
-            }
-        } else {
-            logger.log(Level.SEVERE, "No customer photo selected.");
-        }
-    }
-
-    /**
-     * Delete Photo:
-     * delete the old photo of a customer upon update of the photo
-     * @param customerPhotoPath the path to the old photo of the
-     *                          customer
-     */
-    private void deleteOldCustomerPhoto(String customerPhotoPath) {
-        File oldImage;
-        boolean deleteStatus;
-
-        if (customerPhotoPath != null && !customerPhotoPath.isEmpty()) {
-            oldImage = new File(customerPhotoPath);
-            if (oldImage.exists()) {
-                deleteStatus = oldImage.delete();
-                if (!deleteStatus)
-                    customDialogs.showAlertInformation("Customer Photo", "Failed to delete customer's old photo");
-                else
-                    customDialogs.showAlertInformation("Customer Photo", "Customer old photo deleted successfully");
-            }
         }
     }
 
@@ -724,7 +659,6 @@ public class CustomersEditScene {
             String gender = mbGender.getText().trim();
             LocalDate birthDate = dpBirthDate.getValue();
             int age = Integer.parseInt(txtAge.getText().trim());
-            File oldImageFile = customers.getPhoto();
 
             // Professional Data
             String profession = txtProfession.getText().trim();
@@ -771,17 +705,12 @@ public class CustomersEditScene {
                 customDialogs.showErrInformation("Blank Field", "Gender field is not updated.");
             } else if (age <= 0) {
                 customDialogs.showErrInformation("Blank Field", "Value of age field is invalid.");
-            } else if(currentImageFile == null) {
-                customDialogs.showErrInformation("Image File", "Customer image file is missing.");
-            }else {
+            } else {
                 customers.setLastName(lastName);
                 customers.setFirstName(firstName);
                 customers.setGender(gender);
                 customers.setBirthDate(birthDate.toString());
                 customers.setAge(age);
-                if (!oldImageFile.equals(currentImageFile)) {
-                    customers.setPhoto(currentImageFile);
-                }
 
                 customers.setProfession(profession);
                 customers.setPlaceOfWork(workPlace);
@@ -815,12 +744,7 @@ public class CustomersEditScene {
                 customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
 
                 try {
-                    if (customersStorageEngine.updateCustomerData(customers)) {
-                        if (!oldImageFile.equals(currentImageFile)) {
-                            this.copyUploadedCustomerPhoto();
-                            this.deleteOldCustomerPhoto(oldImageFile.getPath());
-                        }
-
+                    if (customersStorageEngine.updateCustomerData(customers, newImageFile)) {
                         sceneController.showMainDashboardSummaries();
                         sceneController.showPlatformBottomToolbar();
                         sceneController.showCustomerRecordsScene();
