@@ -374,6 +374,9 @@ public class CustomersStorageEngine {
                 // Display success notificationMessage in a dialog to the user
                 UserSession.addNotification(notificationSuccessMessage);
 
+                // Display success message in a dialog to the user
+                customDialogs.showAlertInformation("Customer Record Update", (customers.getFullName() + " updated successfully."));
+
                 status = true;
 
             } catch (IllegalArgumentException illegalArgumentException) {
