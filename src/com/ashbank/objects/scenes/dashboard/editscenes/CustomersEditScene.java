@@ -607,29 +607,6 @@ public class CustomersEditScene {
     }
 
     /**
-     * Customer Image:
-     * display the image of the selected customer
-     * @param customerPhoto the customer's photo file
-     * @return a rendered image of the customer
-     */
-    private ImageView getCustomerPhotoView(File customerPhoto) {
-        ImageView imageView;
-        Image image;
-
-        imageView = new ImageView();
-        imageView.setFitWidth(200);
-        imageView.setFitHeight(200);
-        imageView.setPreserveRatio(true);
-
-        if (customerPhoto != null) {
-            image = new Image(customerPhoto.toURI().toString());
-            imageView.setImage(image);
-        }
-
-        return imageView;
-    }
-
-    /**
      * Customer Photo:
      * get the path of the customer's photo from the database
      * @param customers the customer object
