@@ -16,7 +16,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.logging.Level;
@@ -626,28 +625,6 @@ public class CustomersEditScene {
     }
 
     /**
-     * Delete Photo:
-     * delete the old photo of a customer upon update of the photo
-     * @param customerPhotoPath the path to the old photo of the
-     *                          customer
-     */
-    private void deleteOldCustomerPhoto(String customerPhotoPath) {
-        File oldImage;
-        boolean deleteStatus;
-
-        if (customerPhotoPath != null && !customerPhotoPath.isEmpty()) {
-            oldImage = new File(customerPhotoPath);
-            if (oldImage.exists()) {
-                deleteStatus = oldImage.delete();
-                if (!deleteStatus)
-                    customDialogs.showAlertInformation("Customer Photo", "Failed to delete customer's old photo");
-                else
-                    customDialogs.showAlertInformation("Customer Photo", "Customer old photo deleted successfully");
-            }
-        }
-    }
-
-    /**
      * Buttons Layout:
      * create a layout for the buttons
      * using grid pane
@@ -682,7 +659,6 @@ public class CustomersEditScene {
             String gender = mbGender.getText().trim();
             LocalDate birthDate = dpBirthDate.getValue();
             int age = Integer.parseInt(txtAge.getText().trim());
-            File oldImageFile = customers.getPhoto();
 
             // Professional Data
             String profession = txtProfession.getText().trim();
@@ -737,9 +713,6 @@ public class CustomersEditScene {
                 customers.setGender(gender);
                 customers.setBirthDate(birthDate.toString());
                 customers.setAge(age);
-                if (!oldImageFile.equals(currentImageFile)) {
-                    customers.setPhoto(currentImageFile);
-                }
 
                 customers.setProfession(profession);
                 customers.setPlaceOfWork(workPlace);
@@ -774,10 +747,6 @@ public class CustomersEditScene {
 
                 try {
                     if (customersStorageEngine.updateCustomerData(customers)) {
-                        if (!oldImageFile.equals(currentImageFile)) {
-                            this.deleteOldCustomerPhoto(oldImageFile.getPath());
-                        }
-
                         sceneController.showMainDashboardSummaries();
                         sceneController.showPlatformBottomToolbar();
                         sceneController.showCustomerRecordsScene();
