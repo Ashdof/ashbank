@@ -626,25 +626,6 @@ public class CustomersEditScene {
     }
 
     /**
-     * Copy Photo:
-     * copy the selected photo of the customer to a dedicated
-     * customers photo directory
-     */
-    private void copyUploadedCustomerPhoto() {
-        if (currentImageFile != null) {
-            try {
-                File targetDirectory = new File("com/ashbank/resources/photos/customers");
-                File targetFile = new File(targetDirectory, currentImageFile.getName());
-                Files.copy(currentImageFile.toPath(), targetFile.toPath());
-            } catch (IOException ioException) {
-                logger.log(Level.SEVERE, "Error uploading customer photo - " + ioException.getMessage());
-            }
-        } else {
-            logger.log(Level.SEVERE, "No customer photo selected.");
-        }
-    }
-
-    /**
      * Delete Photo:
      * delete the old photo of a customer upon update of the photo
      * @param customerPhotoPath the path to the old photo of the
@@ -794,7 +775,6 @@ public class CustomersEditScene {
                 try {
                     if (customersStorageEngine.updateCustomerData(customers)) {
                         if (!oldImageFile.equals(currentImageFile)) {
-                            this.copyUploadedCustomerPhoto();
                             this.deleteOldCustomerPhoto(oldImageFile.getPath());
                         }
 
