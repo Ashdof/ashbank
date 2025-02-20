@@ -233,7 +233,7 @@ public class CustomersStorageEngine {
      * update a customer object in the database
      * @param customers the customers object
      */
-    public boolean updateCustomerData(Customers customers) throws SQLException, IOException {
+    public boolean updateCustomerData(Customers customers, File newImageFile) throws SQLException, IOException {
 
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,

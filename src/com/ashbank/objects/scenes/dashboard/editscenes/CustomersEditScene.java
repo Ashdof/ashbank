@@ -35,7 +35,7 @@ public class CustomersEditScene {
             txtBeneficiaryPhoneNumber, txtPostalAddress, txtEmailAddress, txtPhoneNumber, txtHomeNumber;
     private DatePicker dpBirthDate;
     private MenuButton mbGender;
-    private File currentImageFile;
+    private File currentImageFile, newImageFile;
     private ImageView imageView;
     private Scene customerEditScene;
 
@@ -593,8 +593,8 @@ public class CustomersEditScene {
 
             File photoFile = fileChooser.showOpenDialog(null);
             if (photoFile != null) {
-                currentImageFile = photoFile;
-                imageView.setImage(new Image(currentImageFile.toURI().toString()));
+                newImageFile = photoFile;
+                imageView.setImage(new Image(newImageFile.toURI().toString()));
             }
         });
 
@@ -705,9 +705,7 @@ public class CustomersEditScene {
                 customDialogs.showErrInformation("Blank Field", "Gender field is not updated.");
             } else if (age <= 0) {
                 customDialogs.showErrInformation("Blank Field", "Value of age field is invalid.");
-            } else if(currentImageFile == null) {
-                customDialogs.showErrInformation("Image File", "Customer image file is missing.");
-            }else {
+            } else {
                 customers.setLastName(lastName);
                 customers.setFirstName(firstName);
                 customers.setGender(gender);
@@ -746,7 +744,7 @@ public class CustomersEditScene {
                 customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
 
                 try {
-                    if (customersStorageEngine.updateCustomerData(customers)) {
+                    if (customersStorageEngine.updateCustomerData(customers, newImageFile)) {
                         sceneController.showMainDashboardSummaries();
                         sceneController.showPlatformBottomToolbar();
                         sceneController.showCustomerRecordsScene();
