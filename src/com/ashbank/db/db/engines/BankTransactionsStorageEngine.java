@@ -75,7 +75,7 @@ public class BankTransactionsStorageEngine {
 
             // Display success notificationMessage in a dialog to the user
             UserSession.addNotification(notificationSuccessMessage);
-//            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
+            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
 
             return true;
         } catch (SQLException sqlException) {
@@ -94,7 +94,7 @@ public class BankTransactionsStorageEngine {
         // Log this activity and the user undertaking it
         ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
         UserSession.addNotification(notificationFailMessage);
-//        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+        customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
         return false;
     }
