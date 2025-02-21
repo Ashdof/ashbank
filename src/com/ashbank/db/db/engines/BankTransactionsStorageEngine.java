@@ -331,27 +331,23 @@ public class BankTransactionsStorageEngine {
      * the provided account ID
      * @param accountID the ID of the bank account
      * @return a new transaction object
-     * @throws SQLException if an error occurs
      */
-    public BankAccountTransactions getBankTransactionDataByAccountID(String accountID) throws SQLException {
+    public BankAccountTransactions getBankTransactionDataByAccountID(String accountID) {
 
         BankAccountTransactions bankAccountTransactions;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, transactionID, transactionType, transactionDetails;
         double transactionAmount;
         Timestamp transactionDate;
 
         bankAccountTransactions = new BankAccountTransactions();
-        connection = BankConnection.getBankConnection();
         query = "SELECT * FROM customers_account_transactions WHERE id = ?";
-        preparedStatement = connection.prepareStatement(query);
 
-        try {
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             preparedStatement.setString(1, accountID);
-            resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 transactionID = resultSet.getString("id");
@@ -371,13 +367,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return bankAccountTransactions;
