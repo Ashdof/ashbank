@@ -242,9 +242,6 @@ public class BankTransactionsStorageEngine {
 
         BankAccountTransactions bankAccountTransactions;
         List<BankAccountTransactions> bankAccountTransactionsList;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, transactionID, accountID, transactionType, transactionDetails;
         double transactionAmount;
         Timestamp transactionDate;
@@ -252,10 +249,9 @@ public class BankTransactionsStorageEngine {
         bankAccountTransactionsList = new ArrayList<>();
         query = "SELECT * FROM customers_account_transactions";
 
-        try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 transactionID = resultSet.getString("id");
