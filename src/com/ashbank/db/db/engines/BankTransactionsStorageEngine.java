@@ -38,8 +38,7 @@ public class BankTransactionsStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, transactionType,
                 notificationSuccessMessage, notificationFailMessage, transactionCurrency;
-        Connection connection;
-        PreparedStatement preparedStatement;
+
         double transactionAmount;
 
         activity = "New Transaction Record";
@@ -55,10 +54,10 @@ public class BankTransactionsStorageEngine {
         /*=================== SQL QUERIES ===================*/
         query = "INSERT INTO customers_account_transactions (id, account_id, transaction_type, transaction_amount, transaction_details)" +
                 "VALUES (?, ?, ?, ?, ?)";
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
 
-        try {
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             preparedStatement.setString(1, bankAccountTransactions.getTransactionID());
@@ -81,14 +80,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error saving new account transaction - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         // Log this activity and the user undertaking it
