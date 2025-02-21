@@ -100,8 +100,6 @@ public class BankTransactionsStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, update_fail_msg,
                 update_success_msg, notificationSuccessMessage, notificationFailMessage, accountOwner;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
 
         activity = "Bank Account Transaction Data Update";
@@ -118,13 +116,12 @@ public class BankTransactionsStorageEngine {
 
         query = "UPDATE customers_account_transactions SET transaction_type = ?, transaction_amount = ?, transaction_date = ?, transaction_details = ? " +
                 "WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
-            connection.setAutoCommit(false);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement = connection.prepareStatement(query);
+            connection.setAutoCommit(false);
 
             try {
                 preparedStatement.setString(1, bankAccountTransactions.getTransactionType());
@@ -144,20 +141,13 @@ public class BankTransactionsStorageEngine {
                 UserSession.addNotification(notificationSuccessMessage);
 
                 // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(activity, update_success_msg);
+                customDialogs.showAlertInformation(activity, update_success_msg);
                 status = true;
+
             } catch (SQLException  sqlException) {
                 // replace this error logging with actual file logging which can later be analyzed
                 connection.rollback();
-                logger.log(Level.SEVERE, "Error updating transaction record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
+                logger.log(Level.SEVERE, "Error committing updates to the database - " + sqlException.getMessage());
             }
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
@@ -171,15 +161,6 @@ public class BankTransactionsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating bank account transaction data - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
