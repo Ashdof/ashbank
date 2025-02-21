@@ -143,7 +143,7 @@ public class BankAccountDetailsScene {
 
         GridPane gridPane;
         HBox hBox;
-        Button btnBack, btnDeleteRecord, btnHideRecord, btnUpdateRecord;
+        Button btnBack, btnDeleteRecord, btnUpdateRecord;
         Label lblSpace;
 
         btnBack = new Button("Back");
@@ -167,9 +167,6 @@ public class BankAccountDetailsScene {
             }
         });
 
-        btnHideRecord = new Button("Hide Record");
-        btnHideRecord.setPrefWidth(120);
-
         btnUpdateRecord = new Button("Edit Record");
         btnUpdateRecord.setOnAction(e -> {
             try {
@@ -190,13 +187,12 @@ public class BankAccountDetailsScene {
         GridPane.setHgrow(btnUpdateRecord, Priority.NEVER);
 
         gridPane.add(btnDeleteRecord, 0, 0);
-        gridPane.add(btnHideRecord, 1, 0);
-        gridPane.add(btnUpdateRecord, 2, 0);
+        gridPane.add(btnUpdateRecord, 1, 0);
 
         hBox = new HBox(10);
         hBox.setPadding(new Insets(10));
         hBox.setAlignment(Pos.BOTTOM_RIGHT);
-        hBox.getChildren().addAll(btnBack, lblSpace, btnDeleteRecord, btnHideRecord, btnUpdateRecord);
+        hBox.getChildren().addAll(btnBack, lblSpace, btnDeleteRecord, btnUpdateRecord);
 
         return hBox;
     }
