@@ -554,22 +554,18 @@ public class BankTransactionsStorageEngine {
      * @return the of deposits
      * @throws SQLException if an error occurs
      */
-    public double getTodayTotalDeposit() throws SQLException {
+    public double getTodayTotalDeposit() {
 
         String query;
         double totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
                 "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Deposit' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getDouble("total");
@@ -578,13 +574,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing total deposits - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
@@ -594,24 +583,19 @@ public class BankTransactionsStorageEngine {
      * Total Withdrawals:
      * compute the total of all withdrawals for the current day
      * @return the sum of withdrawals
-     * @throws SQLException if an error occurs
      */
-    public double getTodayTotalWithdrawals() throws SQLException {
+    public double getTodayTotalWithdrawals() {
 
         String query;
         double totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
                 "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Withdrawal' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getDouble("total");
@@ -620,13 +604,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing total withdrawals - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
