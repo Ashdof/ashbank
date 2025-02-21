@@ -383,13 +383,12 @@ public class BankTransactionsStorageEngine {
     public static List<BankAccounts> getAllCustomerBankAccounts(String customerID) throws SQLException {
 
         List<BankAccounts> bankAccountsList = new ArrayList<>();
-        Connection connection;
         String accountID, accountType, accountNumber, accountCurrency, accountStatus, query;
 
-        connection = BankConnection.getBankConnection();
         query = "SELECT * FROM customers_bank_account WHERE customer_id = ?";
 
-        try(PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
 
             preparedStatement.setString(1, customerID);
 
@@ -422,9 +421,6 @@ public class BankTransactionsStorageEngine {
 
         BankAccountTransactions transactions;
         List<BankAccountTransactions> bankAccountTransactionsList;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, transactionID, accountID, transactionType, transactionDetails;
         double transactionAmount;
         Timestamp transactionDate;
@@ -433,11 +429,11 @@ public class BankTransactionsStorageEngine {
         query = "SELECT * FROM customers_account_transactions WHERE DATE(transaction_date) = DATE('now') " +
                 "ORDER BY transaction_date DESC LIMIT ?";
 
-        try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
+
             preparedStatement.setInt(1, limit);
-            resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 transactionID = resultSet.getString("id");
@@ -555,24 +551,19 @@ public class BankTransactionsStorageEngine {
      * Total Deposit:
      * compute the total of all deposits for the current day
      * @return the of deposits
-     * @throws SQLException if an error occurs
      */
-    public double getTodayTotalDeposit() throws SQLException {
+    public double getTodayTotalDeposit() {
 
         String query;
         double totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
                 "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Deposit' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getDouble("total");
@@ -581,13 +572,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing total deposits - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
@@ -603,18 +587,14 @@ public class BankTransactionsStorageEngine {
 
         String query;
         double totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT SUM(transaction_amount) AS total FROM customers_account_transactions " +
                 "WHERE DATE(transaction_date) = DATE('now') AND transaction_type = 'Withdrawal' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getDouble("total");
@@ -623,13 +603,6 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing total withdrawals - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
