@@ -258,18 +258,17 @@ public class BankAccountsStorageEngine {
     public boolean updateLastTransactionDate(LocalDate date, String customerID) throws SQLException {
 
         String query, accountOwner, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
+        boolean status;
 
         accountOwner = new CustomersStorageEngine().getCustomerDataByID(customerID).getFullName();
         notificationSuccessMessage = "Update of " + accountOwner + "'s  account's last date of transaction is successful.";
         notificationFailMessage = "Update of " + accountOwner + "'s account's last date of transaction is unsuccessful.";
 
         query = "UPDATE customers_bank_account SET last_transaction_date = ? WHERE customer_id = ?";
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
+        status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             preparedStatement.setDate(1, Date.valueOf(date));
@@ -281,32 +280,17 @@ public class BankAccountsStorageEngine {
             // Display notification
             UserSession.addNotification(notificationSuccessMessage);
 
-            return true;
+            status = true;
         } catch (SQLException sqlException) {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error update last transaction date of customer's account - " + sqlException.getMessage());
-
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         // Display notification
         UserSession.addNotification(notificationFailMessage);
 
-        return false;
+        return status;
     }
 
     /**
