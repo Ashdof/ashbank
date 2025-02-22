@@ -54,7 +54,7 @@ public class BankAccountsStorageEngine {
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             try {
@@ -91,7 +91,7 @@ public class BankAccountsStorageEngine {
             UserSession.addNotification(notificationSuccessMessage);
 
             // Display success message in a dialog to the user
-//            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
+            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
@@ -137,7 +137,7 @@ public class BankAccountsStorageEngine {
         status = false;
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             preparedStatement.setString(1, bankAccountID);
@@ -199,7 +199,7 @@ public class BankAccountsStorageEngine {
         status = false;
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             try {
@@ -305,8 +305,6 @@ public class BankAccountsStorageEngine {
 
         String activity, activity_success_details, activity_fail_details, query, accountID, transactionType,
                 accountType, accountOwner, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         double totalAmount, transactionAmount;
 
@@ -338,13 +336,11 @@ public class BankAccountsStorageEngine {
             totalAmount = this.getCustomerAccountBalance(accountID) - transactionAmount;
         }
 
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
-
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setDouble(1, totalAmount);
@@ -357,7 +353,7 @@ public class BankAccountsStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(activity, activity_success_details);
+                customDialogs.showAlertInformation(activity, activity_success_details);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -372,12 +368,6 @@ public class BankAccountsStorageEngine {
 
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-            } finally {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
 
@@ -387,19 +377,6 @@ public class BankAccountsStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
 
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return status;
