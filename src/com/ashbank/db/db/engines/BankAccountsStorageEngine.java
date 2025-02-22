@@ -463,9 +463,6 @@ public class BankAccountsStorageEngine {
 
         List<BankAccounts> accountsList = new ArrayList<>();
         BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, customerID, accountID, accountNumber, accountType, accountCurrency, accountStatus,
                 dateCreated;
         double currentBalance, initialDeposit;
@@ -473,10 +470,9 @@ public class BankAccountsStorageEngine {
 
         query = "SELECT * FROM customers_bank_account";
 
-        try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 accountID = resultSet.getString("id");
