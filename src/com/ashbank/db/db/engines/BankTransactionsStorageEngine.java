@@ -289,6 +289,7 @@ public class BankTransactionsStorageEngine {
     public BankAccountTransactions getBankTransactionDataByID(String transactionID) {
 
         BankAccountTransactions bankAccountTransactions;
+        ResultSet resultSet;
         String query, accountID, transactionType, transactionDetails;
         double transactionAmount;
         Timestamp transactionDate;
@@ -297,10 +298,10 @@ public class BankTransactionsStorageEngine {
         query = "SELECT * FROM customers_account_transactions WHERE id = ?";
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, transactionID);
+            resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 accountID = resultSet.getString("account_id");
@@ -335,6 +336,7 @@ public class BankTransactionsStorageEngine {
     public BankAccountTransactions getBankTransactionDataByAccountID(String accountID) {
 
         BankAccountTransactions bankAccountTransactions;
+        ResultSet resultSet;
         String query, transactionID, transactionType, transactionDetails;
         double transactionAmount;
         Timestamp transactionDate;
@@ -342,12 +344,11 @@ public class BankTransactionsStorageEngine {
         bankAccountTransactions = new BankAccountTransactions();
         query = "SELECT * FROM customers_account_transactions WHERE id = ?";
 
-
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, accountID);
+            resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 transactionID = resultSet.getString("id");

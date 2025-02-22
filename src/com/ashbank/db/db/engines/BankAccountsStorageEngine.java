@@ -38,8 +38,6 @@ public class BankAccountsStorageEngine {
 
         String query, activity, activity_success_details, activity_failure_details, accountType, accountOwner,
                 notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
 
         activity = "New Customer Bank Account";
         activity_success_details = userSession.getUsername() + "'s attempt to create new customer bank account successful.";
@@ -55,11 +53,9 @@ public class BankAccountsStorageEngine {
         query = "INSERT INTO customers_bank_account (id, customer_id, account_number, account_type, initial_deposit, current_balance, account_currency, date_created)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        connection = BankConnection.getBankConnection();
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setString(1, bankAccounts.getAccountID());
@@ -95,7 +91,7 @@ public class BankAccountsStorageEngine {
             UserSession.addNotification(notificationSuccessMessage);
 
             // Display success message in a dialog to the user
-//            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
+            customDialogs.showAlertInformation(SAVE_TITLE, (SAVE_SUCCESS_MSG));
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
@@ -106,16 +102,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error creating new customer account - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
     }
 
@@ -132,8 +118,6 @@ public class BankAccountsStorageEngine {
                 notificationSuccessMessage, notificationFailMessage;
         int affectedRows;
         boolean status;
-        Connection connection;
-        PreparedStatement preparedStatement;
 
         /*=================== MESSAGES ===================*/
         activity = "Delete Customer Bank Account";
@@ -151,11 +135,10 @@ public class BankAccountsStorageEngine {
 
         query = "DELETE FROM customers_bank_account WHERE id = ?";
         status = false;
-        connection = BankConnection.getBankConnection();
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, bankAccountID);
             affectedRows = preparedStatement.executeUpdate();
@@ -181,16 +164,6 @@ public class BankAccountsStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer bank account record - " + sqlException.getMessage());
 
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
@@ -207,8 +180,6 @@ public class BankAccountsStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, update_title, update_fail_msg,
                 update_success_msg, accountType, accountOwner, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
 
         activity = "Update Bank Account Record";
@@ -225,13 +196,11 @@ public class BankAccountsStorageEngine {
 
         query = "UPDATE customers_bank_account SET account_number = ?, account_type = ?, initial_deposit = ?, account_currency = ? " +
                 "WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
-
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setString(1, bankAccounts.getAccountNumber());
@@ -248,7 +217,7 @@ public class BankAccountsStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(update_title, update_success_msg);
+                customDialogs.showAlertInformation(update_title, update_success_msg);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -259,36 +228,19 @@ public class BankAccountsStorageEngine {
                 // replace this error logging with actual file logging which can later be analyzed
                 connection.rollback();
                 logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
             // Display failure message in a dialog to the user
-//            customDialogs.showErrInformation(update_title, update_fail_msg);
+            customDialogs.showErrInformation(update_title, update_fail_msg);
 
             // Display notification
             UserSession.addNotification(notificationFailMessage);
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating bank account data - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
@@ -306,18 +258,17 @@ public class BankAccountsStorageEngine {
     public boolean updateLastTransactionDate(LocalDate date, String customerID) throws SQLException {
 
         String query, accountOwner, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
+        boolean status;
 
         accountOwner = new CustomersStorageEngine().getCustomerDataByID(customerID).getFullName();
         notificationSuccessMessage = "Update of " + accountOwner + "'s  account's last date of transaction is successful.";
         notificationFailMessage = "Update of " + accountOwner + "'s account's last date of transaction is unsuccessful.";
 
         query = "UPDATE customers_bank_account SET last_transaction_date = ? WHERE customer_id = ?";
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
+        status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
 
             preparedStatement.setDate(1, Date.valueOf(date));
@@ -329,32 +280,17 @@ public class BankAccountsStorageEngine {
             // Display notification
             UserSession.addNotification(notificationSuccessMessage);
 
-            return true;
+            status = true;
         } catch (SQLException sqlException) {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error update last transaction date of customer's account - " + sqlException.getMessage());
-
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         // Display notification
         UserSession.addNotification(notificationFailMessage);
 
-        return false;
+        return status;
     }
 
     /**
@@ -369,8 +305,6 @@ public class BankAccountsStorageEngine {
 
         String activity, activity_success_details, activity_fail_details, query, accountID, transactionType,
                 accountType, accountOwner, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         double totalAmount, transactionAmount;
 
@@ -402,13 +336,11 @@ public class BankAccountsStorageEngine {
             totalAmount = this.getCustomerAccountBalance(accountID) - transactionAmount;
         }
 
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             connection.setAutoCommit(false);
-
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setDouble(1, totalAmount);
@@ -421,7 +353,7 @@ public class BankAccountsStorageEngine {
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
                 // Display success message in a dialog to the user
-//                customDialogs.showAlertInformation(activity, activity_success_details);
+                customDialogs.showAlertInformation(activity, activity_success_details);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -436,12 +368,6 @@ public class BankAccountsStorageEngine {
 
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-            } finally {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
 
@@ -451,19 +377,6 @@ public class BankAccountsStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
 
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return status;
@@ -482,8 +395,6 @@ public class BankAccountsStorageEngine {
 
         String activity, activity_success_details, activity_fail_details, query, notificationSuccessMessage,
                 notificationFailMessage, accountType, accountOwner;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         double totalAmount, transactionAmount;
 
@@ -501,13 +412,11 @@ public class BankAccountsStorageEngine {
         query = "UPDATE customers_bank_account SET current_balance = ? WHERE id = ?";
         transactionAmount = new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getTransactionAmount();
         totalAmount = this.getCustomerAccountBalance(accountID) - transactionAmount;
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             connection.setAutoCommit(false);
-
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setDouble(1, totalAmount);
@@ -532,12 +441,6 @@ public class BankAccountsStorageEngine {
 
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-            } finally {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
 
@@ -546,20 +449,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return status;
@@ -574,9 +463,6 @@ public class BankAccountsStorageEngine {
 
         List<BankAccounts> accountsList = new ArrayList<>();
         BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, customerID, accountID, accountNumber, accountType, accountCurrency, accountStatus,
                 dateCreated;
         double currentBalance, initialDeposit;
@@ -584,10 +470,9 @@ public class BankAccountsStorageEngine {
 
         query = "SELECT * FROM customers_bank_account";
 
-        try {
-            connection = BankConnection.getBankConnection();
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 accountID = resultSet.getString("id");
@@ -633,8 +518,6 @@ public class BankAccountsStorageEngine {
     public BankAccounts getBankAccountsDataByID(String accountID) throws SQLException {
 
         BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
         ResultSet resultSet;
         String query, customerID, accountNumber, accountType, accountCurrency, accountStatus,
                 dateCreated;
@@ -644,10 +527,8 @@ public class BankAccountsStorageEngine {
         bankAccounts = new BankAccounts();
         query = "SELECT * FROM customers_bank_account WHERE id = ?";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, accountID);
             resultSet = preparedStatement.executeQuery();
@@ -679,13 +560,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return bankAccounts;
@@ -698,11 +572,9 @@ public class BankAccountsStorageEngine {
      * @param customerID the ID of the customer
      * @return the bank account object
      */
-    public BankAccounts getBankAccountsDataByCustomerID(String customerID) throws SQLException {
+    public BankAccounts getBankAccountsDataByCustomerID(String customerID) {
 
         BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
         ResultSet resultSet;
         String query, accountID, accountNumber, accountType, accountCurrency, accountStatus,
                 dateCreated;
@@ -712,10 +584,8 @@ public class BankAccountsStorageEngine {
         bankAccounts = new BankAccounts();
         query = "SELECT * FROM customers_bank_account WHERE customer_id = ?";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
 
             preparedStatement.setString(1, customerID);
             resultSet = preparedStatement.executeQuery();
@@ -747,13 +617,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return bankAccounts;
@@ -765,27 +628,21 @@ public class BankAccountsStorageEngine {
      * account ID
      * @param accountID the ID of the bank account
      * @return the value of the current balance
-     * @throws SQLException if an error occurs
      */
-    public double getCustomerAccountBalance(String accountID) throws SQLException {
+    public double getCustomerAccountBalance(String accountID) {
 
         String amountQuery;
         double accountBalance;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
 
         amountQuery = "SELECT current_balance FROM customers_bank_account WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         accountBalance = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(amountQuery);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(amountQuery)) {
 
             preparedStatement.setString(1, accountID);
 
-            try {
-                resultSet = preparedStatement.executeQuery();
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     accountBalance = resultSet.getDouble("current_balance");
                 }
@@ -804,15 +661,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error searching for customer - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return accountBalance;
@@ -822,24 +670,19 @@ public class BankAccountsStorageEngine {
      * Total Savings Accounts:
      * compute the total of all savings accounts opened for the current day
      * @return the sum of savings accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalSavingsBankAccountsOpened() throws SQLException {
+    public int getTodayTotalSavingsBankAccountsOpened() {
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Savings Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -848,13 +691,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of savings accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
@@ -864,24 +700,19 @@ public class BankAccountsStorageEngine {
      * Total Current Accounts:
      * compute the total of current accounts opened for the current day
      * @return the sum of current accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalCurrentBankAccountsOpened() throws SQLException {
+    public int getTodayTotalCurrentBankAccountsOpened() {
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Current Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -890,13 +721,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of current accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
@@ -906,24 +730,19 @@ public class BankAccountsStorageEngine {
      * Total Fixed Accounts:
      * compute the total of fixed accounts opened for the current day
      * @return the sum of fixed accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalFixedBankAccountsOpened() throws SQLException {
+    public int getTodayTotalFixedBankAccountsOpened(){
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Fixed Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -932,13 +751,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of fixed accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
@@ -948,24 +760,19 @@ public class BankAccountsStorageEngine {
      * Total Investment Accounts:
      * compute the total of investment accounts opened for the current day
      * @return the sum of investment accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalInvestmentBankAccountsOpened() throws SQLException {
+    public int getTodayTotalInvestmentBankAccountsOpened() {
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Investment Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -974,13 +781,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of investment accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
