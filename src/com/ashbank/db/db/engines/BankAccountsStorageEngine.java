@@ -628,27 +628,21 @@ public class BankAccountsStorageEngine {
      * account ID
      * @param accountID the ID of the bank account
      * @return the value of the current balance
-     * @throws SQLException if an error occurs
      */
-    public double getCustomerAccountBalance(String accountID) throws SQLException {
+    public double getCustomerAccountBalance(String accountID) {
 
         String amountQuery;
         double accountBalance;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
 
         amountQuery = "SELECT current_balance FROM customers_bank_account WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         accountBalance = 0.00;
 
-        try {
-            preparedStatement = connection.prepareStatement(amountQuery);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(amountQuery)) {
 
             preparedStatement.setString(1, accountID);
 
-            try {
-                resultSet = preparedStatement.executeQuery();
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     accountBalance = resultSet.getDouble("current_balance");
                 }
@@ -667,15 +661,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error searching for customer - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return accountBalance;
