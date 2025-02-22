@@ -38,8 +38,6 @@ public class BankAccountsStorageEngine {
 
         String query, activity, activity_success_details, activity_failure_details, accountType, accountOwner,
                 notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement preparedStatement;
 
         activity = "New Customer Bank Account";
         activity_success_details = userSession.getUsername() + "'s attempt to create new customer bank account successful.";
@@ -55,11 +53,9 @@ public class BankAccountsStorageEngine {
         query = "INSERT INTO customers_bank_account (id, customer_id, account_number, account_type, initial_deposit, current_balance, account_currency, date_created)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        connection = BankConnection.getBankConnection();
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setString(1, bankAccounts.getAccountID());
@@ -106,16 +102,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error creating new customer account - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
     }
 
