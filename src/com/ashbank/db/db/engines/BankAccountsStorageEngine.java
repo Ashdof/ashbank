@@ -118,8 +118,6 @@ public class BankAccountsStorageEngine {
                 notificationSuccessMessage, notificationFailMessage;
         int affectedRows;
         boolean status;
-        Connection connection;
-        PreparedStatement preparedStatement;
 
         /*=================== MESSAGES ===================*/
         activity = "Delete Customer Bank Account";
@@ -137,11 +135,10 @@ public class BankAccountsStorageEngine {
 
         query = "DELETE FROM customers_bank_account WHERE id = ?";
         status = false;
-        connection = BankConnection.getBankConnection();
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, bankAccountID);
             affectedRows = preparedStatement.executeUpdate();
@@ -167,16 +164,6 @@ public class BankAccountsStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer bank account record - " + sqlException.getMessage());
 
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
