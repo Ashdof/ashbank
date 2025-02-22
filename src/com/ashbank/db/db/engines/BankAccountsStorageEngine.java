@@ -572,11 +572,9 @@ public class BankAccountsStorageEngine {
      * @param customerID the ID of the customer
      * @return the bank account object
      */
-    public BankAccounts getBankAccountsDataByCustomerID(String customerID) throws SQLException {
+    public BankAccounts getBankAccountsDataByCustomerID(String customerID) {
 
         BankAccounts bankAccounts;
-        Connection connection;
-        PreparedStatement preparedStatement;
         ResultSet resultSet;
         String query, accountID, accountNumber, accountType, accountCurrency, accountStatus,
                 dateCreated;
@@ -586,10 +584,8 @@ public class BankAccountsStorageEngine {
         bankAccounts = new BankAccounts();
         query = "SELECT * FROM customers_bank_account WHERE customer_id = ?";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
 
             preparedStatement.setString(1, customerID);
             resultSet = preparedStatement.executeQuery();
@@ -621,13 +617,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return bankAccounts;
