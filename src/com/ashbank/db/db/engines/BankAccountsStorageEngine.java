@@ -395,8 +395,6 @@ public class BankAccountsStorageEngine {
 
         String activity, activity_success_details, activity_fail_details, query, notificationSuccessMessage,
                 notificationFailMessage, accountType, accountOwner;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         double totalAmount, transactionAmount;
 
@@ -414,13 +412,11 @@ public class BankAccountsStorageEngine {
         query = "UPDATE customers_bank_account SET current_balance = ? WHERE id = ?";
         transactionAmount = new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getTransactionAmount();
         totalAmount = this.getCustomerAccountBalance(accountID) - transactionAmount;
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             connection.setAutoCommit(false);
-
-            preparedStatement = connection.prepareStatement(query);
 
             try {
                 preparedStatement.setDouble(1, totalAmount);
@@ -445,12 +441,6 @@ public class BankAccountsStorageEngine {
 
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-            } finally {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing prepared statement - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
 
@@ -459,20 +449,6 @@ public class BankAccountsStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating current account balance of customer's account - " + sqlException.getMessage());
-
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) {
-                logger.log(Level.SEVERE, "Error during rollback - " + rollbackEx.getMessage());
-            }
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException sqlException) {
-
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return status;
