@@ -46,10 +46,6 @@ public class CustomersStorageEngine {
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
-                nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
-                beneficiaryPreparedStatement;
         ResultSet resultSet;
         boolean status;
 
@@ -76,21 +72,20 @@ public class CustomersStorageEngine {
         beneficiaryQuery = "INSERT INTO customers_account_beneficiary (id, customer_id, beneficiary_name, beneficiary_relation, beneficiary_phone_number," +
                 "beneficiary_postal_address, beneficiary_email_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        connection = BankConnection.getBankConnection();
         security = new Security();
         status = false;
 
         // Persist into basic table
-        try {
-            connection.setAutoCommit(false);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement basicPreparedStatement = connection.prepareStatement(basicQuery, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement professionPreparedStatement = connection.prepareStatement(professionQuery);
+            PreparedStatement residencePreparedStatement = connection.prepareStatement(residenceQuery);
+            PreparedStatement nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
+            PreparedStatement addressPreparedStatement = connection.prepareStatement(addressQuery);
+            PreparedStatement kinPreparedStatement = connection.prepareStatement(kinQuery);
+            PreparedStatement beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery)) {
 
-            basicPreparedStatement = connection.prepareStatement(basicQuery, Statement.RETURN_GENERATED_KEYS);
-            professionPreparedStatement = connection.prepareStatement(professionQuery);
-            residencePreparedStatement = connection.prepareStatement(residenceQuery);
-            nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
-            addressPreparedStatement = connection.prepareStatement(addressQuery);
-            kinPreparedStatement = connection.prepareStatement(kinQuery);
-            beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery);
+            connection.setAutoCommit(false);
 
             try {
                 // Persist data into basic data table
@@ -194,35 +189,10 @@ public class CustomersStorageEngine {
             } catch (SQLException  sqlException) {
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error saving customer record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-
-                try {
-                    basicPreparedStatement.close();
-                    professionPreparedStatement.close();
-                    residencePreparedStatement.close();
-                    nationalityPreparedStatement.close();
-                    addressPreparedStatement.close();
-                    kinPreparedStatement.close();
-                    beneficiaryPreparedStatement.close();
-
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statements - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error saving customer - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
