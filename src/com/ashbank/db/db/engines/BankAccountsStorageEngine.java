@@ -700,24 +700,19 @@ public class BankAccountsStorageEngine {
      * Total Current Accounts:
      * compute the total of current accounts opened for the current day
      * @return the sum of current accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalCurrentBankAccountsOpened() throws SQLException {
+    public int getTodayTotalCurrentBankAccountsOpened() {
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Current Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -726,13 +721,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of current accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
