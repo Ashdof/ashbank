@@ -682,7 +682,7 @@ public class BankAccountsStorageEngine {
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();) {
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -712,7 +712,7 @@ public class BankAccountsStorageEngine {
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();) {
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -742,7 +742,7 @@ public class BankAccountsStorageEngine {
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();) {
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -760,24 +760,19 @@ public class BankAccountsStorageEngine {
      * Total Investment Accounts:
      * compute the total of investment accounts opened for the current day
      * @return the sum of investment accounts
-     * @throws SQLException if an error occurs
      */
-    public int getTodayTotalInvestmentBankAccountsOpened() throws SQLException {
+    public int getTodayTotalInvestmentBankAccountsOpened() {
 
         String query;
         int totalAmount;
-        PreparedStatement preparedStatement;
-        Connection connection;
-        ResultSet resultSet;
 
         query = "SELECT COUNT(*) AS total FROM customers_bank_account " +
                 "WHERE date_created = DATE('now') AND account_type = 'Investment Account' ";
-        connection = BankConnection.getBankConnection();
         totalAmount = 0;
 
-        try {
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 totalAmount = resultSet.getInt("total");
@@ -786,13 +781,6 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error computing sum of investment accounts - " + sqlException.getMessage());
-        } finally {
-            try {
-                connection.close();
-            }  catch (SQLException sqlException) {
-                // replace this error logging with actual file logging which can later be analyzed
-                logger.log(Level.SEVERE, "Error closing the connection - " + sqlException.getMessage());
-            }
         }
 
         return totalAmount;
