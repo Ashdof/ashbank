@@ -795,7 +795,7 @@ public class CustomersStorageEngine {
      */
     private boolean deleteCustomerPhoto(File customerPhotoFile) throws SQLException {
 
-        boolean status = false;
+        boolean status;
         String activity, activity_success_details, activity_fail_details;
 
         activity = "Delete Customer Photo";
