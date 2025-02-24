@@ -19,9 +19,8 @@ public class AuthStorageEngine {
     private static final Logger logger = Logger.getLogger(AuthStorageEngine.class.getName());
 
     /* =================== MESSAGES =================== */
-    private static final String INFO_LOGIN_TITLE = "Success Logging In";
+    private static final String INFO_LOGIN_TITLE = "User Authentication";
     private static final String INFO_LOGIN_MSG = "Login successful.";
-    private static final String ERR_LOGIN_TITLE = "Error Logging In";
     private static final String ERR_LOGIN_MSG = "Invalid role, username or password. Please check and try again.";
     private static final String INFO_RESET_TITLE = "Password Reset Successful";
     private static final String INFO_RESET_MSG = "You have successfully changed your password. Now you can proceed to login.";
@@ -62,9 +61,9 @@ public class AuthStorageEngine {
         notificationFailMessage = accountOwner + "'s login is unsuccessful.";
 
         String query = "SELECT * FROM bank_users WHERE role = ? AND username = ? AND password = ?";
-        Connection connection = BankConnection.getBankConnection();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
             preparedStatement.setString(1, users.getEmployeePosition());
             preparedStatement.setString(2, users.getUsername());
@@ -75,25 +74,19 @@ public class AuthStorageEngine {
 
                     ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
                     UserSession.addNotification(notificationSuccessMessage);
-//                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
+                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
+
                     return true;
                 }
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error logging users - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         UserSession.addNotification(notificationFailMessage);
-//        customDialogs.showAlertInformation(ERR_LOGIN_TITLE, ERR_LOGIN_MSG);
+        customDialogs.showAlertInformation(INFO_LOGIN_TITLE, ERR_LOGIN_MSG);
         ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
+
         return false;
     }
 
@@ -110,9 +103,9 @@ public class AuthStorageEngine {
 
         userID = null;
         query = "SELECT id FROM bank_users WHERE username = ?";
-        Connection connection = BankConnection.getBankConnection();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
             preparedStatement.setString(1, username);
 
@@ -130,14 +123,6 @@ public class AuthStorageEngine {
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error searching for user - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return userID;
@@ -173,20 +158,19 @@ public class AuthStorageEngine {
                 """;
         updateQuery = "UPDATE bank_users SET password = ? WHERE username = ?";
 
-        Connection connection = BankConnection.getBankConnection();
-
         // Verify user's credentials
-        try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
 
             preparedStatement.setString(1, users.getUsername());
             preparedStatement.setString(2, users.getSecurityQuestion());
             preparedStatement.setString(3, users.getSecurityAnswer());
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-
 
             // Reset password
-            try (resultSet; PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery();
+                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+
                 if (!resultSet.next()) {
                     ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
                     UserSession.addNotification(notificationFailMessage);
@@ -217,14 +201,6 @@ public class AuthStorageEngine {
             logger.log(Level.SEVERE, "Error resetting password - " + sqlException.getMessage());
 
             return false;
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (Exception sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
     }
 
@@ -236,25 +212,20 @@ public class AuthStorageEngine {
      * @throws SQLException if an error occurs
      */
     public String getHashedPassword(String username) throws SQLException {
-        Connection connection = BankConnection.getBankConnection();
         String query = "SELECT password FROM bank_users WHERE username = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
             preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getString("password");
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("password");
+                }
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error logging user - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (Exception sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return null;

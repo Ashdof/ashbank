@@ -14,16 +14,16 @@ public class ActivityLoggerStorageEngine {
     public static void logActivity(String userID, String activity, String details) throws SQLException {
         String query = "INSERT INTO activity_log (user_id, activity, details) VALUES(?, ?, ?)";
 
-        Connection connection = BankConnection.getBankConnection();
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection()) {
             connection.setAutoCommit(false);
+
             try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
                 preparedStatement.setString(1, userID);
                 preparedStatement.setString(2, activity);
                 preparedStatement.setString(3, details);
 
                 preparedStatement.executeUpdate();
+
             } catch (SQLException sqlException) {
                 logger.log(Level.SEVERE, "Error logging activity - " + sqlException.getMessage());
             }
@@ -32,15 +32,6 @@ public class ActivityLoggerStorageEngine {
 
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error logging activity - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-
-                    connection.rollback();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
     }
 }

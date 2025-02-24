@@ -139,8 +139,6 @@ public class UserAuthScenes {
 
                         ActivityLoggerStorageEngine.logActivity(userID, activity, (userSession.getUsername() + success_details));
                         sceneController.showMainDashboard();
-                    } else {
-                        ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, (userSession.getUsername() + failure_details));
                     }
                 } catch (SQLException sqlException) {
                     logger.log(Level.SEVERE, "Error logging users - " + sqlException.getMessage());
