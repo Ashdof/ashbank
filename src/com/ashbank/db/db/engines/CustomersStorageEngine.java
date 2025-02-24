@@ -46,10 +46,6 @@ public class CustomersStorageEngine {
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
-                nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
-                beneficiaryPreparedStatement;
         ResultSet resultSet;
         boolean status;
 
@@ -76,21 +72,20 @@ public class CustomersStorageEngine {
         beneficiaryQuery = "INSERT INTO customers_account_beneficiary (id, customer_id, beneficiary_name, beneficiary_relation, beneficiary_phone_number," +
                 "beneficiary_postal_address, beneficiary_email_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        connection = BankConnection.getBankConnection();
         security = new Security();
         status = false;
 
         // Persist into basic table
-        try {
-            connection.setAutoCommit(false);
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement basicPreparedStatement = connection.prepareStatement(basicQuery, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement professionPreparedStatement = connection.prepareStatement(professionQuery);
+            PreparedStatement residencePreparedStatement = connection.prepareStatement(residenceQuery);
+            PreparedStatement nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
+            PreparedStatement addressPreparedStatement = connection.prepareStatement(addressQuery);
+            PreparedStatement kinPreparedStatement = connection.prepareStatement(kinQuery);
+            PreparedStatement beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery)) {
 
-            basicPreparedStatement = connection.prepareStatement(basicQuery, Statement.RETURN_GENERATED_KEYS);
-            professionPreparedStatement = connection.prepareStatement(professionQuery);
-            residencePreparedStatement = connection.prepareStatement(residenceQuery);
-            nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
-            addressPreparedStatement = connection.prepareStatement(addressQuery);
-            kinPreparedStatement = connection.prepareStatement(kinQuery);
-            beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery);
+            connection.setAutoCommit(false);
 
             try {
                 // Persist data into basic data table
@@ -169,7 +164,7 @@ public class CustomersStorageEngine {
                     ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
                     // Display failure message in a dialog to the user
-//                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
 
                     // Display success notificationMessage in a dialog to the user
                     UserSession.addNotification(notificationFailMessage);
@@ -194,35 +189,10 @@ public class CustomersStorageEngine {
             } catch (SQLException  sqlException) {
                 // replace this error logging with actual file logging which can later be analyzed
                 logger.log(Level.SEVERE, "Error saving customer record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-
-                try {
-                    basicPreparedStatement.close();
-                    professionPreparedStatement.close();
-                    residencePreparedStatement.close();
-                    nationalityPreparedStatement.close();
-                    addressPreparedStatement.close();
-                    kinPreparedStatement.close();
-                    beneficiaryPreparedStatement.close();
-
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statements - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error saving customer - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
@@ -238,10 +208,6 @@ public class CustomersStorageEngine {
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
-                nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
-                beneficiaryPreparedStatement;
         boolean status, photoChanged;
         File currentImageFile;
 
@@ -269,7 +235,6 @@ public class CustomersStorageEngine {
         beneficiaryQuery = "UPDATE customers_account_beneficiary SET beneficiary_name = ?, beneficiary_relation = ?, beneficiary_phone_number = ?," +
                 "beneficiary_postal_address = ?, beneficiary_email_address = ? WHERE customer_id = ?";
 
-        connection = BankConnection.getBankConnection();
         status = false;
         photoChanged = false;
 
@@ -290,17 +255,16 @@ public class CustomersStorageEngine {
         }
 
         // Persist into basic table
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement basicPreparedStatement = connection.prepareStatement(basicQuery);
+            PreparedStatement professionPreparedStatement = connection.prepareStatement(professionQuery);
+            PreparedStatement residencePreparedStatement = connection.prepareStatement(residenceQuery);
+            PreparedStatement nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
+            PreparedStatement addressPreparedStatement = connection.prepareStatement(addressQuery);
+            PreparedStatement kinPreparedStatement = connection.prepareStatement(kinQuery);
+            PreparedStatement beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery)) {
+
             connection.setAutoCommit(false);
-
-            basicPreparedStatement = connection.prepareStatement(basicQuery);
-            professionPreparedStatement = connection.prepareStatement(professionQuery);
-            residencePreparedStatement = connection.prepareStatement(residenceQuery);
-            nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
-            addressPreparedStatement = connection.prepareStatement(addressQuery);
-            kinPreparedStatement = connection.prepareStatement(kinQuery);
-            beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery);
-
             try {
 
                 // Update basic data table
@@ -386,22 +350,6 @@ public class CustomersStorageEngine {
                 // replace this error logging with actual file logging which can later be analyzed
                 connection.rollback();
                 logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-
-                try {
-                    basicPreparedStatement.close();
-                    professionPreparedStatement.close();
-                    residencePreparedStatement.close();
-                    nationalityPreparedStatement.close();
-                    addressPreparedStatement.close();
-                    kinPreparedStatement.close();
-                    beneficiaryPreparedStatement.close();
-
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statements - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
@@ -415,15 +363,6 @@ public class CustomersStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
@@ -440,8 +379,6 @@ public class CustomersStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, photoPath,
                 notificationSuccessMessage, notificationFailMessage, accountOwner;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         int affectedRows;
 
@@ -454,12 +391,12 @@ public class CustomersStorageEngine {
         notificationFailMessage = "Deleting " + accountOwner + "'s data is unsuccessful.";
 
         query = "DELETE FROM customers WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, customerID);
             affectedRows = preparedStatement.executeUpdate();
@@ -491,16 +428,6 @@ public class CustomersStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
 
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
@@ -511,13 +438,10 @@ public class CustomersStorageEngine {
      * fetch all customer objects from the basic data table
      * @return return an array list of customers
      */
-    public static List<Customers> getAllCustomersBasicData() throws SQLException {
+    public static List<Customers> getAllCustomersBasicData() {
 
         List<Customers> customersList = new ArrayList<>();
         Customers customers;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query;
         String customerID, lastName, firstName, gender, birthDate, profession, workPlace, position,
                 town, suburb, streetName, houseNumber, gps, nationality, nationalCard, cardNumber, postalAddress,
@@ -536,11 +460,9 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_nationality cn ON c.id = cn.customer_id " +
                 "INNER JOIN customers_address ca ON c.id = ca.customer_id";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
-            resultSet = preparedStatement.executeQuery();
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
 
@@ -607,13 +529,6 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return customersList;
@@ -629,9 +544,6 @@ public class CustomersStorageEngine {
     public Customers getCustomerDataByID(String customerID) throws SQLException {
 
         Customers customers;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query;
         String lastName, firstName, gender, birthDate, photoPath, profession, workPlace, position,
                 town, suburb, streetName, houseNumber, gps, nationality, nationalCard, cardNumber, postalAddress,
@@ -658,112 +570,107 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_account_beneficiary cb ON c.id = cb.customer_id " +
                 "WHERE c.id = ?";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
 
             preparedStatement.setString(1, customerID);
-            resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
 
-                // Basic Data
+                    // Basic Data
 //                id = resultSet.getString("id");
-                lastName = resultSet.getString("last_name");
-                firstName = resultSet.getString("first_name");
-                gender = resultSet.getString("gender");
-                birthDate = resultSet.getString("birth_date");
-                age = resultSet.getInt("age");
-                photoPath = resultSet.getString("photo");
+                    lastName = resultSet.getString("last_name");
+                    firstName = resultSet.getString("first_name");
+                    gender = resultSet.getString("gender");
+                    birthDate = resultSet.getString("birth_date");
+                    age = resultSet.getInt("age");
+                    photoPath = resultSet.getString("photo");
 
-                // Career Data
-                profession = resultSet.getString("profession");
-                workPlace = resultSet.getString("place_of_work");
-                position = resultSet.getString("position");
+                    // Career Data
+                    profession = resultSet.getString("profession");
+                    workPlace = resultSet.getString("place_of_work");
+                    position = resultSet.getString("position");
 
-                // Residence Data
-                town = resultSet.getString("town");
-                suburb = resultSet.getString("suburb");
-                streetName = resultSet.getString("street_name");
-                houseNumber = resultSet.getString("house_number");
-                gps = resultSet.getString("gps_address");
+                    // Residence Data
+                    town = resultSet.getString("town");
+                    suburb = resultSet.getString("suburb");
+                    streetName = resultSet.getString("street_name");
+                    houseNumber = resultSet.getString("house_number");
+                    gps = resultSet.getString("gps_address");
 
-                // Nationality Data
-                nationality = resultSet.getString("nationality");
-                nationalCard = resultSet.getString("national_card");
-                cardNumber = resultSet.getString("card_number");
+                    // Nationality Data
+                    nationality = resultSet.getString("nationality");
+                    nationalCard = resultSet.getString("national_card");
+                    cardNumber = resultSet.getString("card_number");
 
-                // Address Data
-                postalAddress = resultSet.getString("postal_address");
-                emailAddress = resultSet.getString("email_address");
-                phoneNumber = resultSet.getString("phone_number");
-                homeNumber = resultSet.getString("home_number");
+                    // Address Data
+                    postalAddress = resultSet.getString("postal_address");
+                    emailAddress = resultSet.getString("email_address");
+                    phoneNumber = resultSet.getString("phone_number");
+                    homeNumber = resultSet.getString("home_number");
 
-                // Next of Kin Data
-                kinName = resultSet.getString("kin_name");
-                kinRelation = resultSet.getString("kin_relation");
-                kinPhoneNumber = resultSet.getString("kin_phone_number");
-                kinPostAddress = resultSet.getString("kin_postal_address");
-                kinEmailAddress = resultSet.getString("kin_email_address");
+                    // Next of Kin Data
+                    kinName = resultSet.getString("kin_name");
+                    kinRelation = resultSet.getString("kin_relation");
+                    kinPhoneNumber = resultSet.getString("kin_phone_number");
+                    kinPostAddress = resultSet.getString("kin_postal_address");
+                    kinEmailAddress = resultSet.getString("kin_email_address");
 
-                // Beneficiary Data
-                beneficiaryName = resultSet.getString("beneficiary_name");
-                beneficiaryRelation = resultSet.getString("beneficiary_relation");
-                beneficiaryPostAddress = resultSet.getString("beneficiary_postal_address");
-                beneficiaryEmailAddress = resultSet.getString("beneficiary_email_address");
-                beneficiaryPhoneNumber = resultSet.getString("beneficiary_phone_number");
+                    // Beneficiary Data
+                    beneficiaryName = resultSet.getString("beneficiary_name");
+                    beneficiaryRelation = resultSet.getString("beneficiary_relation");
+                    beneficiaryPostAddress = resultSet.getString("beneficiary_postal_address");
+                    beneficiaryEmailAddress = resultSet.getString("beneficiary_email_address");
+                    beneficiaryPhoneNumber = resultSet.getString("beneficiary_phone_number");
 
-                // Create New Customer Object
-                customers.setCustomerID(customerID);
-                customers.setLastName(lastName);
-                customers.setFirstName(firstName);
-                customers.setGender(gender);
-                customers.setBirthDate(birthDate);
-                customers.setAge(age);
-                customers.setPhoto(new File(photoPath));
+                    // Create New Customer Object
+                    customers.setCustomerID(customerID);
+                    customers.setLastName(lastName);
+                    customers.setFirstName(firstName);
+                    customers.setGender(gender);
+                    customers.setBirthDate(birthDate);
+                    customers.setAge(age);
+                    customers.setPhoto(new File(photoPath));
 
-                customers.setProfession(profession);
-                customers.setPlaceOfWork(workPlace);
-                customers.setPosition(position);
+                    customers.setProfession(profession);
+                    customers.setPlaceOfWork(workPlace);
+                    customers.setPosition(position);
 
-                customers.setNationality(nationality);
-                customers.setNationalCard(nationalCard);
-                customers.setNationalCardNumber(cardNumber);
+                    customers.setNationality(nationality);
+                    customers.setNationalCard(nationalCard);
+                    customers.setNationalCardNumber(cardNumber);
 
-                customers.setTownOfResidence(town);
-                customers.setSuburbOfResidence(suburb);
-                customers.setStreetNameOfResidence(streetName);
-                customers.setHouseNumberOfResidence(houseNumber);
-                customers.setGpsAddressOfResidence(gps);
+                    customers.setTownOfResidence(town);
+                    customers.setSuburbOfResidence(suburb);
+                    customers.setStreetNameOfResidence(streetName);
+                    customers.setHouseNumberOfResidence(houseNumber);
+                    customers.setGpsAddressOfResidence(gps);
 
-                customers.setPostAddress(postalAddress);
-                customers.setEmailAddress(emailAddress);
-                customers.setPhoneNumber(phoneNumber);
-                customers.setHomePhoneNumber(homeNumber);
+                    customers.setPostAddress(postalAddress);
+                    customers.setEmailAddress(emailAddress);
+                    customers.setPhoneNumber(phoneNumber);
+                    customers.setHomePhoneNumber(homeNumber);
 
-                customers.setNextOfKinName(kinName);
-                customers.setNextOfKinRelation(kinRelation);
-                customers.setNextOfKinPostAddress(kinPostAddress);
-                customers.setNextOfKinEmailAddress(kinEmailAddress);
-                customers.setNextOfKinPhone(kinPhoneNumber);
+                    customers.setNextOfKinName(kinName);
+                    customers.setNextOfKinRelation(kinRelation);
+                    customers.setNextOfKinPostAddress(kinPostAddress);
+                    customers.setNextOfKinEmailAddress(kinEmailAddress);
+                    customers.setNextOfKinPhone(kinPhoneNumber);
 
-                customers.setBeneficiaryName(beneficiaryName);
-                customers.setBeneficiaryRelation(beneficiaryRelation);
-                customers.setBeneficiaryPostAddress(beneficiaryPostAddress);
-                customers.setBeneficiaryEmailAddress(beneficiaryEmailAddress);
-                customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
+                    customers.setBeneficiaryName(beneficiaryName);
+                    customers.setBeneficiaryRelation(beneficiaryRelation);
+                    customers.setBeneficiaryPostAddress(beneficiaryPostAddress);
+                    customers.setBeneficiaryEmailAddress(beneficiaryEmailAddress);
+                    customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
+            logger.log(Level.SEVERE, "Error searching customers records - " + sqlException.getMessage());
         }
 
         return customers;
@@ -777,33 +684,23 @@ public class CustomersStorageEngine {
      * @throws SQLException if an error occurs
      */
     public String getCustomerPhoto(String customerID) throws SQLException {
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, photo;
 
         photo = null;
         query = "SELECT photo FROM customers WHERE id = ?";
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             preparedStatement.setString(1, customerID);
-            resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
-                photo = resultSet.getString("photo");
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    photo = resultSet.getString("photo");
+                }
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customer's photo - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return photo;
@@ -898,7 +795,7 @@ public class CustomersStorageEngine {
      */
     private boolean deleteCustomerPhoto(File customerPhotoFile) throws SQLException {
 
-        boolean status = false;
+        boolean status;
         String activity, activity_success_details, activity_fail_details;
 
         activity = "Delete Customer Photo";
