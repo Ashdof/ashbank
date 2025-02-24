@@ -102,9 +102,9 @@ public class AuthStorageEngine {
 
         userID = null;
         query = "SELECT id FROM bank_users WHERE username = ?";
-        Connection connection = BankConnection.getBankConnection();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)){
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
             preparedStatement.setString(1, username);
 
@@ -122,14 +122,6 @@ public class AuthStorageEngine {
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error searching for user - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return userID;
