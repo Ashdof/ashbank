@@ -684,33 +684,23 @@ public class CustomersStorageEngine {
      * @throws SQLException if an error occurs
      */
     public String getCustomerPhoto(String customerID) throws SQLException {
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query, photo;
 
         photo = null;
         query = "SELECT photo FROM customers WHERE id = ?";
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
             preparedStatement.setString(1, customerID);
-            resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
-                photo = resultSet.getString("photo");
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    photo = resultSet.getString("photo");
+                }
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customer's photo - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return photo;
