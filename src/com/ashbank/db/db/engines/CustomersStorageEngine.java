@@ -208,10 +208,6 @@ public class CustomersStorageEngine {
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details, notificationSuccessMessage, notificationFailMessage;
-        Connection connection;
-        PreparedStatement basicPreparedStatement, professionPreparedStatement, residencePreparedStatement,
-                nationalityPreparedStatement, addressPreparedStatement, kinPreparedStatement,
-                beneficiaryPreparedStatement;
         boolean status, photoChanged;
         File currentImageFile;
 
@@ -239,7 +235,6 @@ public class CustomersStorageEngine {
         beneficiaryQuery = "UPDATE customers_account_beneficiary SET beneficiary_name = ?, beneficiary_relation = ?, beneficiary_phone_number = ?," +
                 "beneficiary_postal_address = ?, beneficiary_email_address = ? WHERE customer_id = ?";
 
-        connection = BankConnection.getBankConnection();
         status = false;
         photoChanged = false;
 
@@ -260,17 +255,16 @@ public class CustomersStorageEngine {
         }
 
         // Persist into basic table
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement basicPreparedStatement = connection.prepareStatement(basicQuery);
+            PreparedStatement professionPreparedStatement = connection.prepareStatement(professionQuery);
+            PreparedStatement residencePreparedStatement = connection.prepareStatement(residenceQuery);
+            PreparedStatement nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
+            PreparedStatement addressPreparedStatement = connection.prepareStatement(addressQuery);
+            PreparedStatement kinPreparedStatement = connection.prepareStatement(kinQuery);
+            PreparedStatement beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery)) {
+
             connection.setAutoCommit(false);
-
-            basicPreparedStatement = connection.prepareStatement(basicQuery);
-            professionPreparedStatement = connection.prepareStatement(professionQuery);
-            residencePreparedStatement = connection.prepareStatement(residenceQuery);
-            nationalityPreparedStatement = connection.prepareStatement(nationalityQuery);
-            addressPreparedStatement = connection.prepareStatement(addressQuery);
-            kinPreparedStatement = connection.prepareStatement(kinQuery);
-            beneficiaryPreparedStatement = connection.prepareStatement(beneficiaryQuery);
-
             try {
 
                 // Update basic data table
@@ -356,22 +350,6 @@ public class CustomersStorageEngine {
                 // replace this error logging with actual file logging which can later be analyzed
                 connection.rollback();
                 logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
-            } finally {
-                // Close the prepared statements
-
-                try {
-                    basicPreparedStatement.close();
-                    professionPreparedStatement.close();
-                    residencePreparedStatement.close();
-                    nationalityPreparedStatement.close();
-                    addressPreparedStatement.close();
-                    kinPreparedStatement.close();
-                    beneficiaryPreparedStatement.close();
-
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing prepared statements - " + sqlException.getMessage());
-                }
             }
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
@@ -385,15 +363,6 @@ public class CustomersStorageEngine {
 
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error updating customer record - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
