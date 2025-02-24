@@ -460,9 +460,6 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_nationality cn ON c.id = cn.customer_id " +
                 "INNER JOIN customers_address ca ON c.id = ca.customer_id";
 
-
-
-
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -547,9 +544,6 @@ public class CustomersStorageEngine {
     public Customers getCustomerDataByID(String customerID) throws SQLException {
 
         Customers customers;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query;
         String lastName, firstName, gender, birthDate, photoPath, profession, workPlace, position,
                 town, suburb, streetName, houseNumber, gps, nationality, nationalCard, cardNumber, postalAddress,
@@ -576,112 +570,107 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_account_beneficiary cb ON c.id = cb.customer_id " +
                 "WHERE c.id = ?";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
-
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
 
             preparedStatement.setString(1, customerID);
-            resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
 
-                // Basic Data
+                    // Basic Data
 //                id = resultSet.getString("id");
-                lastName = resultSet.getString("last_name");
-                firstName = resultSet.getString("first_name");
-                gender = resultSet.getString("gender");
-                birthDate = resultSet.getString("birth_date");
-                age = resultSet.getInt("age");
-                photoPath = resultSet.getString("photo");
+                    lastName = resultSet.getString("last_name");
+                    firstName = resultSet.getString("first_name");
+                    gender = resultSet.getString("gender");
+                    birthDate = resultSet.getString("birth_date");
+                    age = resultSet.getInt("age");
+                    photoPath = resultSet.getString("photo");
 
-                // Career Data
-                profession = resultSet.getString("profession");
-                workPlace = resultSet.getString("place_of_work");
-                position = resultSet.getString("position");
+                    // Career Data
+                    profession = resultSet.getString("profession");
+                    workPlace = resultSet.getString("place_of_work");
+                    position = resultSet.getString("position");
 
-                // Residence Data
-                town = resultSet.getString("town");
-                suburb = resultSet.getString("suburb");
-                streetName = resultSet.getString("street_name");
-                houseNumber = resultSet.getString("house_number");
-                gps = resultSet.getString("gps_address");
+                    // Residence Data
+                    town = resultSet.getString("town");
+                    suburb = resultSet.getString("suburb");
+                    streetName = resultSet.getString("street_name");
+                    houseNumber = resultSet.getString("house_number");
+                    gps = resultSet.getString("gps_address");
 
-                // Nationality Data
-                nationality = resultSet.getString("nationality");
-                nationalCard = resultSet.getString("national_card");
-                cardNumber = resultSet.getString("card_number");
+                    // Nationality Data
+                    nationality = resultSet.getString("nationality");
+                    nationalCard = resultSet.getString("national_card");
+                    cardNumber = resultSet.getString("card_number");
 
-                // Address Data
-                postalAddress = resultSet.getString("postal_address");
-                emailAddress = resultSet.getString("email_address");
-                phoneNumber = resultSet.getString("phone_number");
-                homeNumber = resultSet.getString("home_number");
+                    // Address Data
+                    postalAddress = resultSet.getString("postal_address");
+                    emailAddress = resultSet.getString("email_address");
+                    phoneNumber = resultSet.getString("phone_number");
+                    homeNumber = resultSet.getString("home_number");
 
-                // Next of Kin Data
-                kinName = resultSet.getString("kin_name");
-                kinRelation = resultSet.getString("kin_relation");
-                kinPhoneNumber = resultSet.getString("kin_phone_number");
-                kinPostAddress = resultSet.getString("kin_postal_address");
-                kinEmailAddress = resultSet.getString("kin_email_address");
+                    // Next of Kin Data
+                    kinName = resultSet.getString("kin_name");
+                    kinRelation = resultSet.getString("kin_relation");
+                    kinPhoneNumber = resultSet.getString("kin_phone_number");
+                    kinPostAddress = resultSet.getString("kin_postal_address");
+                    kinEmailAddress = resultSet.getString("kin_email_address");
 
-                // Beneficiary Data
-                beneficiaryName = resultSet.getString("beneficiary_name");
-                beneficiaryRelation = resultSet.getString("beneficiary_relation");
-                beneficiaryPostAddress = resultSet.getString("beneficiary_postal_address");
-                beneficiaryEmailAddress = resultSet.getString("beneficiary_email_address");
-                beneficiaryPhoneNumber = resultSet.getString("beneficiary_phone_number");
+                    // Beneficiary Data
+                    beneficiaryName = resultSet.getString("beneficiary_name");
+                    beneficiaryRelation = resultSet.getString("beneficiary_relation");
+                    beneficiaryPostAddress = resultSet.getString("beneficiary_postal_address");
+                    beneficiaryEmailAddress = resultSet.getString("beneficiary_email_address");
+                    beneficiaryPhoneNumber = resultSet.getString("beneficiary_phone_number");
 
-                // Create New Customer Object
-                customers.setCustomerID(customerID);
-                customers.setLastName(lastName);
-                customers.setFirstName(firstName);
-                customers.setGender(gender);
-                customers.setBirthDate(birthDate);
-                customers.setAge(age);
-                customers.setPhoto(new File(photoPath));
+                    // Create New Customer Object
+                    customers.setCustomerID(customerID);
+                    customers.setLastName(lastName);
+                    customers.setFirstName(firstName);
+                    customers.setGender(gender);
+                    customers.setBirthDate(birthDate);
+                    customers.setAge(age);
+                    customers.setPhoto(new File(photoPath));
 
-                customers.setProfession(profession);
-                customers.setPlaceOfWork(workPlace);
-                customers.setPosition(position);
+                    customers.setProfession(profession);
+                    customers.setPlaceOfWork(workPlace);
+                    customers.setPosition(position);
 
-                customers.setNationality(nationality);
-                customers.setNationalCard(nationalCard);
-                customers.setNationalCardNumber(cardNumber);
+                    customers.setNationality(nationality);
+                    customers.setNationalCard(nationalCard);
+                    customers.setNationalCardNumber(cardNumber);
 
-                customers.setTownOfResidence(town);
-                customers.setSuburbOfResidence(suburb);
-                customers.setStreetNameOfResidence(streetName);
-                customers.setHouseNumberOfResidence(houseNumber);
-                customers.setGpsAddressOfResidence(gps);
+                    customers.setTownOfResidence(town);
+                    customers.setSuburbOfResidence(suburb);
+                    customers.setStreetNameOfResidence(streetName);
+                    customers.setHouseNumberOfResidence(houseNumber);
+                    customers.setGpsAddressOfResidence(gps);
 
-                customers.setPostAddress(postalAddress);
-                customers.setEmailAddress(emailAddress);
-                customers.setPhoneNumber(phoneNumber);
-                customers.setHomePhoneNumber(homeNumber);
+                    customers.setPostAddress(postalAddress);
+                    customers.setEmailAddress(emailAddress);
+                    customers.setPhoneNumber(phoneNumber);
+                    customers.setHomePhoneNumber(homeNumber);
 
-                customers.setNextOfKinName(kinName);
-                customers.setNextOfKinRelation(kinRelation);
-                customers.setNextOfKinPostAddress(kinPostAddress);
-                customers.setNextOfKinEmailAddress(kinEmailAddress);
-                customers.setNextOfKinPhone(kinPhoneNumber);
+                    customers.setNextOfKinName(kinName);
+                    customers.setNextOfKinRelation(kinRelation);
+                    customers.setNextOfKinPostAddress(kinPostAddress);
+                    customers.setNextOfKinEmailAddress(kinEmailAddress);
+                    customers.setNextOfKinPhone(kinPhoneNumber);
 
-                customers.setBeneficiaryName(beneficiaryName);
-                customers.setBeneficiaryRelation(beneficiaryRelation);
-                customers.setBeneficiaryPostAddress(beneficiaryPostAddress);
-                customers.setBeneficiaryEmailAddress(beneficiaryEmailAddress);
-                customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
+                    customers.setBeneficiaryName(beneficiaryName);
+                    customers.setBeneficiaryRelation(beneficiaryRelation);
+                    customers.setBeneficiaryPostAddress(beneficiaryPostAddress);
+                    customers.setBeneficiaryEmailAddress(beneficiaryEmailAddress);
+                    customers.setBeneficiaryPhone(beneficiaryPhoneNumber);
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
-            logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
+            logger.log(Level.SEVERE, "Error searching customers records - " + sqlException.getMessage());
         }
 
         return customers;
