@@ -74,7 +74,8 @@ public class AuthStorageEngine {
 
                     ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
                     UserSession.addNotification(notificationSuccessMessage);
-//                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
+                    customDialogs.showAlertInformation(INFO_LOGIN_TITLE, INFO_LOGIN_MSG);
+
                     return true;
                 }
             }
