@@ -157,20 +157,19 @@ public class AuthStorageEngine {
                 """;
         updateQuery = "UPDATE bank_users SET password = ? WHERE username = ?";
 
-        Connection connection = BankConnection.getBankConnection();
-
         // Verify user's credentials
-        try (PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)){
 
             preparedStatement.setString(1, users.getUsername());
             preparedStatement.setString(2, users.getSecurityQuestion());
             preparedStatement.setString(3, users.getSecurityAnswer());
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-
 
             // Reset password
-            try (resultSet; PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery();
+                 PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+
                 if (!resultSet.next()) {
                     ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
                     UserSession.addNotification(notificationFailMessage);
@@ -201,14 +200,6 @@ public class AuthStorageEngine {
             logger.log(Level.SEVERE, "Error resetting password - " + sqlException.getMessage());
 
             return false;
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (Exception sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
     }
 
@@ -220,25 +211,20 @@ public class AuthStorageEngine {
      * @throws SQLException if an error occurs
      */
     public String getHashedPassword(String username) throws SQLException {
-        Connection connection = BankConnection.getBankConnection();
         String query = "SELECT password FROM bank_users WHERE username = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
             preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return resultSet.getString("password");
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getString("password");
+                }
             }
         } catch (SQLException sqlException) {
             logger.log(Level.SEVERE, "Error logging user - " + sqlException.getMessage());
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (Exception sqlException) {
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return null;
