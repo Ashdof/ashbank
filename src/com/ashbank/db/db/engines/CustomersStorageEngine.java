@@ -438,13 +438,10 @@ public class CustomersStorageEngine {
      * fetch all customer objects from the basic data table
      * @return return an array list of customers
      */
-    public static List<Customers> getAllCustomersBasicData() throws SQLException {
+    public static List<Customers> getAllCustomersBasicData() {
 
         List<Customers> customersList = new ArrayList<>();
         Customers customers;
-        Connection connection;
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
         String query;
         String customerID, lastName, firstName, gender, birthDate, profession, workPlace, position,
                 town, suburb, streetName, houseNumber, gps, nationality, nationalCard, cardNumber, postalAddress,
@@ -463,11 +460,12 @@ public class CustomersStorageEngine {
                 "INNER JOIN customers_nationality cn ON c.id = cn.customer_id " +
                 "INNER JOIN customers_address ca ON c.id = ca.customer_id";
 
-        connection = BankConnection.getBankConnection();
-        preparedStatement = connection.prepareStatement(query);
 
-        try {
-            resultSet = preparedStatement.executeQuery();
+
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
 
@@ -534,13 +532,6 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error fetching customers records - " + sqlException.getMessage());
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException sqlException) {
-                logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-            }
         }
 
         return customersList;
