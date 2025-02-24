@@ -379,8 +379,6 @@ public class CustomersStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, photoPath,
                 notificationSuccessMessage, notificationFailMessage, accountOwner;
-        Connection connection;
-        PreparedStatement preparedStatement;
         boolean status;
         int affectedRows;
 
@@ -393,12 +391,12 @@ public class CustomersStorageEngine {
         notificationFailMessage = "Deleting " + accountOwner + "'s data is unsuccessful.";
 
         query = "DELETE FROM customers WHERE id = ?";
-        connection = BankConnection.getBankConnection();
         status = false;
 
-        try {
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+
             connection.setAutoCommit(false);
-            preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setString(1, customerID);
             affectedRows = preparedStatement.executeUpdate();
@@ -430,16 +428,6 @@ public class CustomersStorageEngine {
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
 
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException sqlException) {
-
-                    // replace this error logging with actual file logging which can later be analyzed
-                    logger.log(Level.SEVERE, "Error closing connection - " + sqlException.getMessage());
-                }
-            }
         }
 
         return status;
