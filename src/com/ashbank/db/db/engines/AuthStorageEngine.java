@@ -83,7 +83,7 @@ public class AuthStorageEngine {
         }
 
         UserSession.addNotification(notificationFailMessage);
-//        customDialogs.showAlertInformation(INFO_LOGIN_TITLE, ERR_LOGIN_MSG);
+        customDialogs.showAlertInformation(INFO_LOGIN_TITLE, ERR_LOGIN_MSG);
         ActivityLoggerStorageEngine.logActivity(id, activity, failure_details);
 
         return false;
