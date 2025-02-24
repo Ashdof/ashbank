@@ -164,7 +164,7 @@ public class CustomersStorageEngine {
                     ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
                     // Display failure message in a dialog to the user
-//                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
 
                     // Display success notificationMessage in a dialog to the user
                     UserSession.addNotification(notificationFailMessage);
