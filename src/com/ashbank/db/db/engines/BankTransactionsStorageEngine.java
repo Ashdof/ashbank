@@ -562,7 +562,6 @@ public class BankTransactionsStorageEngine {
      * Total Deposit:
      * compute the total of all deposits for the current day
      * @return the of deposits
-     * @throws SQLException if an error occurs
      */
     public double getTodayTotalDeposit() {
 
