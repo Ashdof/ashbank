@@ -397,7 +397,7 @@ public class CustomersStorageEngine {
         status = false;
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             connection.setAutoCommit(false);
 
