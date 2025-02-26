@@ -12,10 +12,12 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -53,20 +55,40 @@ public class TransactionsRecordsScene {
 
         ScrollPane scrollPane;
         Label lblInstruction;
-        Separator sep1, sep2;
+        Separator sep1, sep2, sep3;
+        HBox hBoxTop;
+        Button btnDashboard;;
         VBox vBoxAccountRecords;
 
         lblInstruction = new Label("Records of Bank Account Transactions");
         lblInstruction.setId("title");
 
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxAccountRecords = new VBox(10);
         vBoxAccountRecords.setPadding(new Insets(10));
         vBoxAccountRecords.setAlignment(Pos.TOP_LEFT);
         vBoxAccountRecords.getChildren().addAll(
-                lblInstruction,
+                hBoxTop,
                 sep1,
                 this.getListOfAllTransactions(),
                 sep2,
@@ -226,6 +248,7 @@ public class TransactionsRecordsScene {
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
+        btnDetails.setMinHeight(30);
         btnDetails.setOnAction(e -> {
             String title = "Transaction Information";
             String message = """
@@ -244,6 +267,7 @@ public class TransactionsRecordsScene {
 
         btnEdit = new Button("Edit Record");
         btnEdit.setPrefWidth(120);
+        btnEdit.setMinHeight(30);
         btnEdit.setOnAction(e -> {
             String title = "Transaction Information";
             String message = """
