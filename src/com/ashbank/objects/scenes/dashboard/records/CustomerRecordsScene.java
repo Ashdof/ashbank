@@ -9,6 +9,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -59,19 +60,39 @@ public class CustomerRecordsScene {
         ScrollPane scrollPane;
         VBox vBoxCustomersRecords;
         Label lblInstruction;
-        Separator sep1, sep2;
+        Separator sep1, sep2, sep3;
+        HBox hBoxTop;
+        Button btnDashboard;
 
         lblInstruction = new Label("Records of Customers");
         lblInstruction.setId("title");
 
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxCustomersRecords = new VBox(10);
         vBoxCustomersRecords.setPadding(new Insets(10));
         vBoxCustomersRecords.setAlignment(Pos.TOP_LEFT);
         vBoxCustomersRecords.getChildren().addAll(
-                lblInstruction,
+                hBoxTop,
                 sep1,
                 this.createTableOfCustomers(),
                 this.createNavigationButtons(),
@@ -260,6 +281,7 @@ public class CustomerRecordsScene {
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
+        btnDetails.setMinHeight(30);
         btnDetails.setOnAction(e -> {
             String title = "Customer Information";
             String message = """
@@ -279,6 +301,7 @@ public class CustomerRecordsScene {
 
         btnEdit = new Button("Edit Record");
         btnEdit.setPrefWidth(120);
+        btnEdit.setMinHeight(30);
         btnEdit.setOnAction(e -> {
             String title = "Customer Information";
             String message = """

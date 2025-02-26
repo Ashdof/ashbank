@@ -409,6 +409,7 @@ public class NewTransactionsScene {
 
         btnCancel = new Button(" _Cancel ");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
             try {
@@ -420,6 +421,7 @@ public class NewTransactionsScene {
 
         btnSave = new Button(" _Save ");
         btnSave.setPrefWidth(100);
+        btnSave.setMinHeight(30);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
             String message = """

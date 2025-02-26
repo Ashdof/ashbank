@@ -46,7 +46,6 @@ public class CustomersStorageEngine {
         String basicQuery, professionQuery, residenceQuery, nationalityQuery, addressQuery, kinQuery,
                 beneficiaryQuery, customerPhotosPath, activity, activity_success_details,
                 activity_failure_details, notificationSuccessMessage, notificationFailMessage;
-        ResultSet resultSet;
         boolean status;
 
         activity = "Add New Customer Record";
@@ -101,87 +100,91 @@ public class CustomersStorageEngine {
 
                 basicPreparedStatement.executeUpdate();
 
-                resultSet = basicPreparedStatement.getGeneratedKeys();
-                if (resultSet.next()) {
+                try(ResultSet resultSet = basicPreparedStatement.getGeneratedKeys()) {
+                    if (resultSet.next()) {
 
-                    // Persist data into profession table
-                    professionPreparedStatement.setString(1, security.generateUUID());
-                    professionPreparedStatement.setString(2, customers.getCustomerID());
-                    professionPreparedStatement.setString(3, customers.getProfession());
-                    professionPreparedStatement.setString(4, customers.getPlaceOfWork());
-                    professionPreparedStatement.setString(5, customers.getPosition());
-                    professionPreparedStatement.executeUpdate();
+                        // Persist data into profession table
+                        professionPreparedStatement.setString(1, security.generateUUID());
+                        professionPreparedStatement.setString(2, customers.getCustomerID());
+                        professionPreparedStatement.setString(3, customers.getProfession());
+                        professionPreparedStatement.setString(4, customers.getPlaceOfWork());
+                        professionPreparedStatement.setString(5, customers.getPosition());
+                        professionPreparedStatement.executeUpdate();
 
-                    // Persist data into residence table
-                    residencePreparedStatement.setString(1, security.generateUUID());
-                    residencePreparedStatement.setString(2, customers.getCustomerID());
-                    residencePreparedStatement.setString(3, customers.getTownOfResidence());
-                    residencePreparedStatement.setString(4, customers.getSuburbOfResidence());
-                    residencePreparedStatement.setString(5, customers.getStreetNameOfResidence());
-                    residencePreparedStatement.setString(6, customers.getHouseNumberOfResidence());
-                    residencePreparedStatement.setString(7, customers.getGpsAddressOfResidence());
-                    residencePreparedStatement.executeUpdate();
+                        // Persist data into residence table
+                        residencePreparedStatement.setString(1, security.generateUUID());
+                        residencePreparedStatement.setString(2, customers.getCustomerID());
+                        residencePreparedStatement.setString(3, customers.getTownOfResidence());
+                        residencePreparedStatement.setString(4, customers.getSuburbOfResidence());
+                        residencePreparedStatement.setString(5, customers.getStreetNameOfResidence());
+                        residencePreparedStatement.setString(6, customers.getHouseNumberOfResidence());
+                        residencePreparedStatement.setString(7, customers.getGpsAddressOfResidence());
+                        residencePreparedStatement.executeUpdate();
 
-                    // Persist data into nationality table
-                    nationalityPreparedStatement.setString(1, security.generateUUID());
-                    nationalityPreparedStatement.setString(2, customers.getCustomerID());
-                    nationalityPreparedStatement.setString(3, customers.getNationality());
-                    nationalityPreparedStatement.setString(4, customers.getNationalCard());
-                    nationalityPreparedStatement.setString(5, customers.getNationalCardNumber());
-                    nationalityPreparedStatement.executeUpdate();
+                        // Persist data into nationality table
+                        nationalityPreparedStatement.setString(1, security.generateUUID());
+                        nationalityPreparedStatement.setString(2, customers.getCustomerID());
+                        nationalityPreparedStatement.setString(3, customers.getNationality());
+                        nationalityPreparedStatement.setString(4, customers.getNationalCard());
+                        nationalityPreparedStatement.setString(5, customers.getNationalCardNumber());
+                        nationalityPreparedStatement.executeUpdate();
 
-                    // Persist data into address table
-                    addressPreparedStatement.setString(1, security.generateUUID());
-                    addressPreparedStatement.setString(2, customers.getCustomerID());
-                    addressPreparedStatement.setString(3, customers.getPostAddress());
-                    addressPreparedStatement.setString(4, customers.getEmailAddress());
-                    addressPreparedStatement.setString(5, customers.getPhoneNumber());
-                    addressPreparedStatement.setString(6, customers.getHomePhoneNumber());
-                    addressPreparedStatement.executeUpdate();
+                        // Persist data into address table
+                        addressPreparedStatement.setString(1, security.generateUUID());
+                        addressPreparedStatement.setString(2, customers.getCustomerID());
+                        addressPreparedStatement.setString(3, customers.getPostAddress());
+                        addressPreparedStatement.setString(4, customers.getEmailAddress());
+                        addressPreparedStatement.setString(5, customers.getPhoneNumber());
+                        addressPreparedStatement.setString(6, customers.getHomePhoneNumber());
+                        addressPreparedStatement.executeUpdate();
 
-                    // Persist data into next of kin table
-                    kinPreparedStatement.setString(1, security.generateUUID());
-                    kinPreparedStatement.setString(2, customers.getCustomerID());
-                    kinPreparedStatement.setString(3, customers.getNextOfKinName());
-                    kinPreparedStatement.setString(4, customers.getNextOfKinRelation());
-                    kinPreparedStatement.setString(5, customers.getNextOfKinPhone());
-                    kinPreparedStatement.setString(6, customers.getNextOfKinPostAddress());
-                    kinPreparedStatement.setString(7, customers.getNextOfKinEmailAddress());
-                    kinPreparedStatement.executeUpdate();
+                        // Persist data into next of kin table
+                        kinPreparedStatement.setString(1, security.generateUUID());
+                        kinPreparedStatement.setString(2, customers.getCustomerID());
+                        kinPreparedStatement.setString(3, customers.getNextOfKinName());
+                        kinPreparedStatement.setString(4, customers.getNextOfKinRelation());
+                        kinPreparedStatement.setString(5, customers.getNextOfKinPhone());
+                        kinPreparedStatement.setString(6, customers.getNextOfKinPostAddress());
+                        kinPreparedStatement.setString(7, customers.getNextOfKinEmailAddress());
+                        kinPreparedStatement.executeUpdate();
 
-                    // Persist data into beneficiary table
-                    beneficiaryPreparedStatement.setString(1, security.generateUUID());
-                    beneficiaryPreparedStatement.setString(2, customers.getCustomerID());
-                    beneficiaryPreparedStatement.setString(3, customers.getBeneficiaryName());
-                    beneficiaryPreparedStatement.setString(4, customers.getBeneficiaryRelation());
-                    beneficiaryPreparedStatement.setString(5, customers.getBeneficiaryPhone());
-                    beneficiaryPreparedStatement.setString(6, customers.getBeneficiaryPostAddress());
-                    beneficiaryPreparedStatement.setString(7, customers.getBeneficiaryEmailAddress());
-                    beneficiaryPreparedStatement.executeUpdate();
+                        // Persist data into beneficiary table
+                        beneficiaryPreparedStatement.setString(1, security.generateUUID());
+                        beneficiaryPreparedStatement.setString(2, customers.getCustomerID());
+                        beneficiaryPreparedStatement.setString(3, customers.getBeneficiaryName());
+                        beneficiaryPreparedStatement.setString(4, customers.getBeneficiaryRelation());
+                        beneficiaryPreparedStatement.setString(5, customers.getBeneficiaryPhone());
+                        beneficiaryPreparedStatement.setString(6, customers.getBeneficiaryPostAddress());
+                        beneficiaryPreparedStatement.setString(7, customers.getBeneficiaryEmailAddress());
+                        beneficiaryPreparedStatement.executeUpdate();
 
-                } else {
+                    } else {
+                        // Log this activity and the user undertaking it
+                        ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+
+                        // Display failure message in a dialog to the user
+                        customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+
+                        // Display success notificationMessage in a dialog to the user
+                        UserSession.addNotification(notificationFailMessage);
+                    }
+
+                    // commit the query
+                    connection.commit();
+                    status = true;
+
                     // Log this activity and the user undertaking it
-                    ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+                    ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
-                    // Display failure message in a dialog to the user
-                    customDialogs.showErrInformation(SAVE_TITLE, (customers.getFullName() + SAVE_FAIL_MSG));
+                    // Display success message in a dialog to the user
+                    customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
 
                     // Display success notificationMessage in a dialog to the user
-                    UserSession.addNotification(notificationFailMessage);
+                    UserSession.addNotification(notificationSuccessMessage);
+                } catch (SQLException  sqlException) {
+                    // replace this error logging with actual file logging which can later be analyzed
+                    logger.log(Level.SEVERE, "Error saving customer object - " + sqlException.getMessage());
                 }
-
-                // commit the query
-                connection.commit();
-                status = true;
-
-                // Log this activity and the user undertaking it
-                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-
-                // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(SAVE_TITLE, (customers.getFullName() + SAVE_SUCCESS_MSG));
-
-                // Display success notificationMessage in a dialog to the user
-                UserSession.addNotification(notificationSuccessMessage);
 
             } catch (IllegalArgumentException illegalArgumentException) {
                 // replace this error logging with actual file logging which can later be analyzed
@@ -394,7 +397,7 @@ public class CustomersStorageEngine {
         status = false;
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             connection.setAutoCommit(false);
 
