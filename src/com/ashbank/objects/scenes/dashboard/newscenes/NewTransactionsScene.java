@@ -14,6 +14,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -69,14 +70,34 @@ public class NewTransactionsScene {
         TitledPane customersPane, accountsPane;
         GridPane transactionsPane, gridPaneButtons;
         VBox vbRoot;
-        HBox hBoxTop;
+        HBox hBoxTop, hBoxHeading;
         Label lblInstruction;
-        Separator sep1, sep2;
+        Button btnDashboard;
+        Separator sep1, sep2, sep3;
 
         lblInstruction = new Label("Record New Bank Account Transaction");
+        lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxHeading = new HBox(10);
+        hBoxHeading.setPadding(new Insets(10));
+        hBoxHeading.setAlignment(Pos.CENTER_LEFT);
+        hBoxHeading.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         customersPane = this.getListOfCustomerBasicDataPane();
         accountsPane = this.getListOfAllCustomerBankAccounts();
@@ -92,7 +113,7 @@ public class NewTransactionsScene {
         vbRoot.setPadding(new Insets(5));
         vbRoot.setAlignment(Pos.TOP_LEFT);
         vbRoot.prefWidthProperty().bind(hBoxTop.widthProperty());
-        vbRoot.getChildren().addAll(lblInstruction, sep1, hBoxTop, transactionsPane, sep2, gridPaneButtons);
+        vbRoot.getChildren().addAll(hBoxHeading, sep1, hBoxTop, transactionsPane, sep2, gridPaneButtons);
 
         scrollPane = new ScrollPane(vbRoot);
 
