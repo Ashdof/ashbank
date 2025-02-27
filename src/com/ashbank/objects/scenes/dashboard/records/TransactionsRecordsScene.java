@@ -257,7 +257,11 @@ public class TransactionsRecordsScene {
             if (transactionID == null) {
                 customDialogs.showErrInformation(title, message);
             } else {
-
+                try {
+                    sceneController.showTransactionDeleteScene(transactionID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
 
