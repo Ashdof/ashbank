@@ -6,6 +6,7 @@ import com.ashbank.objects.utility.SceneController;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -53,8 +54,9 @@ public class CustomerDetailsScene {
         GridPane basicGridPane, professionGridPane, residenceGridPane, nationalityGridPane, addressGridPane,
                 kinGridPane, beneficiaryGridPane;
         Label lblInstruction;
-        Separator sep1, sep2;
-        HBox hBoxButtons, hBoxRoot, hBoxBasicData;
+        Button btnDashboard;
+        Separator sep1, sep2, sep3;
+        HBox hBoxButtons, hBoxRoot, hBoxBasicData, hBoxTop;
         VBox vBoxRoot, vbLeft, vbRight;
         ImageView imageView;
 
@@ -62,6 +64,18 @@ public class CustomerDetailsScene {
 
         lblInstruction = new Label("Record Details of " + customers.getFullName());
         lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         basicGridPane = this.createCustomersBasicDataPane(customers);
         professionGridPane = this.createCustomersProfessionalDataPane(customers);
@@ -95,11 +109,17 @@ public class CustomerDetailsScene {
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, hBoxBasicData, hBoxRoot, sep2, hBoxButtons);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, hBoxBasicData, hBoxRoot, sep2, hBoxButtons);
 
         scrollPane = new ScrollPane(vBoxRoot);
         return scrollPane;
