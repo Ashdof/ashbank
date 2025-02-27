@@ -159,12 +159,14 @@ public class TransactionDetailsScene {
 
         btnBack = new Button("Back");
         btnBack.setPrefWidth(100);
+        btnBack.setMinHeight(30);
         btnBack.setOnAction(e -> {
             sceneController.showTransactionsRecordsScene();
         });
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
                 if (sceneController.deleteTransactionsRecord(bankAccountTransactions.getTransactionID()))
@@ -175,6 +177,8 @@ public class TransactionDetailsScene {
         });
 
         btnUpdateRecord = new Button("Edit Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             try {
                 sceneController.showTransactionEditScene(bankAccountTransactions.getTransactionID());
@@ -182,7 +186,6 @@ public class TransactionDetailsScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         lblSpace = new Label("      ");
 

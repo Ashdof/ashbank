@@ -583,6 +583,7 @@ public class CustomerDetailsScene {
 
         btnBack = new Button("Back");
         btnBack.setPrefWidth(100);
+        btnBack.setMinHeight(30);
         btnBack.setOnAction(e -> {
             try {
                 sceneController.showCustomerRecordsScene();
@@ -593,6 +594,7 @@ public class CustomerDetailsScene {
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
                 if (sceneController.deleteCustomerRecord(customers.getCustomerID()))
@@ -603,6 +605,8 @@ public class CustomerDetailsScene {
         });
 
         btnUpdateRecord = new Button("Edit Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             try {
                 sceneController.showCustomerEditScene(customers.getCustomerID());
@@ -610,7 +614,6 @@ public class CustomerDetailsScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         lblSpace = new Label("      ");
 
