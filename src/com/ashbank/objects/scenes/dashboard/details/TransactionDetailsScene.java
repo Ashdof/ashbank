@@ -6,6 +6,7 @@ import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccountTransactions;
 import com.ashbank.objects.utility.SceneController;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -45,9 +46,10 @@ public class TransactionDetailsScene {
         ScrollPane scrollPane;
         GridPane transactionsPane;
         VBox vBoxRoot;
-        HBox hBoxButtons;
+        HBox hBoxButtons, hBoxTop;
         Label lblInstruction;
-        Separator sep1, sep2;
+        Button btnDashboard;
+        Separator sep1, sep2, sep3;
         String accountOwner;
 
         bankAccountTransactions = bankTransactionsStorageEngine.getBankTransactionDataByID(transactionID);
@@ -57,16 +59,34 @@ public class TransactionDetailsScene {
 
         lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccountTransactions.getTransactionType() + " Transaction");
 
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         transactionsPane = this.getTransactionDetailsPane(bankAccountTransactions);
         hBoxButtons = this.createDetailsSceneButtons(bankAccountTransactions);
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, transactionsPane, sep2, hBoxButtons);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, transactionsPane, sep2, hBoxButtons);
 
         scrollPane = new ScrollPane(vBoxRoot);
 
