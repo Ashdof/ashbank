@@ -234,6 +234,7 @@ public class BankAccountEditScene {
 
         btnCancel = new Button("Back");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setOnAction(e -> {
             try {
                 this.clearFields();
@@ -246,6 +247,8 @@ public class BankAccountEditScene {
         });
 
         btnUpdateRecord = new Button("Update Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             this.getAccountFormValues(bankAccounts);
             try {
@@ -265,7 +268,6 @@ public class BankAccountEditScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);

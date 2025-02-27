@@ -637,6 +637,7 @@ public class CustomersEditScene {
 
         btnCancel = new Button(" _Cancel ");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
             try {
@@ -650,6 +651,7 @@ public class CustomersEditScene {
 
         btnSave = new Button(" _Update Record ");
         btnSave.setPrefWidth(150);
+        btnSave.setMinHeight(30);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
 

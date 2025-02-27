@@ -222,6 +222,7 @@ public class TransactionEditScene {
 
         btnCancel = new Button("Back");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setOnAction(e -> {
             try {
                 sceneController.showTransactionDetailsScene(bankAccountTransactions.getTransactionID());
@@ -231,6 +232,8 @@ public class TransactionEditScene {
         });
 
         btnUpdateRecord = new Button("Update Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             this.getTransactionsData(bankAccountTransactions);
             try {
@@ -243,7 +246,6 @@ public class TransactionEditScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
