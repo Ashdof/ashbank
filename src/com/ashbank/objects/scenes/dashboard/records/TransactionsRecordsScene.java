@@ -312,6 +312,7 @@ public class TransactionsRecordsScene {
 
         gridPane.add(btnEdit, 0, 0);
         gridPane.add(btnDetails, 1, 0);
+        gridPane.add(btnDelete, 2, 0);
 
         return gridPane;
     }
