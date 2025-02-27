@@ -4,6 +4,7 @@ import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
+import com.ashbank.objects.scenes.dashboard.deletescenes.TransactionDeleteScene;
 import com.ashbank.objects.scenes.dashboard.details.BankAccountDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.CustomerDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.TransactionDetailsScene;
@@ -48,6 +49,7 @@ public class SceneController {
     private TransactionsRecordsScene transactionsRecordsScene;
     private TransactionDetailsScene transactionDetailsScene;
     private TransactionEditScene transactionEditScene;
+    private TransactionDeleteScene transactionDeleteScene;
 
     // Main scenes
     private Scene mainDashboardScene;
@@ -64,6 +66,7 @@ public class SceneController {
     private Scene addTransactionsRecordsScene;
     private Scene addTransactionDetailsScene;
     private Scene addTransactionEditScene;
+    private Scene addTransactionDeleteScene;
 
     // Main Dashboard Component
     private BorderPane mainDashboardRoot;
@@ -72,7 +75,7 @@ public class SceneController {
     private ScrollPane addNewCustomerRoot, addNewBankAccountRoot, addNewTransactionRoot, addCustomerRecordsRoot,
             addCustomerDetailsRoot, addCustomerEditRoot, addMainDashboardRoot, addBankAccountsRecordsRoot,
             addBankAccountDetailRoot, addBankAccountEditRoot, addTransactionsRecordRoot, addTransactionDetailRoot,
-            addTransactionEditRoot, addMainDashboardSummariesRoot;
+            addTransactionEditRoot, addTransactionDeleteRoot, addMainDashboardSummariesRoot;
 
 
     /**
@@ -251,6 +254,19 @@ public class SceneController {
         this.addTransactionEditScene = this.transactionEditScene.getTransactionEditScene();
         this.addTransactionEditRoot = this.transactionEditScene.createTransactionEditRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionEditRoot);
+    }
+
+    /**
+     * Transaction Delete Scene:
+     * render the scene to delete the data of a transaction object
+     * @param transactionID the ID of the transaction object
+     * @throws SQLException if an error occurs
+     */
+    public void showTransactionDeleteScene(String transactionID) throws SQLException {
+        this.transactionDeleteScene = new TransactionDeleteScene(this);
+        this.addTransactionDeleteScene = this.transactionDeleteScene.getTransactionDeleteScene();
+        this.addTransactionDeleteRoot = this.transactionDeleteScene.createTransactionDeleteRoot(transactionID);
+        mainDashboardRoot.setCenter(addTransactionDeleteRoot);
     }
 
     /**
