@@ -284,7 +284,7 @@ public class NewBankAccountsScene {
      * @return a titled pane elements containing the list of
      * customers
      */
-    private TitledPane createExistingCustomerBasicDataPane() throws SQLException {
+    private TitledPane createExistingCustomerBasicDataPane() {
         TextField txtSearch;
         String title = "Select an Existing Customer";
         VBox vBox;
