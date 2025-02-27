@@ -8,6 +8,7 @@ import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.SceneController;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -59,8 +60,10 @@ public class TransactionEditScene {
         ScrollPane scrollPane;
         GridPane transactionsPane, gridPaneButtons;
         VBox vbRoot;
+        HBox hBoxTop;
         Label lblInstruction;
-        Separator sep1, sep2;
+        Button btnDashboard;
+        Separator sep1, sep2, sep3;
         String accountOwner;
 
         transactions = bankTransactionsStorageEngine.getBankTransactionDataByID(transactionID);
@@ -70,17 +73,36 @@ public class TransactionEditScene {
         originalAmount = transactions.getTransactionAmount();
 
         lblInstruction = new Label("Edit " + accountOwner + "'s " + transactions.getTransactionType() + " Transaction Data");
+        lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         transactionsPane = this.createBankTransactionPane(transactions);
         gridPaneButtons = this.createTransactionEditSceneButtons(transactions);
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vbRoot = new VBox(5);
         vbRoot.setPadding(new Insets(5));
         vbRoot.setAlignment(Pos.TOP_LEFT);
-        vbRoot.getChildren().addAll(lblInstruction, sep1, transactionsPane, sep2, gridPaneButtons);
+        vbRoot.getChildren().addAll(hBoxTop, sep1, transactionsPane, sep2, gridPaneButtons);
 
         scrollPane = new ScrollPane(vbRoot);
 
