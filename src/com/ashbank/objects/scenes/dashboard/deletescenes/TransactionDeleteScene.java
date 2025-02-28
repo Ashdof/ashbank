@@ -22,7 +22,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
@@ -63,6 +65,7 @@ public class TransactionDeleteScene {
 
         BankAccountTransactions transactions;
         ScrollPane scrollPane;
+        GridPane gridPaneButtons;
         VBox vbRoot;
         HBox hBoxTop;
         Label lblInstruction;
@@ -90,6 +93,8 @@ public class TransactionDeleteScene {
             }
         });
 
+        gridPaneButtons = this.createTransactionDeleteSceneButtons();
+
         sep1 = new Separator();
         sep2 = new Separator();
         sep3 = new Separator(Orientation.VERTICAL);
@@ -102,10 +107,43 @@ public class TransactionDeleteScene {
         vbRoot = new VBox(5);
         vbRoot.setPadding(new Insets(5));
         vbRoot.setAlignment(Pos.TOP_LEFT);
-        vbRoot.getChildren().addAll(hBoxTop, sep1, sep2);
+        vbRoot.getChildren().addAll(hBoxTop, sep1, gridPaneButtons, sep2);
 
         scrollPane = new ScrollPane(vbRoot);
 
         return scrollPane;
+    }
+
+    /**
+     * Buttons:
+     * create the control buttons on the delete scene
+     * @return an HBox node containing the buttons
+     */
+    private GridPane createTransactionDeleteSceneButtons() {
+
+        GridPane gridPane;
+        Button btnCancel, btnDeleteRecord;
+
+        btnCancel = new Button("_Cancel");
+        btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
+        btnCancel.setOnAction(e -> {});
+
+        btnDeleteRecord = new Button("Delete Record");
+        btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setMinHeight(30);
+        btnDeleteRecord.setOnAction(e -> {});
+
+        gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(15);
+        gridPane.setAlignment(Pos.BOTTOM_RIGHT);
+        gridPane.setPadding(new Insets(10));
+        GridPane.setHgrow(btnDeleteRecord, Priority.NEVER);
+
+        gridPane.add(btnCancel, 0, 0);
+        gridPane.add(btnDeleteRecord, 1, 0);
+
+        return gridPane;
     }
 }
