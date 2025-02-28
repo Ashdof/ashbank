@@ -34,7 +34,6 @@ public class TransactionDeleteScene {
     /* ================ DATA MEMBERS ================ */
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final SceneController sceneController;
-    private final BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
     private final BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
 
     private Scene transactionDeleteScene;
@@ -121,7 +120,7 @@ public class TransactionDeleteScene {
      * @param bankAccountTransactions the transaction object
      * @return a VBox pane object
      */
-    private VBox createTransactionDeleteDataPane(BankAccountTransactions bankAccountTransactions) {
+    private VBox createTransactionDeleteDataPane(BankAccountTransactions bankAccountTransactions) throws SQLException {
         VBox vBoxRoot;
         HBox hBoxWarning;
         GridPane gridPane;
@@ -129,8 +128,10 @@ public class TransactionDeleteScene {
                 lblTransactionDateValue, lblTransactionType, lblTransactionTypeValue, lblTransactionAmount,
                 lblTransactionAmountValue, lblTransactionCurrency, lblTransactionCurrencyValue,
                 lblDescription, lblDescriptionValue;
+        String customerID;
 
 
+        customerID = new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID();
         lblWarning = new Label("WARNING");
         lblWarning.setId("warning");
 
@@ -153,37 +154,49 @@ public class TransactionDeleteScene {
         lblAccountOwner = new Label("Account owner: ");
         gridPane.add(lblAccountOwner, 0, 0);
 
-        lblAccountOwnerValue = new Label("Name of account owner here");
+        lblAccountOwnerValue = new Label(
+                new CustomersStorageEngine().getCustomerDataByID(customerID).getFullName()
+        );
+        lblAccountOwnerValue.setId("details-value");
         gridPane.add(lblAccountOwnerValue, 1, 0);
 
         lblTransactionDate = new Label("Transaction date: ");
         gridPane.add(lblTransactionDate, 0, 1);
 
         lblTransactionDateValue = new Label(bankAccountTransactions.getTransactionDate());
+        lblTransactionDateValue.setId("details-value");
         gridPane.add(lblTransactionDateValue, 1, 1);
 
         lblTransactionType = new Label("Transaction type: ");
         gridPane.add(lblTransactionType, 0, 2);
 
         lblTransactionTypeValue = new Label(bankAccountTransactions.getTransactionType());
+        lblTransactionTypeValue.setId("details-value");
         gridPane.add(lblTransactionTypeValue, 1, 2);
 
         lblTransactionCurrency = new Label("Transaction currency: ");
         gridPane.add(lblTransactionCurrency, 0, 3);
 
-        lblTransactionCurrencyValue = new Label();
+        lblTransactionCurrencyValue = new Label(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(
+                        bankAccountTransactions.getAccountID()
+                ).getAccountCurrency()
+        );
+        lblTransactionCurrencyValue.setId("details-value");
         gridPane.add(lblTransactionCurrencyValue, 1, 3);
 
         lblTransactionAmount = new Label("Transaction amount: ");
         gridPane.add(lblTransactionAmount, 0, 4);
 
         lblTransactionAmountValue = new Label(String.valueOf(bankAccountTransactions.getTransactionAmount()));
+        lblTransactionAmountValue.setId("details-value");
         gridPane.add(lblTransactionAmountValue, 1, 4);
 
         lblDescription = new Label("Description: ");
         gridPane.add(lblDescription, 0, 5);
 
         lblDescriptionValue = new Label(bankAccountTransactions.getTransactionDetails());
+        lblDescriptionValue.setId("details-value");
         gridPane.add(lblDescriptionValue, 1, 5);
 
         vBoxRoot = new VBox(10);
@@ -210,12 +223,12 @@ public class TransactionDeleteScene {
         btnCancel.setMinHeight(30);
         btnCancel.setOnAction(e -> {});
 
-        btnDeleteRecord = new Button("Delete Record");
+        btnDeleteRecord = new Button("Delete");
         btnDeleteRecord.setPrefWidth(120);
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {});
 
-        btnHide = new Button("_Hide Record");
+        btnHide = new Button("_Hide");
         btnHide.setPrefWidth(120);
         btnHide.setMinHeight(30);
         btnHide.setOnAction(e -> {});
