@@ -122,7 +122,8 @@ public class TransactionDeleteScene {
     private GridPane createTransactionDeleteSceneButtons() {
 
         GridPane gridPane;
-        Button btnCancel, btnDeleteRecord;
+        Button btnCancel, btnDeleteRecord, btnHide;
+        Separator sep1;
 
         btnCancel = new Button("_Cancel");
         btnCancel.setPrefWidth(100);
@@ -134,6 +135,11 @@ public class TransactionDeleteScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {});
 
+        btnHide = new Button("_Hide Record");
+        btnHide.setPrefWidth(120);
+        btnHide.setMinHeight(30);
+        btnHide.setOnAction(e -> {});
+
         gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setVgap(15);
@@ -141,8 +147,12 @@ public class TransactionDeleteScene {
         gridPane.setPadding(new Insets(10));
         GridPane.setHgrow(btnDeleteRecord, Priority.NEVER);
 
+        sep1 = new Separator(Orientation.VERTICAL);
+
         gridPane.add(btnCancel, 0, 0);
         gridPane.add(btnDeleteRecord, 1, 0);
+        gridPane.add(sep1, 2, 0);
+        gridPane.add(btnHide, 3, 0);
 
         return gridPane;
     }
