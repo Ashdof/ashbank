@@ -66,7 +66,7 @@ public class TransactionDeleteScene {
         BankAccountTransactions transactions;
         ScrollPane scrollPane;
         GridPane gridPaneButtons;
-        VBox vbRoot;
+        VBox vbRoot, vBoxDataPane;
         HBox hBoxTop;
         Label lblInstruction;
         Button btnDashboard;
@@ -94,6 +94,7 @@ public class TransactionDeleteScene {
         });
 
         gridPaneButtons = this.createTransactionDeleteSceneButtons();
+        vBoxDataPane = this.createTransactionDeleteDataPane(transactions);
 
         sep1 = new Separator();
         sep2 = new Separator();
@@ -107,11 +108,90 @@ public class TransactionDeleteScene {
         vbRoot = new VBox(5);
         vbRoot.setPadding(new Insets(5));
         vbRoot.setAlignment(Pos.TOP_LEFT);
-        vbRoot.getChildren().addAll(hBoxTop, sep1, gridPaneButtons, sep2);
+        vbRoot.getChildren().addAll(hBoxTop, sep1, vBoxDataPane, sep2, gridPaneButtons);
 
         scrollPane = new ScrollPane(vbRoot);
 
         return scrollPane;
+    }
+
+    /**
+     * Transaction Data Pane:
+     * create a VBox pane to display details of a transaction object
+     * @param bankAccountTransactions the transaction object
+     * @return a VBox pane object
+     */
+    private VBox createTransactionDeleteDataPane(BankAccountTransactions bankAccountTransactions) {
+        VBox vBoxRoot;
+        HBox hBoxWarning;
+        GridPane gridPane;
+        Label lblWarning, lblWarningMessage, lblAccountOwner, lblAccountOwnerValue, lblTransactionDate,
+                lblTransactionDateValue, lblTransactionType, lblTransactionTypeValue, lblTransactionAmount,
+                lblTransactionAmountValue, lblTransactionCurrency, lblTransactionCurrencyValue,
+                lblDescription, lblDescriptionValue;
+
+
+        lblWarning = new Label("WARNING");
+        lblWarning.setId("warning");
+
+        lblWarningMessage = new Label("""
+                This action cannot be recovered. Consider hiding
+                this record.
+                """);
+
+        gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(15);
+        gridPane.setAlignment(Pos.TOP_LEFT);
+        gridPane.setPadding(new Insets(10));
+
+        hBoxWarning = new HBox(10);
+        hBoxWarning.setPadding(new Insets(10));
+        hBoxWarning.setAlignment(Pos.TOP_LEFT);
+        hBoxWarning.getChildren().addAll(lblWarning, lblWarningMessage);
+
+        lblAccountOwner = new Label("Account owner: ");
+        gridPane.add(lblAccountOwner, 0, 0);
+
+        lblAccountOwnerValue = new Label("Name of account owner here");
+        gridPane.add(lblAccountOwnerValue, 1, 0);
+
+        lblTransactionDate = new Label("Transaction date: ");
+        gridPane.add(lblTransactionDate, 0, 1);
+
+        lblTransactionDateValue = new Label(bankAccountTransactions.getTransactionDate());
+        gridPane.add(lblTransactionDateValue, 1, 1);
+
+        lblTransactionType = new Label("Transaction type: ");
+        gridPane.add(lblTransactionType, 0, 2);
+
+        lblTransactionTypeValue = new Label(bankAccountTransactions.getTransactionType());
+        gridPane.add(lblTransactionTypeValue, 1, 2);
+
+        lblTransactionCurrency = new Label("Transaction currency: ");
+        gridPane.add(lblTransactionCurrency, 0, 3);
+
+        lblTransactionCurrencyValue = new Label();
+        gridPane.add(lblTransactionCurrencyValue, 1, 3);
+
+        lblTransactionAmount = new Label("Transaction amount: ");
+        gridPane.add(lblTransactionAmount, 0, 4);
+
+        lblTransactionAmountValue = new Label(String.valueOf(bankAccountTransactions.getTransactionAmount()));
+        gridPane.add(lblTransactionAmountValue, 1, 4);
+
+        lblDescription = new Label("Description: ");
+        gridPane.add(lblDescription, 0, 5);
+
+        lblDescriptionValue = new Label(bankAccountTransactions.getTransactionDetails());
+        gridPane.add(lblDescriptionValue, 1, 5);
+
+        vBoxRoot = new VBox(10);
+        vBoxRoot.setPadding(new Insets(10));
+        vBoxRoot.setAlignment(Pos.TOP_LEFT);
+        vBoxRoot.getChildren().addAll(hBoxWarning, gridPane);
+
+        return vBoxRoot;
     }
 
     /**
