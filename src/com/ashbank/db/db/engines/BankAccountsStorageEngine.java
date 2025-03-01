@@ -352,9 +352,6 @@ public class BankAccountsStorageEngine {
                 // Log this activity and the user undertaking it
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
 
-                // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(activity, activity_success_details);
-
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
 
