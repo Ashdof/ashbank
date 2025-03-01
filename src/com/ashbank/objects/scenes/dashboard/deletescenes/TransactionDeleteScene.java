@@ -92,7 +92,7 @@ public class TransactionDeleteScene {
             }
         });
 
-        gridPaneButtons = this.createTransactionDeleteSceneButtons(transactionID);
+        gridPaneButtons = this.createTransactionDeleteSceneButtons(transactions);
         vBoxDataPane = this.createTransactionDeleteDataPane(transactions);
 
         sep1 = new Separator();
@@ -210,10 +210,10 @@ public class TransactionDeleteScene {
     /**
      * Buttons:
      * create the control buttons on the delete scene
-     * @param transactionID the ID of the transaction object
+     * @param bankAccountTransactions the transaction object
      * @return an HBox node containing the buttons
      */
-    private GridPane createTransactionDeleteSceneButtons(String transactionID) {
+    private GridPane createTransactionDeleteSceneButtons(BankAccountTransactions bankAccountTransactions) {
 
         GridPane gridPane;
         Button btnCancel, btnDeleteRecord, btnHide;
@@ -229,8 +229,17 @@ public class TransactionDeleteScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (bankTransactionsStorageEngine.deleteBankAccountTransactionObject(transactionID))
+                boolean balanceResult, deleteResult;
+
+                bankAccountTransactions.setTransactionType("Withdrawal");
+                balanceResult = new BankAccountsStorageEngine().updateAccountBalance(bankAccountTransactions);
+                deleteResult = bankTransactionsStorageEngine.deleteBankAccountTransactionObject(bankAccountTransactions.getTransactionID());
+
+                if (deleteResult && balanceResult) {
+                    sceneController.showPlatformBottomToolbar();
+                    sceneController.showMainDashboardSummaries();
                     sceneController.showTransactionsRecordsScene();
+                }
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
