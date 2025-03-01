@@ -210,7 +210,7 @@ public class BankTransactionsStorageEngine {
                 status = true;
 
                 // Display failure message in a dialog to the user
-                customDialogs.showErrInformation(activity, notificationSuccessMessage);
+                customDialogs.showAlertInformation(activity, notificationSuccessMessage);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
