@@ -209,6 +209,9 @@ public class BankTransactionsStorageEngine {
 
                 status = true;
 
+                // Display failure message in a dialog to the user
+                customDialogs.showErrInformation(activity, notificationSuccessMessage);
+
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
 
@@ -217,6 +220,9 @@ public class BankTransactionsStorageEngine {
             }
         } catch (SQLException sqlException) {
             status = false;
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, notificationFailMessage);
 
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
