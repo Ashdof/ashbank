@@ -92,7 +92,7 @@ public class TransactionDeleteScene {
             }
         });
 
-        gridPaneButtons = this.createTransactionDeleteSceneButtons();
+        gridPaneButtons = this.createTransactionDeleteSceneButtons(transactionID);
         vBoxDataPane = this.createTransactionDeleteDataPane(transactions);
 
         sep1 = new Separator();
@@ -210,9 +210,10 @@ public class TransactionDeleteScene {
     /**
      * Buttons:
      * create the control buttons on the delete scene
+     * @param transactionID the ID of the transaction object
      * @return an HBox node containing the buttons
      */
-    private GridPane createTransactionDeleteSceneButtons() {
+    private GridPane createTransactionDeleteSceneButtons(String transactionID) {
 
         GridPane gridPane;
         Button btnCancel, btnDeleteRecord, btnHide;
@@ -226,7 +227,14 @@ public class TransactionDeleteScene {
         btnDeleteRecord = new Button("Delete");
         btnDeleteRecord.setPrefWidth(120);
         btnDeleteRecord.setMinHeight(30);
-        btnDeleteRecord.setOnAction(e -> {});
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                if (bankTransactionsStorageEngine.deleteBankAccountTransactionObject(transactionID))
+                    sceneController.showTransactionsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnHide = new Button("_Hide");
         btnHide.setPrefWidth(120);
