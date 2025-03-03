@@ -24,6 +24,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BankAccountsDeleteScene {
@@ -159,8 +160,8 @@ public class BankAccountsDeleteScene {
         btnCancel.setOnAction(e -> {
             try {
                 sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to records scene - " + sqlException.getMessage());
             }
         });
 
@@ -169,10 +170,16 @@ public class BankAccountsDeleteScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (sceneController.deleteBankAccountRecord(bankAccounts.getAccountID()))
+                boolean deleteResult;
+
+                deleteResult = sceneController.deleteBankAccountRecord(bankAccounts.getAccountID());
+                if (deleteResult) {
+                    sceneController.showPlatformBottomToolbar();
+                    sceneController.showMainDashboardSummaries();
                     sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                }
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to records scene - " + sqlException.getMessage());
             }
         });
 
