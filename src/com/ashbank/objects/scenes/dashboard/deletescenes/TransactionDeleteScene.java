@@ -28,15 +28,18 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TransactionDeleteScene {
 
     /* ================ DATA MEMBERS ================ */
+    private static final Logger logger = Logger.getLogger(TransactionDeleteScene.class.getName());
+    private Scene transactionDeleteScene;
+
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final SceneController sceneController;
     private final BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
-
-    private Scene transactionDeleteScene;
 
     /**
      * Create a new object to represent the delete scene
@@ -240,8 +243,8 @@ public class TransactionDeleteScene {
                     sceneController.showMainDashboardSummaries();
                     sceneController.showTransactionsRecordsScene();
                 }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
             }
         });
 
