@@ -74,12 +74,10 @@ public class BankAccountsDeleteScene {
         GridPane gridPaneButtons;
         VBox vBoxRoot, bankAccountDataPane;
         HBox hBoxTop;
-        Separator sep1, sep2, sep3;
+        Separator sep1, sep2, sep3, sep4;
         Button btnDashboard;
-        String accountOwner;
 
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
-        accountOwner = new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName();
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -99,6 +97,7 @@ public class BankAccountsDeleteScene {
         sep1 = new Separator();
         sep2 = new Separator();
         sep3 = new Separator(Orientation.VERTICAL);
+        sep4 = new Separator();
 
         hBoxTop = new HBox(10);
         hBoxTop.setPadding(new Insets(10));
@@ -108,7 +107,7 @@ public class BankAccountsDeleteScene {
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, gridPaneButtons);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, this.getListOfAllTransactions(), sep4, gridPaneButtons);
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -122,7 +121,8 @@ public class BankAccountsDeleteScene {
         VBox vBoxRoot;
         Label lblWarning, lblWarningMessage, lblAccountNumber, lblAccountNumberValue, lblAccountType, lblAccountTypeValue,
                 lblAccountCurrency, lblAccountCurrencyValue, lblInitialDeposit, lblInitialDepositValue, lblDateCreated,
-                lblDateCreatedValue, lblAccountOwner, lblAccountOwnerValue, lblAccountCurrentBalance, lblAccountCurrentBalanceValue;
+                lblDateCreatedValue, lblAccountOwner, lblAccountOwnerValue, lblAccountCurrentBalance, lblAccountCurrentBalanceValue,
+                lblLastTransactionDate, lblLastTransactionDateValue;
         String accountOwner;
 
         gridPane = new GridPane();
@@ -195,12 +195,21 @@ public class BankAccountsDeleteScene {
         lblAccountCurrentBalanceValue.setId("details-value");
         gridPane.add(lblAccountCurrentBalanceValue, 1, 5);
 
-        lblDateCreated = new Label("Date: ");
+        lblDateCreated = new Label("Date created: ");
         gridPane.add(lblDateCreated, 0, 6);
 
         lblDateCreatedValue = new Label(bankAccounts.getDateCreated());
         lblDateCreatedValue.setId("details-value");
         gridPane.add(lblDateCreatedValue, 1, 6);
+
+        lblLastTransactionDate = new Label("Last transaction date: ");
+        gridPane.add(lblLastTransactionDate, 0, 7);
+
+        lblLastTransactionDateValue = new Label(
+                "Display last date for transaction here ..."
+        );
+        lblLastTransactionDateValue.setId("details-value");
+        gridPane.add(lblLastTransactionDateValue, 1, 7);
 
         vBoxRoot = new VBox(10);
         vBoxRoot.setPadding(new Insets(10));
