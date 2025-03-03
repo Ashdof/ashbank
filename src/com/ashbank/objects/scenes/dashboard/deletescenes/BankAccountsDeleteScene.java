@@ -122,7 +122,7 @@ public class BankAccountsDeleteScene {
         VBox vBoxRoot;
         Label lblWarning, lblWarningMessage, lblAccountNumber, lblAccountNumberValue, lblAccountType, lblAccountTypeValue,
                 lblAccountCurrency, lblAccountCurrencyValue, lblInitialDeposit, lblInitialDepositValue, lblDateCreated,
-                lblDateCreatedValue, lblAccountOwner, lblAccountOwnerValue;
+                lblDateCreatedValue, lblAccountOwner, lblAccountOwnerValue, lblAccountCurrentBalance, lblAccountCurrentBalanceValue;
         String accountOwner;
 
         gridPane = new GridPane();
@@ -139,9 +139,9 @@ public class BankAccountsDeleteScene {
 
         lblWarningMessage = new Label(String.format(
                 """
-                Deleting %s bank account will also delete all transactions
+                Deleting %s's bank account will also delete all transactions
                 associated with this account, which may cause irreversible consequences.
-                Consider hiding this account instead.
+                Consider hiding the account instead.
                 """, accountOwner
         ));
 
@@ -188,12 +188,19 @@ public class BankAccountsDeleteScene {
         lblInitialDepositValue.setId("details-value");
         gridPane.add(lblInitialDepositValue, 1, 4);
 
+        lblAccountCurrentBalance = new Label("Current balance: ");
+        gridPane.add(lblAccountCurrentBalance, 0, 5);
+
+        lblAccountCurrentBalanceValue = new Label(String.valueOf(bankAccounts.getAccountBalance()));
+        lblAccountCurrentBalanceValue.setId("details-value");
+        gridPane.add(lblAccountCurrentBalanceValue, 1, 5);
+
         lblDateCreated = new Label("Date: ");
-        gridPane.add(lblDateCreated, 0, 5);
+        gridPane.add(lblDateCreated, 0, 6);
 
         lblDateCreatedValue = new Label(bankAccounts.getDateCreated());
         lblDateCreatedValue.setId("details-value");
-        gridPane.add(lblDateCreatedValue, 1, 5);
+        gridPane.add(lblDateCreatedValue, 1, 6);
 
         vBoxRoot = new VBox(10);
         vBoxRoot.setPadding(new Insets(10));
