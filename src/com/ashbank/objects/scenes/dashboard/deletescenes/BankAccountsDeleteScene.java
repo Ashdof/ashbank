@@ -75,15 +75,11 @@ public class BankAccountsDeleteScene {
         VBox vBoxRoot, bankAccountDataPane;
         HBox hBoxTop;
         Separator sep1, sep2, sep3;
-        Label lblInstruction;
         Button btnDashboard;
         String accountOwner;
 
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
         accountOwner = new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName();
-
-        lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccounts.getAccountType());
-        lblInstruction.setId("title");
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -107,7 +103,7 @@ public class BankAccountsDeleteScene {
         hBoxTop = new HBox(10);
         hBoxTop.setPadding(new Insets(10));
         hBoxTop.setAlignment(Pos.CENTER_LEFT);
-        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
@@ -127,6 +123,7 @@ public class BankAccountsDeleteScene {
         Label lblWarning, lblWarningMessage, lblAccountNumber, lblAccountNumberValue, lblAccountType, lblAccountTypeValue,
                 lblAccountCurrency, lblAccountCurrencyValue, lblInitialDeposit, lblInitialDepositValue, lblDateCreated,
                 lblDateCreatedValue, lblAccountOwner, lblAccountOwnerValue;
+        String accountOwner;
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -134,14 +131,19 @@ public class BankAccountsDeleteScene {
         gridPane.setAlignment(Pos.TOP_LEFT);
         gridPane.setPadding(new Insets(10));
 
+        bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(bankAccounts.getAccountID());
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName();
+
         lblWarning = new Label("WARNING");
         lblWarning.setId("warning");
 
-        lblWarningMessage = new Label("""
-                Deleting this bank account will also delete all transactions
+        lblWarningMessage = new Label(String.format(
+                """
+                Deleting %s bank account will also delete all transactions
                 associated with this account, which may cause irreversible consequences.
                 Consider hiding this account instead.
-                """);
+                """, accountOwner
+        ));
 
         hBoxWarning = new HBox(10);
         hBoxWarning.setPadding(new Insets(10));
