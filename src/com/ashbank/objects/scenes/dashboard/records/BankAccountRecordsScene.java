@@ -3,6 +3,7 @@ package com.ashbank.objects.scenes.dashboard.records;
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccounts;
+import com.ashbank.objects.scenes.dashboard.deletescenes.TransactionDeleteScene;
 import com.ashbank.objects.utility.SceneController;
 import com.ashbank.objects.utility.CustomDialogs;
 
@@ -22,6 +23,8 @@ import javafx.scene.layout.VBox;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BankAccountRecordsScene {
 
@@ -35,6 +38,7 @@ public class BankAccountRecordsScene {
     private Scene bankAccountRecordsScene;
     private String customerID, accountID;
     private Label lblCurrentPage, lblNumberOfPages;
+    private static final Logger logger = Logger.getLogger(BankAccountRecordsScene.class.getName());
 
     /* ================ CONSTRUCTOR ================ */
     public BankAccountRecordsScene(SceneController sceneController) {
@@ -278,7 +282,7 @@ public class BankAccountRecordsScene {
     private GridPane createRecordsSceneButtons() {
 
         GridPane gridPane;
-        Button btnEdit, btnDetails;
+        Button btnEdit, btnDetails, btnDelete;
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
@@ -295,6 +299,25 @@ public class BankAccountRecordsScene {
                     sceneController.showBankAccountDetailsScene(accountID);
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
+                }
+            }
+        });
+
+        btnDelete = new Button("Delete Record");
+        btnDelete.setPrefWidth(120);
+        btnDelete.setMinHeight(30);
+        btnDelete.setOnAction(e -> {
+            String title = "Transaction Information";
+            String message = """
+                    No transaction record selected.
+                    """;
+            if (accountID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showTransactionDeleteScene(accountID);
+                } catch (SQLException sqlException) {
+                    logger.log(Level.SEVERE, "Error switching to delete customer scene - " + sqlException.getMessage());
                 }
             }
         });
@@ -327,6 +350,7 @@ public class BankAccountRecordsScene {
 
         gridPane.add(btnEdit, 0, 0);
         gridPane.add(btnDetails, 1, 0);
+        gridPane.add(btnDelete, 2, 0);
 
         return gridPane;
     }
