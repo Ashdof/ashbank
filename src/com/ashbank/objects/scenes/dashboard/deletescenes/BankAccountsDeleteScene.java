@@ -11,12 +11,16 @@ import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.SceneController;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
@@ -136,5 +140,61 @@ public class BankAccountsDeleteScene {
         vBoxRoot.getChildren().addAll(hBoxWarning, gridPane);
 
         return vBoxRoot;
+    }
+
+    /**
+     * Buttons:
+     * create the control buttons on the details scene
+     * @return an HBox node containing the buttons
+     */
+    private GridPane createDeleteSceneButtons(BankAccounts bankAccounts) {
+
+        GridPane gridPane;
+        Button btnCancel, btnDeleteRecord, btnHide;
+        Separator sep1;
+
+        btnCancel = new Button("_Cancel");
+        btnCancel.setPrefWidth(120);
+        btnCancel.setMinHeight(30);
+        btnCancel.setOnAction(e -> {
+            try {
+                sceneController.showBankAccountsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        btnDeleteRecord = new Button("Delete");
+        btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setMinHeight(30);
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                if (sceneController.deleteBankAccountRecord(bankAccounts.getAccountID()))
+                    sceneController.showBankAccountsRecordsScene();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        btnHide = new Button("_Hide");
+        btnHide.setPrefWidth(120);
+        btnHide.setMinHeight(30);
+        btnHide.setOnAction(e -> {});
+
+        gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(15);
+        gridPane.setAlignment(Pos.BOTTOM_RIGHT);
+        gridPane.setPadding(new Insets(10));
+        GridPane.setHgrow(btnDeleteRecord, Priority.NEVER);
+
+        sep1 = new Separator(Orientation.VERTICAL);
+
+        gridPane.add(btnCancel, 0, 0);
+        gridPane.add(btnDeleteRecord, 1, 0);
+        gridPane.add(sep1, 2, 0);
+        gridPane.add(btnHide, 3, 0);
+
+        return gridPane;
     }
 }
