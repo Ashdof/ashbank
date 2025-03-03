@@ -4,6 +4,7 @@ import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
+import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.TransactionDeleteScene;
 import com.ashbank.objects.scenes.dashboard.details.BankAccountDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.CustomerDetailsScene;
@@ -50,6 +51,7 @@ public class SceneController {
     private TransactionDetailsScene transactionDetailsScene;
     private TransactionEditScene transactionEditScene;
     private TransactionDeleteScene transactionDeleteScene;
+    private BankAccountsDeleteScene bankAccountsDeleteScene;
 
     // Main scenes
     private Scene mainDashboardScene;
@@ -67,6 +69,7 @@ public class SceneController {
     private Scene addTransactionDetailsScene;
     private Scene addTransactionEditScene;
     private Scene addTransactionDeleteScene;
+    private Scene addBankAccountDeleteScene;
 
     // Main Dashboard Component
     private BorderPane mainDashboardRoot;
@@ -75,7 +78,7 @@ public class SceneController {
     private ScrollPane addNewCustomerRoot, addNewBankAccountRoot, addNewTransactionRoot, addCustomerRecordsRoot,
             addCustomerDetailsRoot, addCustomerEditRoot, addMainDashboardRoot, addBankAccountsRecordsRoot,
             addBankAccountDetailRoot, addBankAccountEditRoot, addTransactionsRecordRoot, addTransactionDetailRoot,
-            addTransactionEditRoot, addTransactionDeleteRoot, addMainDashboardSummariesRoot;
+            addTransactionEditRoot, addTransactionDeleteRoot, addMainDashboardSummariesRoot, addBankAccountDeleteRoot;
 
 
     /**
@@ -205,6 +208,19 @@ public class SceneController {
         this.addBankAccountEditScene = this.bankAccountEditScene.getBankAccountEditScene();
         addBankAccountEditRoot = bankAccountEditScene.createBankAccountEditRoot(accountID);
         mainDashboardRoot.setCenter(addBankAccountEditRoot);
+    }
+
+    /**
+     * Bank Account Delete Scene:
+     * renders the scene for deleting the data of a bank account object
+     * @param accountID the ID of the bank account object
+     * @throws SQLException if an error occurs
+     */
+    public void showBankAccountDeleteScene(String accountID) throws SQLException {
+        this.bankAccountsDeleteScene = new BankAccountsDeleteScene(this);
+        this.addBankAccountDeleteScene = this.bankAccountsDeleteScene.getBankAccountsDeleteScene();
+        addBankAccountDeleteRoot = this.bankAccountsDeleteScene.getBankAccountsDeleteRoot(accountID);
+        mainDashboardRoot.setCenter(addBankAccountDeleteRoot);
     }
 
     /**
