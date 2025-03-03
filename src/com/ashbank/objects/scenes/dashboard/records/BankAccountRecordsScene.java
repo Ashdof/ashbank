@@ -314,7 +314,7 @@ public class BankAccountRecordsScene {
                 customDialogs.showErrInformation(title, message);
             } else {
                 try {
-                    sceneController.showTransactionDeleteScene(accountID);
+                    sceneController.showBankAccountDeleteScene(accountID);
                 } catch (SQLException sqlException) {
                     logger.log(Level.SEVERE, "Error switching to delete customer scene - " + sqlException.getMessage());
                 }
