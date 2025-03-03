@@ -154,7 +154,6 @@ public class BankAccountRecordsScene {
         return vBox;
     }
 
-
     /**
      * Customers Basic Data Table:
      * initialize a table with the basic data of customers
