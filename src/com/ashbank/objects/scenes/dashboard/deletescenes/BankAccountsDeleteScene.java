@@ -42,6 +42,7 @@ public class BankAccountsDeleteScene {
     private ObservableList<BankAccountTransactions> bankAccountTransactionsObservableList;
     private TableView<BankAccountTransactions> bankAccountTransactionsTableView;
 
+    private BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
     private static final CustomDialogs customDialogs = new CustomDialogs();
     private final SceneController sceneController;
 
@@ -64,10 +65,58 @@ public class BankAccountsDeleteScene {
     /**
      * Root Scene:
      * create the root node for the delete scene
-     * @param accountsID the ID of the bank account
+     * @param accountID the ID of the bank account
      * @return a scroll pane object
      */
-    public ScrollPane getBankAccountsDeleteRoot(String accountsID) {
+    public ScrollPane getBankAccountsDeleteRoot(String accountID) throws SQLException {
+        BankAccounts bankAccounts;
+        ScrollPane scrollPane;
+        GridPane gridPaneButtons;
+        VBox vBoxRoot, bankAccountDataPane;
+        HBox hBoxTop;
+        Separator sep1, sep2, sep3;
+        Label lblInstruction;
+        Button btnDashboard;
+        String accountOwner;
+
+        bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(bankAccounts.getCustomerID()).getFullName();
+
+        lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccounts.getAccountType());
+        lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        bankAccountDataPane = this.createBankAccountsDeleteDataPane(bankAccounts);
+        gridPaneButtons = this.createDeleteSceneButtons(bankAccounts);
+
+        sep1 = new Separator();
+        sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
+
+        vBoxRoot = new VBox(5);
+        vBoxRoot.setPadding(new Insets(5));
+        vBoxRoot.setAlignment(Pos.TOP_LEFT);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, gridPaneButtons);
+
+        scrollPane = new ScrollPane(vBoxRoot);
+
+        return scrollPane;
     }
 
     private VBox createBankAccountsDeleteDataPane(BankAccounts bankAccounts) throws SQLException {
