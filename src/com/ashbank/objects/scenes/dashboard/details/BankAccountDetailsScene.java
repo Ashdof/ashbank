@@ -3,6 +3,7 @@ package com.ashbank.objects.scenes.dashboard.details;
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccounts;
+import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
 import com.ashbank.objects.utility.SceneController;
 
 import javafx.geometry.Insets;
@@ -16,6 +17,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BankAccountDetailsScene {
 
@@ -26,6 +29,7 @@ public class BankAccountDetailsScene {
     private Scene bankAccountDetailsScene;
     private Label lblAccountTypeValue, lblAccountCurrencyValue, lblDateCreatedValue, lblAccountNumberValue,
             lblInitialDepositValue, lblAccountOwnerValue;
+    private static final Logger logger = Logger.getLogger(BankAccountDetailsScene.class.getName());
 
     /* ================ CONSTRUCTOR ================ */
     public BankAccountDetailsScene(SceneController sceneController) {
@@ -173,8 +177,8 @@ public class BankAccountDetailsScene {
         btnBack.setOnAction(e -> {
             try {
                 sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to records scene - " + sqlException.getMessage());
             }
         });
 
@@ -183,10 +187,9 @@ public class BankAccountDetailsScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (sceneController.deleteBankAccountRecord(bankAccounts.getAccountID()))
-                    sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.showBankAccountDeleteScene(bankAccounts.getAccountID());
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the delete scene - " + sqlException.getMessage());
             }
         });
 
@@ -196,8 +199,8 @@ public class BankAccountDetailsScene {
         btnUpdateRecord.setOnAction(e -> {
             try {
                 sceneController.showBankAccountEditScene(bankAccounts.getAccountID());
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to edit scene - " + sqlException.getMessage());
             }
         });
 
