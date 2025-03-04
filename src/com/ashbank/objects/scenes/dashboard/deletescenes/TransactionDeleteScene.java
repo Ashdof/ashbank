@@ -225,7 +225,14 @@ public class TransactionDeleteScene {
         btnCancel = new Button("_Cancel");
         btnCancel.setPrefWidth(100);
         btnCancel.setMinHeight(30);
-        btnCancel.setOnAction(e -> {});
+        btnCancel.setOnAction(e -> {
+            try {
+                sceneController.showMainDashboardSummaries();
+                sceneController.showTransactionsRecordsScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to dashboard scene - " + sqlException.getMessage());
+            }
+        });
 
         btnDeleteRecord = new Button("Delete");
         btnDeleteRecord.setPrefWidth(120);
