@@ -107,7 +107,12 @@ public class BankAccountsDeleteScene {
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, this.getListOfAllTransactions(), sep4, gridPaneButtons);
+        vBoxRoot.getChildren().addAll(
+                hBoxTop, sep1,
+                bankAccountDataPane, sep2,
+                this.getListOfAllTransactions(accountID),
+                sep4, gridPaneButtons
+        );
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -224,7 +229,7 @@ public class BankAccountsDeleteScene {
      * create a tabular list of all transaction object
      * @return a table with the list of transaction objects
      */
-    private VBox getListOfAllTransactions() {
+    private VBox getListOfAllTransactions(String accountID) {
 
         VBox vBox;
         Label lblInstruction;
@@ -237,7 +242,7 @@ public class BankAccountsDeleteScene {
         bankAccountTransactionsTableView.setMinHeight(400);
         this.initializeTransactionsDataTable();
 
-        bankAccountTransactionsList = BankTransactionsStorageEngine.getAllBankAccountTransactions();
+        bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
         bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
         bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
 
