@@ -365,7 +365,6 @@ public class BankTransactionsStorageEngine {
                     transactionDate = resultSet.getTimestamp("transaction_date");
                     transactionDetails = resultSet.getString("transaction_details");
 
-                    bankAccountTransactions = new BankAccountTransactions();
                     bankAccountTransactions.setTransactionID(transactionID);
                     bankAccountTransactions.setAccountID(accountID);
                     bankAccountTransactions.setTransactionType(transactionType);
@@ -400,9 +399,8 @@ public class BankTransactionsStorageEngine {
         double transactionAmount;
         Timestamp transactionDate;
 
-        bankAccountTransactions = new BankAccountTransactions();
         bankAccountTransactionsList = new ArrayList<>();
-        query = "SELECT * FROM customers_account_transactions WHERE id = ?";
+        query = "SELECT * FROM customers_account_transactions WHERE account_id = ?";
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
