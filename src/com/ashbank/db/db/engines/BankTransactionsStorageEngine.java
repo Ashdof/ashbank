@@ -386,6 +386,60 @@ public class BankTransactionsStorageEngine {
     }
 
     /**
+     * Bank Transaction Object:
+     * create new array list with the bank transaction objects
+     * of the provided account ID
+     * @param accountID the ID of the bank account
+     * @return a new array list of transaction objects
+     */
+    public static List<BankAccountTransactions> getBankTransactionsDataByAccountID(String accountID) {
+
+        BankAccountTransactions bankAccountTransactions;
+        List<BankAccountTransactions> bankAccountTransactionsList;
+        String query, transactionID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
+
+        bankAccountTransactions = new BankAccountTransactions();
+        bankAccountTransactionsList = new ArrayList<>();
+        query = "SELECT * FROM customers_account_transactions WHERE id = ?";
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, accountID);
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    transactionID = resultSet.getString("id");
+                    transactionType = resultSet.getString("transaction_type");
+                    transactionAmount = resultSet.getDouble("transaction_amount");
+                    transactionDate = resultSet.getTimestamp("transaction_date");
+                    transactionDetails = resultSet.getString("transaction_details");
+
+                    bankAccountTransactions = new BankAccountTransactions();
+                    bankAccountTransactions.setTransactionID(transactionID);
+                    bankAccountTransactions.setAccountID(accountID);
+                    bankAccountTransactions.setTransactionType(transactionType);
+                    bankAccountTransactions.setTransactionAmount(transactionAmount);
+                    bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                    bankAccountTransactions.setTransactionDetails(transactionDetails);
+
+                    bankAccountTransactionsList.add(bankAccountTransactions);
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error creating account transaction object - " + sqlException.getMessage());
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
+        }
+
+        return bankAccountTransactionsList;
+    }
+
+    /**
      * Fetch Bank Account:
      * get all bank accounts owned by the given customer's
      * ID
