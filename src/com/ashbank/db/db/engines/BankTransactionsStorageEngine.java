@@ -240,6 +240,78 @@ public class BankTransactionsStorageEngine {
     }
 
     /**
+     * Delete Transaction Object:
+     * remove a transaction object of the provided ID from the database
+     * @param accountID the ID of the bank account object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteBankAccountTransactionObjectByAccountID(String accountID) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, transactionType,
+                notificationSuccessMessage, notificationFailMessage, accountOwner;
+        boolean status;
+        int affectedRows;
+
+        activity = "Delete Bank Account Transaction Data";
+        activity_success_details = userSession.getUsername() + "'s attempt to delete bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to delete bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(accountID).getCustomerID()
+        ).getFullName();
+//        transactionType = new BankTransactionsStorageEngine().getBankTransactionDataByID(
+//                new BankTransactionsStorageEngine().get
+//        ).getTransactionType();
+
+        notificationSuccessMessage = "Deleting " + accountOwner + " transaction data is successful.";
+        notificationFailMessage = "Deleting " + accountOwner + " transaction data is unsuccessful.";
+
+        query = "DELETE FROM customers_account_transactions WHERE account_id = ?";
+        status = false;
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+
+            preparedStatement.setString(1, accountID);
+            affectedRows = preparedStatement.executeUpdate();
+            connection.commit();
+
+            if (affectedRows > 0) {
+
+                status = true;
+
+                // Display failure message in a dialog to the user
+                customDialogs.showAlertInformation(activity, notificationSuccessMessage);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+            }
+        } catch (SQLException sqlException) {
+            status = false;
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, notificationFailMessage);
+
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error deleting bank account transaction record - " + sqlException.getMessage());
+
+        }
+
+        return status;
+    }
+
+    /**
      * Transaction Objects:
      * fetch all transaction objects from the database
      * @return a list of all transaction objects
