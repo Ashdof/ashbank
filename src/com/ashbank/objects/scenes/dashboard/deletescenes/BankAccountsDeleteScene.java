@@ -227,10 +227,14 @@ public class BankAccountsDeleteScene {
     private VBox getListOfAllTransactions() {
 
         VBox vBox;
+        Label lblInstruction;
+
+        lblInstruction = new Label("Transactions involved with this bank account");
+        lblInstruction.setId("title");
 
         bankAccountTransactionsTableView = new TableView<>();
         bankAccountTransactionsTableView.setMinWidth(1000);
-        bankAccountTransactionsTableView.setMinHeight(600);
+        bankAccountTransactionsTableView.setMinHeight(400);
         this.initializeTransactionsDataTable();
 
         bankAccountTransactionsList = BankTransactionsStorageEngine.getAllBankAccountTransactions();
@@ -240,7 +244,7 @@ public class BankAccountsDeleteScene {
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
         vBox.setAlignment(Pos.TOP_LEFT);
-        vBox.getChildren().add(bankAccountTransactionsTableView);
+        vBox.getChildren().addAll(lblInstruction, bankAccountTransactionsTableView);
 
         return vBox;
     }
