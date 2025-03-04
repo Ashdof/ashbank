@@ -76,8 +76,12 @@ public class BankAccountsDeleteScene {
         HBox hBoxTop;
         Separator sep1, sep2, sep3, sep4;
         Button btnDashboard;
+        Label lblInstruction;
 
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
+
+        lblInstruction = new Label("Delete Bank Account Record");
+        lblInstruction.setId("title");
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -102,7 +106,7 @@ public class BankAccountsDeleteScene {
         hBoxTop = new HBox(10);
         hBoxTop.setPadding(new Insets(10));
         hBoxTop.setAlignment(Pos.CENTER_LEFT);
-        hBoxTop.getChildren().addAll(btnDashboard, sep3);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
@@ -119,6 +123,14 @@ public class BankAccountsDeleteScene {
         return scrollPane;
     }
 
+    /**
+     * Delete Data Pane:
+     * create a VBox object pane with the data of the bank account object
+     * to be deleted
+     * @param bankAccounts the bank account object
+     * @return the VBox object
+     * @throws SQLException if an error occurs
+     */
     private VBox createBankAccountsDeleteDataPane(BankAccounts bankAccounts) throws SQLException {
 
         GridPane gridPane;
