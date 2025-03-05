@@ -73,14 +73,14 @@ public class TransactionDeleteScene {
         Label lblInstruction;
         Button btnDashboard;
         Separator sep1, sep2, sep3;
-        String accountOwner;
+//        String accountOwner;
 
         transactions = bankTransactionsStorageEngine.getBankTransactionDataByID(transactionID);
-        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
-                new BankAccountsStorageEngine().getBankAccountsDataByID(transactions.getAccountID()).getCustomerID()
-        ).getFullName();
+//        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+//                new BankAccountsStorageEngine().getBankAccountsDataByID(transactions.getAccountID()).getCustomerID()
+//        ).getFullName();
 
-        lblInstruction = new Label("Delete " + accountOwner + "'s " + transactions.getTransactionType() + " Transaction Data");
+        lblInstruction = new Label("Delete Transaction Record");
         lblInstruction.setId("title");
 
         btnDashboard = new Button("Dashboard");
