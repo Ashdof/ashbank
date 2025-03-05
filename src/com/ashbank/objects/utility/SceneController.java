@@ -198,15 +198,8 @@ public class SceneController {
      * @throws SQLException if an error occurs
      */
     public boolean deleteBankAccountRecord(String accountID) throws SQLException {
-        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
-        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
-        boolean deleteResult, status = false;
 
-        deleteResult = bankTransactionsStorageEngine.deleteBankAccountTransactionObjectByAccountID(accountID);
-        if (deleteResult)
-            status = bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
-
-        return status;
+        return new BankAccountsStorageEngine().deleteCustomerBankAccount(accountID);
     }
 
     /**
