@@ -157,8 +157,8 @@ public class BankAccountsDeleteScene {
         lblWarningMessage = new Label(String.format(
                 """
                 Deleting %s's bank account will also delete all transactions
-                associated with this account, which may cause irreversible consequences.
-                Consider hiding the account instead.
+                associated with this account, which cannot be undone. Consider
+                hiding the account instead.
                 """, accountOwner
         ));
 
@@ -354,13 +354,17 @@ public class BankAccountsDeleteScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                boolean deleteResult;
+                String deleteMessage;
+                boolean deleteAccountResult;
 
-                deleteResult = sceneController.deleteBankAccountRecord(bankAccounts.getAccountID());
-                if (deleteResult) {
+                deleteMessage = "Deleting customer's bank account record encountered a problem.";
+                deleteAccountResult = sceneController.deleteBankAccountRecord(bankAccounts.getAccountID());
+                if (deleteAccountResult) {
                     sceneController.showPlatformBottomToolbar();
                     sceneController.showMainDashboardSummaries();
                     sceneController.showBankAccountsRecordsScene();
+                } else {
+                    customDialogs.showErrInformation("Delete Customer Account", deleteMessage);
                 }
             } catch (SQLException sqlException) {
                 logger.log(Level.SEVERE, "Error switching to records scene - " + sqlException.getMessage());
