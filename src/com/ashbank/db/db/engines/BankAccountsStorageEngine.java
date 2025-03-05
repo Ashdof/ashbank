@@ -148,6 +148,8 @@ public class BankAccountsStorageEngine {
 
                 status = true;
 
+                customDialogs.showAlertInformation(accountType, notificationSuccessMessage);
+
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
 
@@ -157,7 +159,7 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
             // Display notification
             UserSession.addNotification(notificationFailMessage);
