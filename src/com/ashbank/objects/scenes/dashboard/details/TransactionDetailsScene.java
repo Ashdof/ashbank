@@ -4,6 +4,7 @@ import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccountTransactions;
+import com.ashbank.objects.scenes.dashboard.deletescenes.TransactionDeleteScene;
 import com.ashbank.objects.utility.SceneController;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -16,6 +17,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TransactionDetailsScene {
 
@@ -26,6 +29,7 @@ public class TransactionDetailsScene {
     private Scene transactionDetailScene;
     private Label getLblAccountOwnerValue, lblTransactionTypeValue, lblTransactionDetailsValue,
             lblTransactionAmountValue, lblAccountOwnerValue, lblTransactionDateValue, lblAccountCurrencyValue;
+    private static final Logger logger = Logger.getLogger(TransactionDetailsScene.class.getName());
 
     /* ================ CONSTRUCTOR ================ */
     public TransactionDetailsScene(SceneController sceneController) {
@@ -57,7 +61,7 @@ public class TransactionDetailsScene {
                 new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID()
         ).getFullName();
 
-        lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccountTransactions.getTransactionType() + " Transaction");
+        lblInstruction = new Label("Details of Transaction Record");
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -189,10 +193,9 @@ public class TransactionDetailsScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (sceneController.deleteTransactionsRecord(bankAccountTransactions.getTransactionID()))
-                    sceneController.showTransactionsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.showTransactionDeleteScene(bankAccountTransactions.getTransactionID());
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to transaction delete scene - " + sqlException.getMessage());
             }
         });
 
@@ -202,8 +205,8 @@ public class TransactionDetailsScene {
         btnUpdateRecord.setOnAction(e -> {
             try {
                 sceneController.showTransactionEditScene(bankAccountTransactions.getTransactionID());
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to transaction edit scene - " + sqlException.getMessage());
             }
         });
 
