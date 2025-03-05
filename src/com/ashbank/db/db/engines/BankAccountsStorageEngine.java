@@ -142,6 +142,7 @@ public class BankAccountsStorageEngine {
 
             preparedStatement.setString(1, bankAccountID);
             affectedRows = preparedStatement.executeUpdate();
+            connection.commit();
 
             if (affectedRows > 0) {
 
