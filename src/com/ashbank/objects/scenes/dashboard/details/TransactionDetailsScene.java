@@ -119,52 +119,52 @@ public class TransactionDetailsScene {
         lblInstruction.setId("title");
         gridPane.add(lblInstruction, 0, 0, 5, 1);
 
-        lblTransactionType = new Label("Transaction type: ");
-        gridPane.add(lblTransactionType, 0, 1);
+        lblAccountOwner = new Label("Account owner: ");
+        gridPane.add(lblAccountOwner, 0, 1);
 
-//        lblAccountOwnerValue = new Label(
-//                new CustomersStorageEngine().getCustomerDataByID(
-//                        new BankAccountsStorageEngine().getBankAccountsDataByID(transactions.getAccountID()).getCustomerID()
-//                ).getFullName()
-//        );
-//        lblAccountOwnerValue.setId("details-value");
-//        gridPane.add(lblAccountOwnerValue, 1, 1);
-//
-//        lblTransactionType = new Label("Transaction type: ");
-//        gridPane.add(lblTransactionType, 0, 1);
+        lblAccountOwnerValue = new Label(
+                new CustomersStorageEngine().getCustomerDataByID(
+                        new BankAccountsStorageEngine().getBankAccountsDataByID(transactions.getAccountID()).getCustomerID()
+                ).getFullName()
+        );
+        lblAccountOwnerValue.setId("details-value");
+        gridPane.add(lblAccountOwnerValue, 1, 1);
+
+        lblTransactionType = new Label("Transaction type: ");
+        gridPane.add(lblTransactionType, 0, 2);
 
         lblTransactionTypeValue = new Label(transactions.getTransactionType());
         lblTransactionTypeValue.setId("details-value");
-        gridPane.add(lblTransactionTypeValue, 1, 1);
+        gridPane.add(lblTransactionTypeValue, 1, 2);
 
         lblAccountCurrency = new Label("Account currency: ");
-        gridPane.add(lblAccountCurrency, 0, 2);
+        gridPane.add(lblAccountCurrency, 0, 3);
 
         lblAccountCurrencyValue = new Label(
                 new BankAccountsStorageEngine().getBankAccountsDataByID(transactions.getAccountID()).getAccountCurrency()
         );
         lblAccountCurrencyValue.setId("details-value");
-        gridPane.add(lblAccountCurrencyValue, 1, 2);
+        gridPane.add(lblAccountCurrencyValue, 1, 3);
 
         lblTransactionAmount = new Label("Transaction amount: ");
-        gridPane.add(lblTransactionAmount, 0, 3);
+        gridPane.add(lblTransactionAmount, 0, 4);
 
         lblTransactionAmountValue = new Label(String.valueOf(transactions.getTransactionAmount()));
         lblTransactionAmountValue.setId("details-value");
-        gridPane.add(lblTransactionAmountValue, 1, 3);
+        gridPane.add(lblTransactionAmountValue, 1, 4);
 
         lblTransactionDetails = new Label("Transaction details: ");
-        gridPane.add(lblTransactionDetails, 0, 4);
+        gridPane.add(lblTransactionDetails, 0, 5);
 
         lblTransactionDetailsValue = new Label(transactions.getTransactionDetails());
         lblTransactionDetailsValue.setId("details-value");
-        gridPane.add(lblTransactionDetailsValue, 1, 4);
+        gridPane.add(lblTransactionDetailsValue, 1, 5);
 
         lblTransactionDate = new Label("Date of transaction");
-        gridPane.add(lblTransactionDate, 0, 5);
+        gridPane.add(lblTransactionDate, 0, 6);
 
         lblTransactionDateValue = new Label(transactions.getTransactionDate());
-        gridPane.add(lblTransactionDateValue, 1, 5);
+        gridPane.add(lblTransactionDateValue, 1, 6);
 
         return gridPane;
     }
