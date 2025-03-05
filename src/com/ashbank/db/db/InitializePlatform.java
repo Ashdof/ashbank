@@ -182,7 +182,7 @@ public class InitializePlatform {
                 "date_created TEXT NOT NULL," +
                 "last_transaction_date DATE," +
                 "account_status TEXT DEFAULT 'Active'," +
-                "FOREIGN KEY (customer_id) REFERENCES customers (id)" +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
                 ");";
 
         /* =================== CUSTOMERS ACCOUNT TRANSACTIONS TABLE =================== **/
@@ -194,7 +194,7 @@ public class InitializePlatform {
                 "transaction_amount DECIMAL(15, 2) NOT NULL," +
                 "transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "transaction_details TEXT," +
-                "FOREIGN KEY (account_id) REFERENCES customers_bank_account (id)" +
+                "FOREIGN KEY (account_id) REFERENCES customers_bank_account (id) ON DELETE CASCADE" +
                 ");";
 
         /* =================== CUSTOMERS LOANS TABLES =================== **/
@@ -209,7 +209,7 @@ public class InitializePlatform {
                 "loan_start_date DATE NOT NULL," +
                 "loan_end_date DATE NOT NULL," +
                 "loan_status TEXT DEFAULT 'Active'," +
-                "FOREIGN KEY (customer_id) REFERENCES customers (id)" +
+                "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
                 ");";
 
         String createCustomerLoansPaymentsDataTable = "CREATE TABLE IF NOT EXISTS customers_loan_payments (" +
@@ -219,7 +219,7 @@ public class InitializePlatform {
                 "payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "payment_method TEXT," +
                 "payment_details TEXT," +
-                "FOREIGN KEY (loan_id) REFERENCES customers_loan_applications (id)" +
+                "FOREIGN KEY (loan_id) REFERENCES customers_loan_applications (id) ON DELETE CASCADE" +
                 ");";
 
         /* =================== PLATFORM USERS TABLES =================== **/

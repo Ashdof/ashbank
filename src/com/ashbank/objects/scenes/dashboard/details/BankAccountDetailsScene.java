@@ -3,9 +3,11 @@ package com.ashbank.objects.scenes.dashboard.details;
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccounts;
+import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
 import com.ashbank.objects.utility.SceneController;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,6 +17,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BankAccountDetailsScene {
 
@@ -25,6 +29,7 @@ public class BankAccountDetailsScene {
     private Scene bankAccountDetailsScene;
     private Label lblAccountTypeValue, lblAccountCurrencyValue, lblDateCreatedValue, lblAccountNumberValue,
             lblInitialDepositValue, lblAccountOwnerValue;
+    private static final Logger logger = Logger.getLogger(BankAccountDetailsScene.class.getName());
 
     /* ================ CONSTRUCTOR ================ */
     public BankAccountDetailsScene(SceneController sceneController) {
@@ -46,8 +51,10 @@ public class BankAccountDetailsScene {
         GridPane bankAccountDataPane;
         HBox hBoxButtons;
         VBox vBoxRoot;
-        Separator sep1, sep2;
+        HBox hBoxTop;
+        Separator sep1, sep2, sep3;
         Label lblInstruction;
+        Button btnDashboard;
         String accountOwner;
 
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
@@ -56,16 +63,34 @@ public class BankAccountDetailsScene {
         lblInstruction = new Label("Details of " + accountOwner + "'s " + bankAccounts.getAccountType());
         lblInstruction.setId("title");
 
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         bankAccountDataPane = this.createCustomerBankAccountPane(bankAccounts);
         hBoxButtons = this.createDetailsSceneButtons(bankAccounts);
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, bankAccountDataPane, sep2, hBoxButtons);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, hBoxButtons);
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -148,34 +173,36 @@ public class BankAccountDetailsScene {
 
         btnBack = new Button("Back");
         btnBack.setPrefWidth(100);
+        btnBack.setMinHeight(30);
         btnBack.setOnAction(e -> {
             try {
                 sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to records scene - " + sqlException.getMessage());
             }
         });
 
         btnDeleteRecord = new Button("Delete Record");
         btnDeleteRecord.setPrefWidth(120);
+        btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (sceneController.deleteBankAccountRecord(bankAccounts.getAccountID()))
-                    sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.showBankAccountDeleteScene(bankAccounts.getAccountID());
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the delete scene - " + sqlException.getMessage());
             }
         });
 
         btnUpdateRecord = new Button("Edit Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             try {
                 sceneController.showBankAccountEditScene(bankAccounts.getAccountID());
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to edit scene - " + sqlException.getMessage());
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         lblSpace = new Label("      ");
 

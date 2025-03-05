@@ -1,6 +1,7 @@
 package com.ashbank.objects.scenes.dashboard.newscenes;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -65,15 +66,27 @@ public class NewCustomerScene {
 
         GridPane gridPaneBasicData, gridPaneProfData, gridPaneResidenceData, gridPaneNationalityData, gridPaneAddressData,
                 gridPaneKinData, gridPaneBeneficiaryData;
-        HBox hBox1;
+        HBox hBox1, hBoxTop;
         VBox vBoxRoot, vbTopRight, vbTopLeft, vbPhotoBox;
         Label lblInstruction;
+        Button btnDashboard;
         ScrollPane scrollPane;
-
-        Separator sep1, sep2;
+        Separator sep1, sep2, sep3;
 
         lblInstruction = new Label("Add New Customer Record");
         lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         gridPaneBasicData = this.createBasicDataPane();
         gridPaneProfData = this.createProfessionalDataPane();
@@ -103,11 +116,17 @@ public class NewCustomerScene {
         // Separators
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, hBox1, sep2, createButtons());
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, hBox1, sep2, createButtons());
 
         scrollPane = new ScrollPane(vBoxRoot);
 

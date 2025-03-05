@@ -142,10 +142,13 @@ public class BankAccountsStorageEngine {
 
             preparedStatement.setString(1, bankAccountID);
             affectedRows = preparedStatement.executeUpdate();
+            connection.commit();
 
             if (affectedRows > 0) {
 
                 status = true;
+
+                customDialogs.showAlertInformation(accountType, notificationSuccessMessage);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
@@ -156,7 +159,7 @@ public class BankAccountsStorageEngine {
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
 
             // Display notification
             UserSession.addNotification(notificationFailMessage);
@@ -351,9 +354,6 @@ public class BankAccountsStorageEngine {
 
                 // Log this activity and the user undertaking it
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-
-                // Display success message in a dialog to the user
-                customDialogs.showAlertInformation(activity, activity_success_details);
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);

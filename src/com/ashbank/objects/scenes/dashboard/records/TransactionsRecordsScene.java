@@ -244,7 +244,26 @@ public class TransactionsRecordsScene {
     private GridPane createRecordsSceneButtons() {
 
         GridPane gridPane;
-        Button btnEdit, btnDetails;
+        Button btnEdit, btnDetails, btnDelete;
+
+        btnDelete = new Button("Delete Record");
+        btnDelete.setPrefWidth(120);
+        btnDelete.setMinHeight(30);
+        btnDelete.setOnAction(e -> {
+            String title = "Transaction Information";
+            String message = """
+                    No transaction record selected.
+                    """;
+            if (transactionID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showTransactionDeleteScene(transactionID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
@@ -293,6 +312,7 @@ public class TransactionsRecordsScene {
 
         gridPane.add(btnEdit, 0, 0);
         gridPane.add(btnDetails, 1, 0);
+        gridPane.add(btnDelete, 2, 0);
 
         return gridPane;
     }

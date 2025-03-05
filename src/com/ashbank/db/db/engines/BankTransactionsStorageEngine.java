@@ -209,6 +209,9 @@ public class BankTransactionsStorageEngine {
 
                 status = true;
 
+                // Display failure message in a dialog to the user
+                customDialogs.showAlertInformation(activity, notificationSuccessMessage);
+
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
 
@@ -218,9 +221,84 @@ public class BankTransactionsStorageEngine {
         } catch (SQLException sqlException) {
             status = false;
 
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, notificationFailMessage);
+
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 //            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error deleting bank account transaction record - " + sqlException.getMessage());
+
+        }
+
+        return status;
+    }
+
+    /**
+     * Delete Transaction Object:
+     * remove a transaction object of the provided ID from the database
+     * @param accountID the ID of the bank account object
+     * @return true if successful, false otherwise
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteBankAccountTransactionObjectByAccountID(String accountID) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, transactionType,
+                notificationSuccessMessage, notificationFailMessage, accountOwner;
+        boolean status;
+        int affectedRows;
+
+        activity = "Delete Bank Account Transaction Data";
+        activity_success_details = userSession.getUsername() + "'s attempt to delete bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to delete bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(accountID).getCustomerID()
+        ).getFullName();
+//        transactionType = new BankTransactionsStorageEngine().getBankTransactionDataByID(
+//                new BankTransactionsStorageEngine().get
+//        ).getTransactionType();
+
+        notificationSuccessMessage = "Deleting " + accountOwner + " transaction data is successful.";
+        notificationFailMessage = "Deleting " + accountOwner + " transaction data is unsuccessful.";
+
+        query = "DELETE FROM customers_account_transactions WHERE account_id = ?";
+        status = false;
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            connection.setAutoCommit(false);
+
+            preparedStatement.setString(1, accountID);
+            affectedRows = preparedStatement.executeUpdate();
+            connection.commit();
+
+            if (affectedRows > 0) {
+
+                status = true;
+
+                // Display failure message in a dialog to the user
+                customDialogs.showAlertInformation(activity, notificationSuccessMessage);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+            }
+        } catch (SQLException sqlException) {
+            status = false;
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, notificationFailMessage);
+
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
 
             // Display notification
             UserSession.addNotification(notificationFailMessage);
@@ -359,7 +437,6 @@ public class BankTransactionsStorageEngine {
                     transactionDate = resultSet.getTimestamp("transaction_date");
                     transactionDetails = resultSet.getString("transaction_details");
 
-                    bankAccountTransactions = new BankAccountTransactions();
                     bankAccountTransactions.setTransactionID(transactionID);
                     bankAccountTransactions.setAccountID(accountID);
                     bankAccountTransactions.setTransactionType(transactionType);
@@ -377,6 +454,59 @@ public class BankTransactionsStorageEngine {
         }
 
         return bankAccountTransactions;
+    }
+
+    /**
+     * Bank Transaction Object:
+     * create new array list with the bank transaction objects
+     * of the provided account ID
+     * @param accountID the ID of the bank account
+     * @return a new array list of transaction objects
+     */
+    public static List<BankAccountTransactions> getBankTransactionsDataByAccountID(String accountID) {
+
+        BankAccountTransactions bankAccountTransactions;
+        List<BankAccountTransactions> bankAccountTransactionsList;
+        String query, transactionID, transactionType, transactionDetails;
+        double transactionAmount;
+        Timestamp transactionDate;
+
+        bankAccountTransactionsList = new ArrayList<>();
+        query = "SELECT * FROM customers_account_transactions WHERE account_id = ?";
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, accountID);
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    transactionID = resultSet.getString("id");
+                    transactionType = resultSet.getString("transaction_type");
+                    transactionAmount = resultSet.getDouble("transaction_amount");
+                    transactionDate = resultSet.getTimestamp("transaction_date");
+                    transactionDetails = resultSet.getString("transaction_details");
+
+                    bankAccountTransactions = new BankAccountTransactions();
+                    bankAccountTransactions.setTransactionID(transactionID);
+                    bankAccountTransactions.setAccountID(accountID);
+                    bankAccountTransactions.setTransactionType(transactionType);
+                    bankAccountTransactions.setTransactionAmount(transactionAmount);
+                    bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                    bankAccountTransactions.setTransactionDetails(transactionDetails);
+
+                    bankAccountTransactionsList.add(bankAccountTransactions);
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error creating account transaction object - " + sqlException.getMessage());
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching account transaction records - " + sqlException.getMessage());
+        }
+
+        return bankAccountTransactionsList;
     }
 
     /**

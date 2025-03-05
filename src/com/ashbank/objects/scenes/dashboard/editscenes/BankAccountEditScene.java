@@ -7,10 +7,12 @@ import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.SceneController;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -55,8 +57,10 @@ public class BankAccountEditScene {
         ScrollPane scrollPane;
         GridPane bankAccountDataPane, buttonsPane;
         VBox vBoxRoot;
-        Separator sep1, sep2;
+        HBox hBoxTop;
+        Separator sep1, sep2, sep3;
         Label lblInstruction;
+        Button btnDashboard;
         String accountOwner;
 
         bankAccounts = bankAccountsStorageEngine.getBankAccountsDataByID(accountID);
@@ -65,16 +69,34 @@ public class BankAccountEditScene {
         lblInstruction = new Label("Edit " + accountOwner + "'s " + bankAccounts.getAccountType() + " Data");
         lblInstruction.setId("title");
 
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         bankAccountDataPane = this.createCustomerBankAccountPane(bankAccounts);
         buttonsPane = this.createEditSceneButtons(bankAccounts);
 
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, bankAccountDataPane, sep2, buttonsPane);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, bankAccountDataPane, sep2, buttonsPane);
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -234,6 +256,7 @@ public class BankAccountEditScene {
 
         btnCancel = new Button("Back");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setOnAction(e -> {
             try {
                 this.clearFields();
@@ -246,6 +269,8 @@ public class BankAccountEditScene {
         });
 
         btnUpdateRecord = new Button("Update Record");
+        btnUpdateRecord.setPrefWidth(120);
+        btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
             this.getAccountFormValues(bankAccounts);
             try {
@@ -265,7 +290,6 @@ public class BankAccountEditScene {
                 throw new RuntimeException(ex);
             }
         });
-        btnUpdateRecord.setPrefWidth(120);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);

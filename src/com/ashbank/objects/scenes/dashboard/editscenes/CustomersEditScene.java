@@ -6,6 +6,7 @@ import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.people.Customers;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -65,17 +66,30 @@ public class CustomersEditScene {
 
         GridPane gridPaneBasicData, gridPaneProfData, gridPaneResidenceData, gridPaneNationalityData, gridPaneAddressData,
                 gridPaneKinData, gridPaneBeneficiaryData;
-        HBox hBox1;
+        HBox hBox1, hBoxTop;
         VBox vBoxRoot, vbTopRight, vbTopLeft, vbPhotoBox;
         Label lblInstruction;
+        Button btnDashboard;
         ScrollPane scrollPane;
-        Separator sep1, sep2;
+        Separator sep1, sep2, sep3;
         Customers customers;
 
         customers = customersStorageEngine.getCustomerDataByID(customerID);
 
         lblInstruction = new Label("Edit " + (customers.getFullName()) + "'s Record.");
         lblInstruction.setId("title");
+
+        btnDashboard = new Button("Dashboard");
+        btnDashboard.setMinWidth(100);
+        btnDashboard.setMinHeight(30);
+        btnDashboard.setId("btn-dashboard");
+        btnDashboard.setOnAction(e -> {
+            try {
+                sceneController.returnToMainDashboard();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         // Load photo path from the database
         this.initializeCustomerPhoto(customers);
@@ -108,11 +122,17 @@ public class CustomersEditScene {
         // Separators
         sep1 = new Separator();
         sep2 = new Separator();
+        sep3 = new Separator(Orientation.VERTICAL);
+
+        hBoxTop = new HBox(10);
+        hBoxTop.setPadding(new Insets(10));
+        hBoxTop.setAlignment(Pos.CENTER_LEFT);
+        hBoxTop.getChildren().addAll(btnDashboard, sep3, lblInstruction);
 
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(lblInstruction, sep1, hBox1, sep2, createButtons(customers));
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, hBox1, sep2, createButtons(customers));
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -637,6 +657,7 @@ public class CustomersEditScene {
 
         btnCancel = new Button(" _Cancel ");
         btnCancel.setPrefWidth(100);
+        btnCancel.setMinHeight(30);
         btnCancel.setId("btn-warn");
         btnCancel.setOnAction(e -> {
             try {
@@ -650,6 +671,7 @@ public class CustomersEditScene {
 
         btnSave = new Button(" _Update Record ");
         btnSave.setPrefWidth(150);
+        btnSave.setMinHeight(30);
         btnSave.setId("btn-success");
         btnSave.setOnAction(e -> {
 
