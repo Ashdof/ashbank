@@ -202,9 +202,9 @@ public class SceneController {
         BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
         boolean deleteResult, status = false;
 
-        deleteResult = bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
+        deleteResult = bankTransactionsStorageEngine.deleteBankAccountTransactionObjectByAccountID(accountID);
         if (deleteResult)
-            status = bankTransactionsStorageEngine.deleteBankAccountTransactionObjectByAccountID(accountID);
+            status = bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
 
         return status;
     }
