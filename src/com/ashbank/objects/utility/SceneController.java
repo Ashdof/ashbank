@@ -224,6 +224,24 @@ public class SceneController {
     }
 
     /**
+     * Delete Bank Account Record:
+     * execute the functionality to delete a bank account object
+     * @param accountID the ID of the bank account object
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteBankAccountRecord(String accountID) throws SQLException {
+        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
+        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
+        boolean deleteResult, status = false;
+
+        deleteResult = bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
+        if (deleteResult)
+            status = bankTransactionsStorageEngine.deleteBankAccountTransactionObjectByAccountID(accountID);
+
+        return status;
+    }
+
+    /**
      * New Transaction Scene:
      * renders scene for recording new transactions
      * @throws SQLException if an error occurs
@@ -391,18 +409,6 @@ public class SceneController {
 //        }
 
         return status;
-    }
-
-    /**
-     * Delete Bank Account Record:
-     * execute the functionality to delete a bank account record
-     * @param accountID the ID of the bank account record
-     * @throws SQLException if an error occurs
-     */
-    public boolean deleteBankAccountRecord(String accountID) throws SQLException {
-        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
-
-        return bankAccountsStorageEngine.deleteCustomerBankAccount(accountID);
     }
 
     /**
