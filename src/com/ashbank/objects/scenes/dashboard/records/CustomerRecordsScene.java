@@ -322,7 +322,22 @@ public class CustomerRecordsScene {
         btnDelete = new Button("Delete Record");
         btnDelete.setPrefWidth(120);
         btnDelete.setMinHeight(30);
-        btnDelete.setOnAction(e -> {});
+        btnDelete.setOnAction(e -> {
+            String title = "Customer Information";
+            String message = """
+                    No customer record selected.
+                    """;
+
+            if (customerID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showCustomerDeleteScene(customerID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
