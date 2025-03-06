@@ -1,8 +1,6 @@
 package com.ashbank.objects.utility;
 
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
-import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
-import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.CustomerDeleteScene;
@@ -15,7 +13,6 @@ import com.ashbank.objects.scenes.dashboard.editscenes.CustomersEditScene;
 import com.ashbank.objects.scenes.dashboard.editscenes.TransactionEditScene;
 import com.ashbank.objects.scenes.dashboard.maindashboard.MainDashboardScene;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
-
 import com.ashbank.objects.scenes.dashboard.newscenes.NewBankAccountsScene;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewCustomerScene;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewTransactionsScene;
@@ -23,6 +20,7 @@ import com.ashbank.objects.scenes.dashboard.records.BankAccountRecordsScene;
 import com.ashbank.objects.scenes.dashboard.records.CustomerRecordsScene;
 import com.ashbank.objects.scenes.dashboard.records.TransactionsRecordsScene;
 import com.ashbank.objects.scenes.dashboard.utility.NotificationsScene;
+
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ToolBar;
@@ -42,7 +40,6 @@ public class SceneController {
 
     // Main scenes
     private Scene mainDashboardScene;
-    private Scene addMainDashboardScene;
 
     // Main Dashboard Component
     private BorderPane mainDashboardRoot;
@@ -68,12 +65,6 @@ public class SceneController {
         this.mainDashboardScene = this.mainDashboard.getMainDashboardScene();
         this.mainDashboardRoot = this.mainDashboard.getMainDashboardRoot();
     }
-
-    /* ================ SET METHODS ================ */
-
-    /* ================ GET METHODS ================ */
-
-    /* ================ OTHER METHODS ================ */
 
     /**
      * Authentication Scene:
@@ -135,7 +126,6 @@ public class SceneController {
      */
     public void showNewBankAccountScene() throws SQLException {
         NewBankAccountsScene newBankAccountsScene = new NewBankAccountsScene(this);
-        Scene addNewBankAccountScene = newBankAccountsScene.getNewBankAccountScene();
         ScrollPane addNewBankAccountRoot = newBankAccountsScene.createNewBankAccountSceneRoot();
         mainDashboardRoot.setCenter(addNewBankAccountRoot);
     }
@@ -148,7 +138,6 @@ public class SceneController {
      */
     public void showBankAccountsRecordsScene() throws SQLException {
         BankAccountRecordsScene bankAccountRecordsScene = new BankAccountRecordsScene(this);
-        Scene addBankAccountsRecordsScene = bankAccountRecordsScene.getBankAccountRecordsScene();
         ScrollPane addBankAccountsRecordsRoot = bankAccountRecordsScene.createBankAccountRecordRoot();
         mainDashboardRoot.setCenter(addBankAccountsRecordsRoot);
     }
@@ -161,7 +150,6 @@ public class SceneController {
      */
     public void showBankAccountDetailsScene(String accountID) throws SQLException {
         BankAccountDetailsScene bankAccountDetailsScene = new BankAccountDetailsScene(this);
-        Scene addBankAccountDetailScene = bankAccountDetailsScene.getBankAccountDetailsScene();
         ScrollPane addBankAccountDetailRoot = bankAccountDetailsScene.createBankAccountDetailRoot(accountID);
         mainDashboardRoot.setCenter(addBankAccountDetailRoot);
     }
@@ -174,7 +162,6 @@ public class SceneController {
      */
     public void showBankAccountEditScene(String accountID) throws SQLException {
         BankAccountEditScene bankAccountEditScene = new BankAccountEditScene(this);
-        Scene addBankAccountEditScene = bankAccountEditScene.getBankAccountEditScene();
         ScrollPane addBankAccountEditRoot = bankAccountEditScene.createBankAccountEditRoot(accountID);
         mainDashboardRoot.setCenter(addBankAccountEditRoot);
     }
@@ -187,7 +174,6 @@ public class SceneController {
      */
     public void showBankAccountDeleteScene(String accountID) throws SQLException {
         BankAccountsDeleteScene bankAccountsDeleteScene = new BankAccountsDeleteScene(this);
-        Scene addBankAccountDeleteScene = bankAccountsDeleteScene.getBankAccountsDeleteScene();
         ScrollPane addBankAccountDeleteRoot = bankAccountsDeleteScene.getBankAccountsDeleteRoot(accountID);
         mainDashboardRoot.setCenter(addBankAccountDeleteRoot);
     }
@@ -210,7 +196,6 @@ public class SceneController {
      */
     public void showNewTransactionScene() throws SQLException {
         NewTransactionsScene newTransactionsScene = new NewTransactionsScene(this);
-        Scene addNewTransactionScene = newTransactionsScene.getNewTransactionScene();
         ScrollPane addNewTransactionRoot = newTransactionsScene.createNewTransactionsRoot();
         mainDashboardRoot.setCenter(addNewTransactionRoot);
     }
@@ -221,7 +206,6 @@ public class SceneController {
      */
     public void showTransactionsRecordsScene() {
         TransactionsRecordsScene transactionsRecordsScene = new TransactionsRecordsScene(this);
-        Scene addTransactionsRecordsScene = transactionsRecordsScene.getTransactionsRecordsScene();
         ScrollPane addTransactionsRecordRoot = transactionsRecordsScene.createTransactionsRecordsRoot();
         mainDashboardRoot.setCenter(addTransactionsRecordRoot);
     }
@@ -234,7 +218,6 @@ public class SceneController {
      */
     public void showTransactionDetailsScene(String transactionID) throws SQLException {
         TransactionDetailsScene transactionDetailsScene = new TransactionDetailsScene(this);
-        Scene addTransactionDetailsScene = transactionDetailsScene.getTransactionDetailScene();
         ScrollPane addTransactionDetailRoot = transactionDetailsScene.createTransactionDetailsRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionDetailRoot);
     }
@@ -247,7 +230,6 @@ public class SceneController {
      */
     public void showTransactionEditScene(String transactionID) throws SQLException {
         TransactionEditScene transactionEditScene = new TransactionEditScene(this);
-        Scene addTransactionEditScene = transactionEditScene.getTransactionEditScene();
         ScrollPane addTransactionEditRoot = transactionEditScene.createTransactionEditRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionEditRoot);
     }
@@ -260,7 +242,6 @@ public class SceneController {
      */
     public void showTransactionDeleteScene(String transactionID) throws SQLException {
         TransactionDeleteScene transactionDeleteScene = new TransactionDeleteScene(this);
-        Scene addTransactionDeleteScene = transactionDeleteScene.getTransactionDeleteScene();
         ScrollPane addTransactionDeleteRoot = transactionDeleteScene.createTransactionDeleteRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionDeleteRoot);
     }
@@ -271,8 +252,6 @@ public class SceneController {
      */
     public void showNewCustomerScene() {
         NewCustomerScene newCustomerScene = new NewCustomerScene(this);
-        Scene addNewCustomerScene = newCustomerScene.getNewCustomerScene();
-        // Sub scenes
         ScrollPane addNewCustomerRoot = newCustomerScene.createNewCustomerSceneRoot();
         mainDashboardRoot.setCenter(addNewCustomerRoot);
     }
@@ -283,7 +262,6 @@ public class SceneController {
      */
     public void showCustomerRecordsScene() throws SQLException {
         CustomerRecordsScene customerRecordsScene = new CustomerRecordsScene(this);
-        Scene addCustomerRecordsScene = customerRecordsScene.getCustomerRecordsScene();
         ScrollPane addCustomerRecordsRoot = customerRecordsScene.getCustomersRecordsRoot();
         mainDashboardRoot.setCenter(addCustomerRecordsRoot);
     }
@@ -295,7 +273,6 @@ public class SceneController {
      */
     public void showCustomerDetailsScene(String customerID) throws SQLException {
         CustomerDetailsScene customerDetailsScene = new CustomerDetailsScene(this);
-        Scene addCustomerDetailsScene = customerDetailsScene.getCustomerDetailsScene();
         ScrollPane addCustomerDetailsRoot = customerDetailsScene.getSelectedCustomerDetailsRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerDetailsRoot);
     }
@@ -320,7 +297,6 @@ public class SceneController {
      */
     public void showCustomerEditScene(String customerID) throws SQLException {
         CustomersEditScene customersEditScene = new CustomersEditScene(this);
-        Scene addCustomersEditScene = customersEditScene.getCustomerEditScene();
         ScrollPane addCustomerEditRoot = customersEditScene.createEditCustomerRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerEditRoot);
     }
@@ -349,25 +325,5 @@ public class SceneController {
 
         toolBar = mainDashboard.createToolBarRoot();
         mainDashboardRoot.setBottom(toolBar);
-    }
-
-    /**
-     * Update Bank Account Balance:
-     * update the balance of a bank account upon deleting a transaction object
-     * @param transactionID the ID of the transaction object
-     * @return true if successful, false otherwise
-     * @throws SQLException if an error occurs
-     */
-    public boolean updateBankAccountBalance(String transactionID) throws SQLException {
-
-        BankTransactionsStorageEngine bankTransactionsStorageEngine;
-        BankAccountsStorageEngine bankAccountsStorageEngine;
-        String accountID;
-
-        bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
-        bankAccountsStorageEngine = new BankAccountsStorageEngine();
-        accountID = bankTransactionsStorageEngine.getBankTransactionDataByID(transactionID).getAccountID();
-
-        return bankAccountsStorageEngine.updateBankAccountBalance(accountID, transactionID);
     }
 }
