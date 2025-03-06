@@ -352,41 +352,6 @@ public class SceneController {
     }
 
     /**
-     * Delete Customer Record:
-     * execute the functionality to delete a customer's record
-     * @param customerID the ID of the customer's record
-     * @throws SQLException if an error occurs
-     */
-    public boolean deleteCustomerRecord(String customerID) throws SQLException {
-        CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
-        BankAccountsStorageEngine bankAccountsStorageEngine = new BankAccountsStorageEngine();
-        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
-
-        String accountID, transactionID;
-        boolean status = false;
-
-        accountID = bankAccountsStorageEngine.getBankAccountsDataByCustomerID(customerID).getAccountID();
-        transactionID = bankTransactionsStorageEngine.getBankTransactionDataByAccountID(accountID).getTransactionID();
-
-        if (this.deleteTransactionsRecord(transactionID) || !(this.deleteTransactionsRecord(transactionID))) {
-            if (this.deleteBankAccountRecord(accountID) || !(this.deleteBankAccountRecord(accountID))) {
-                if (customersStorageEngine.deleteCustomerData(customerID)) {
-                    status = true;
-                }
-            }
-        }
-
-//        if (customersStorageEngine.deleteCustomerData(customerID)) {
-//            if (this.deleteBankAccountRecord(accountID)) {
-//                if (this.deleteTransactionsRecord(transactionID))
-//                        status = true;
-//            }
-//        }
-
-        return status;
-    }
-
-    /**
      * Delete Transaction Record:
      * execute the functionality to delete a transaction record
      * @param transactionID the ID of the transaction record
