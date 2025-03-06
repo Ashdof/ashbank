@@ -352,25 +352,6 @@ public class SceneController {
     }
 
     /**
-     * Delete Transaction Record:
-     * execute the functionality to delete a transaction record
-     * @param transactionID the ID of the transaction record
-     * @throws SQLException if an error occurs
-     */
-    public boolean deleteTransactionsRecord(String transactionID) throws SQLException {
-        BankTransactionsStorageEngine bankTransactionsStorageEngine = new BankTransactionsStorageEngine();
-        boolean status = false;
-
-        if (bankTransactionsStorageEngine.deleteBankAccountTransactionObject(transactionID)) {
-            if (this.updateBankAccountBalance(transactionID)) {
-                status = true;
-            }
-        }
-
-        return status;
-    }
-
-    /**
      * Update Bank Account Balance:
      * update the balance of a bank account upon deleting a transaction object
      * @param transactionID the ID of the transaction object
