@@ -277,7 +277,7 @@ public class CustomerRecordsScene {
     private GridPane createRecordsSceneButtons() {
 
         GridPane gridPane;
-        Button btnEdit, btnDetails;
+        Button btnEdit, btnDetails, btnDelete;
 
         btnDetails = new Button("View Details");
         btnDetails.setPrefWidth(120);
@@ -319,6 +319,26 @@ public class CustomerRecordsScene {
             }
         });
 
+        btnDelete = new Button("Delete Record");
+        btnDelete.setPrefWidth(120);
+        btnDelete.setMinHeight(30);
+        btnDelete.setOnAction(e -> {
+            String title = "Customer Information";
+            String message = """
+                    No customer record selected.
+                    """;
+
+            if (customerID == null) {
+                customDialogs.showErrInformation(title, message);
+            } else {
+                try {
+                    sceneController.showCustomerDeleteScene(customerID);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+
         gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setVgap(15);
@@ -328,6 +348,7 @@ public class CustomerRecordsScene {
 
         gridPane.add(btnEdit, 0, 0);
         gridPane.add(btnDetails, 1, 0);
+        gridPane.add(btnDelete, 2, 0);
 
         return gridPane;
     }

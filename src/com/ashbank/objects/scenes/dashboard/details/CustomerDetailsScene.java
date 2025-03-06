@@ -617,8 +617,7 @@ public class CustomerDetailsScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                if (sceneController.deleteCustomerRecord(customers.getCustomerID()))
-                    sceneController.showCustomerRecordsScene();
+                sceneController.showCustomerDeleteScene(customers.getCustomerID());
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
