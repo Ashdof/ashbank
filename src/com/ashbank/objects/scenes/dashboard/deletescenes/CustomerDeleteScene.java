@@ -46,7 +46,7 @@ public class CustomerDeleteScene {
 
         customers = customersStorageEngine.getCustomerDataByID(customerID);
 
-        lblInstruction = new Label("Record Details of " + customers.getFullName());
+        lblInstruction = new Label("Delete Customer Record");
         lblInstruction.setId("title");
 
         btnDashboard = new Button("Dashboard");
