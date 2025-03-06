@@ -4,6 +4,7 @@ import com.ashbank.db.db.engines.BankAccountsStorageEngine;
 import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.bank.BankAccountTransactions;
+import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.SceneController;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -19,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.io.File;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,8 +32,12 @@ public class CustomerDeleteScene {
     private List<BankAccountTransactions> bankAccountTransactionsList;
     private ObservableList<BankAccountTransactions> bankAccountTransactionsObservableList;
     private TableView<BankAccountTransactions> bankAccountTransactionsTableView;
+    private List<BankAccounts> bankAccountsList;
+    private ObservableList<BankAccounts> bankAccountsObservableList;
+    private TableView<BankAccounts> bankAccountsTableView = new TableView<>();
 
     private Scene customerDeleteScene;
+    private String accountID;
 
     public CustomerDeleteScene(SceneController sceneController) {
         this.sceneController = sceneController;
@@ -47,11 +53,10 @@ public class CustomerDeleteScene {
         GridPane basicGridPane, buttonsGridPane;
         Label lblInstruction, lblAccountsTitle, lblTransactionsTitle;
         Button btnDashboard;
-        Separator sep1, sep2, sep3, sep4;
+        Separator sep1, sep2, sep3, sep4, sep5;
         HBox hBoxBasicData, hBoxTop;
         VBox vBoxRoot;
         ImageView imageView;
-        String accountID;
 
         customers = customersStorageEngine.getCustomerDataByID(customerID);
         accountID = new BankAccountsStorageEngine().getBankAccountsDataByCustomerID(customerID).getAccountID();
@@ -61,6 +66,11 @@ public class CustomerDeleteScene {
 
         lblAccountsTitle = new Label(String.format("%s's Bank Accounts", customers.getFullName()));
         lblAccountsTitle.setId("sub-title");
+
+        lblTransactionsTitle = new Label(String.format("%s's %s Transactions",
+                customers.getFullName(),
+                new BankAccountsStorageEngine().getBankAccountsDataByID(accountID).getAccountType())
+        );
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -87,6 +97,7 @@ public class CustomerDeleteScene {
         sep2 = new Separator();
         sep3 = new Separator(Orientation.VERTICAL);
         sep4 = new Separator();
+        sep5 = new Separator();
 
         hBoxTop = new HBox(10);
         hBoxTop.setPadding(new Insets(10));
@@ -98,8 +109,9 @@ public class CustomerDeleteScene {
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
         vBoxRoot.getChildren().addAll(
                 hBoxTop, sep1, hBoxBasicData, sep2,
-                lblAccountsTitle, this.getListOfAllTransactions(accountID),
-                sep4, buttonsGridPane
+                lblAccountsTitle,  this.getListOfAllBankAccounts(),
+                sep4, lblTransactionsTitle, this.getListOfAllTransactions(accountID),
+                sep5, buttonsGridPane
         );
 
         scrollPane = new ScrollPane(vBoxRoot);
@@ -204,14 +216,10 @@ public class CustomerDeleteScene {
     private VBox getListOfAllTransactions(String accountID) {
 
         VBox vBox;
-        Label lblInstruction;
-
-        lblInstruction = new Label("Transactions involved with this bank account");
-        lblInstruction.setId("title");
 
         bankAccountTransactionsTableView = new TableView<>();
         bankAccountTransactionsTableView.setMinWidth(1000);
-        bankAccountTransactionsTableView.setMinHeight(200);
+        bankAccountTransactionsTableView.setMaxHeight(400);
         this.initializeTransactionsDataTable();
 
         bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
@@ -221,7 +229,7 @@ public class CustomerDeleteScene {
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
         vBox.setAlignment(Pos.TOP_LEFT);
-        vBox.getChildren().addAll(lblInstruction, bankAccountTransactionsTableView);
+        vBox.getChildren().addAll(bankAccountTransactionsTableView);
 
         return vBox;
     }
@@ -285,6 +293,132 @@ public class CustomerDeleteScene {
         });
 
         bankAccountTransactionsTableView.getColumns().addAll(numberTableColumn, transactionDate, accountCurrency, transactionAmount, transactionType, accountOwner, transactionDetails);
+    }
+
+    /**
+     * Table of Bank Account Objects:
+     * create a vertical vox object containing a table list of all
+     * bank account objects
+     * @return the VBox object
+     */
+    private VBox getListOfAllBankAccounts() {
+
+        VBox vBox;
+
+        bankAccountsTableView = new TableView<>();
+        bankAccountsTableView.setMinWidth(1000);
+        bankAccountsTableView.setMaxHeight(200);
+        this.initializeBankAccountDataTable();
+
+        bankAccountsList = BankAccountsStorageEngine.getAllBankAccountData();
+        bankAccountsObservableList = FXCollections.observableArrayList(bankAccountsList);
+        bankAccountsTableView.setItems(bankAccountsObservableList);
+        bankAccountsTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                accountID = newValue.getAccountID();
+            }
+        });
+        bankAccountsTableView.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2 && !bankAccountsTableView.getSelectionModel().isEmpty()) {
+                BankAccounts bankAccounts = bankAccountsTableView.getSelectionModel().getSelectedItem();
+                accountID = bankAccounts.getAccountID();
+
+                try {
+                    sceneController.showBankAccountDetailsScene(accountID);
+                } catch (SQLException sqlException) {
+                    throw  new RuntimeException();
+                }
+            }
+        });
+
+        vBox = new VBox(10);
+        vBox.setPadding(new Insets(10));
+        vBox.setAlignment(Pos.TOP_LEFT);
+        vBox.getChildren().addAll(bankAccountsTableView);
+
+        return vBox;
+    }
+
+    /**
+     * Customers Basic Data Table:
+     * initialize a table with the basic data of customers
+     */
+    private void initializeBankAccountDataTable() {
+
+        TableColumn<BankAccounts, String> accountNumber, accountType, accountCurrency, dateCreated, accountStatus,
+                customerName;
+        TableColumn<BankAccounts, Double> accountBalance, initialDeposit;
+        TableColumn<BankAccounts, Number> numberTableColumn;
+        TableColumn<BankAccounts, Date> lastTransactionDate;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(bankAccountsTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
+
+        accountNumber = new TableColumn<>("Account Number");
+        accountNumber.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountNumber()));
+
+        accountType = new TableColumn<>("Account Type");
+        accountType.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountType()));
+
+        accountCurrency = new TableColumn<>("Currency");
+        accountCurrency.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountCurrency()));
+
+        dateCreated = new TableColumn<>("Date Created");
+        dateCreated.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getDateCreated()));
+
+        accountBalance = new TableColumn<>("Current Balance");
+        accountBalance.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountBalance()));
+
+        initialDeposit = new TableColumn<>("Initial Deposit");
+        initialDeposit.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getInitialDeposit()));
+
+        lastTransactionDate = new TableColumn<>("Last Transaction Date");
+        lastTransactionDate.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getLastTransactionDate()));
+
+        accountStatus = new TableColumn<>("Status");
+        accountStatus.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getAccountStatus()));
+
+        customerName = new TableColumn<>("Account Owner");
+        customerName.setCellValueFactory(data -> {
+            try {
+                return new ReadOnlyObjectWrapper<>(new CustomersStorageEngine().getCustomerDataByID(data.getValue().getCustomerID()).getFullName());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        bankAccountsTableView.getColumns().addAll(numberTableColumn, accountNumber, accountType, accountCurrency, dateCreated, initialDeposit, accountBalance, lastTransactionDate, accountStatus, customerName);
+    }
+
+    /**
+     * Filter Bank Account Objects:
+     * filters a list of bank account objects according to a
+     * search query
+     * @param query the search query
+     */
+    private void filterBankAccounts(String query) {
+
+        if (query == null || query.isEmpty()) {
+            bankAccountsTableView.setItems(bankAccountsObservableList);
+        } else {
+            ObservableList<BankAccounts> filteredList = FXCollections.observableArrayList();
+
+            for (BankAccounts bankAccounts : bankAccountsObservableList) {
+
+                if (bankAccounts.getAccountNumber().contains(query.toLowerCase()) ||
+                        bankAccounts.getAccountType().toLowerCase().contains(query.toLowerCase()) ||
+                        bankAccounts.getAccountCurrency().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(bankAccounts);
+                }
+            }
+
+            bankAccountsTableView.setItems(filteredList);
+        }
     }
 
     /**
