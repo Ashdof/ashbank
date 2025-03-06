@@ -5,6 +5,7 @@ import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
+import com.ashbank.objects.scenes.dashboard.deletescenes.CustomerDeleteScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.TransactionDeleteScene;
 import com.ashbank.objects.scenes.dashboard.details.BankAccountDetailsScene;
 import com.ashbank.objects.scenes.dashboard.details.CustomerDetailsScene;
@@ -297,6 +298,18 @@ public class SceneController {
         Scene addCustomerDetailsScene = customerDetailsScene.getCustomerDetailsScene();
         ScrollPane addCustomerDetailsRoot = customerDetailsScene.getSelectedCustomerDetailsRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerDetailsRoot);
+    }
+
+    /**
+     * Customer Object Delete Scene:
+     * renders the scene to delete a selected customer object
+     * @param customerID the ID of the customer object
+     * @throws SQLException if an error occurs
+     */
+    public void showCustomerDeleteScene(String customerID) throws SQLException {
+        CustomerDeleteScene addCustomerDeleteScene = new CustomerDeleteScene(this);
+        ScrollPane addCustomerDeleteSceneRoot = addCustomerDeleteScene.getCustomerDeleteSceneRoot(customerID);
+        mainDashboardRoot.setCenter(addCustomerDeleteSceneRoot);
     }
 
     /**
