@@ -1,27 +1,35 @@
 package com.ashbank.objects.scenes.dashboard.deletescenes;
 
+import com.ashbank.db.db.engines.BankAccountsStorageEngine;
+import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
+import com.ashbank.objects.bank.BankAccountTransactions;
 import com.ashbank.objects.people.Customers;
 import com.ashbank.objects.utility.SceneController;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.List;
 
 public class CustomerDeleteScene {
 
     private final SceneController sceneController;
     private final CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
+    private List<BankAccountTransactions> bankAccountTransactionsList;
+    private ObservableList<BankAccountTransactions> bankAccountTransactionsObservableList;
+    private TableView<BankAccountTransactions> bankAccountTransactionsTableView;
 
     private Scene customerDeleteScene;
 
@@ -37,17 +45,22 @@ public class CustomerDeleteScene {
         Customers customers;
         ScrollPane scrollPane;
         GridPane basicGridPane, buttonsGridPane;
-        Label lblInstruction;
+        Label lblInstruction, lblAccountsTitle, lblTransactionsTitle;
         Button btnDashboard;
-        Separator sep1, sep2, sep3;
+        Separator sep1, sep2, sep3, sep4;
         HBox hBoxBasicData, hBoxTop;
         VBox vBoxRoot;
         ImageView imageView;
+        String accountID;
 
         customers = customersStorageEngine.getCustomerDataByID(customerID);
+        accountID = new BankAccountsStorageEngine().getBankAccountsDataByCustomerID(customerID).getAccountID();
 
         lblInstruction = new Label("Delete Customer Record");
         lblInstruction.setId("title");
+
+        lblAccountsTitle = new Label(String.format("%s's Bank Accounts", customers.getFullName()));
+        lblAccountsTitle.setId("sub-title");
 
         btnDashboard = new Button("Dashboard");
         btnDashboard.setMinWidth(100);
@@ -73,6 +86,7 @@ public class CustomerDeleteScene {
         sep1 = new Separator();
         sep2 = new Separator();
         sep3 = new Separator(Orientation.VERTICAL);
+        sep4 = new Separator();
 
         hBoxTop = new HBox(10);
         hBoxTop.setPadding(new Insets(10));
@@ -82,7 +96,11 @@ public class CustomerDeleteScene {
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(hBoxTop, sep1, hBoxBasicData, sep2, buttonsGridPane);
+        vBoxRoot.getChildren().addAll(
+                hBoxTop, sep1, hBoxBasicData, sep2,
+                lblAccountsTitle, this.getListOfAllTransactions(accountID),
+                sep4, buttonsGridPane
+        );
 
         scrollPane = new ScrollPane(vBoxRoot);
         return scrollPane;
@@ -176,6 +194,97 @@ public class CustomerDeleteScene {
         gridPane.add(lblAgeValue, 1, 5);
 
         return gridPane;
+    }
+
+    /**
+     * List of Transaction Objects:
+     * create a tabular list of all transaction object
+     * @return a table with the list of transaction objects
+     */
+    private VBox getListOfAllTransactions(String accountID) {
+
+        VBox vBox;
+        Label lblInstruction;
+
+        lblInstruction = new Label("Transactions involved with this bank account");
+        lblInstruction.setId("title");
+
+        bankAccountTransactionsTableView = new TableView<>();
+        bankAccountTransactionsTableView.setMinWidth(1000);
+        bankAccountTransactionsTableView.setMinHeight(200);
+        this.initializeTransactionsDataTable();
+
+        bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
+        bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
+        bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
+
+        vBox = new VBox(10);
+        vBox.setPadding(new Insets(10));
+        vBox.setAlignment(Pos.TOP_LEFT);
+        vBox.getChildren().addAll(lblInstruction, bankAccountTransactionsTableView);
+
+        return vBox;
+    }
+
+    /**
+     * Initialize the transactions table with the list of transaction
+     * objects
+     */
+    private void initializeTransactionsDataTable() {
+
+        TableColumn<BankAccountTransactions, String> transactionType, transactionDetails, accountOwner,
+                accountCurrency;
+        TableColumn<BankAccountTransactions, Double> transactionAmount;
+        TableColumn<BankAccountTransactions, Number> numberTableColumn;
+        TableColumn<BankAccountTransactions, Timestamp> transactionDate;
+
+        numberTableColumn = new TableColumn<>("#");
+        numberTableColumn.setMinWidth(50);
+        numberTableColumn.setCellValueFactory(data ->
+                new ReadOnlyObjectWrapper<>(bankAccountTransactionsTableView.getItems().indexOf(data.getValue()) + 1)
+        );
+        numberTableColumn.setSortable(false); // Disable sorting for numbering of columns
+        numberTableColumn.setStyle("-fx-alignment: CENTER;");
+
+        transactionType = new TableColumn<>("Type of Transaction");
+        transactionType.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getTransactionType()));
+
+        transactionAmount = new TableColumn<>("Transaction Amount");
+        transactionAmount.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getTransactionAmount()));
+
+        transactionDetails = new TableColumn<>("Transaction Details");
+        transactionDetails.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getTransactionDetails()));
+
+        transactionDate = new TableColumn<>("Transaction Date");
+        transactionDate.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(
+                Timestamp.valueOf(data.getValue().getTransactionDate())
+        ));
+
+        accountOwner = new TableColumn<>("Account Owner");
+        accountOwner.setCellValueFactory(data -> {
+            try {
+                return new ReadOnlyObjectWrapper<>(
+                        new CustomersStorageEngine().getCustomerDataByID(
+                                new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getCustomerID()
+                        ).getFullName()
+                );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        accountCurrency = new TableColumn<>("Account Currency");
+        accountCurrency.setCellValueFactory(data -> {
+            try {
+                return new ReadOnlyObjectWrapper<>(
+                        new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getAccountCurrency()
+                );
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        bankAccountTransactionsTableView.getColumns().addAll(numberTableColumn, transactionDate, accountCurrency, transactionAmount, transactionType, accountOwner, transactionDetails);
     }
 
     /**
