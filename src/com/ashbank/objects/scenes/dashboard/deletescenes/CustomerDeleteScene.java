@@ -109,7 +109,7 @@ public class CustomerDeleteScene {
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
         vBoxRoot.getChildren().addAll(
                 hBoxTop, sep1, hBoxBasicData, sep2,
-                lblAccountsTitle,  this.getListOfAllBankAccounts(),
+                lblAccountsTitle,  this.getListOfAllBankAccounts(customerID),
                 sep4, lblTransactionsTitle, this.getListOfAllTransactions(accountID),
                 sep5, buttonsGridPane
         );
@@ -299,9 +299,10 @@ public class CustomerDeleteScene {
      * Table of Bank Account Objects:
      * create a vertical vox object containing a table list of all
      * bank account objects
+     * @param customerID the ID of the customer object
      * @return the VBox object
      */
-    private VBox getListOfAllBankAccounts() {
+    private VBox getListOfAllBankAccounts(String customerID) {
 
         VBox vBox;
 
@@ -310,7 +311,7 @@ public class CustomerDeleteScene {
         bankAccountsTableView.setMaxHeight(200);
         this.initializeBankAccountDataTable();
 
-        bankAccountsList = BankAccountsStorageEngine.getAllBankAccountData();
+        bankAccountsList = BankAccountsStorageEngine.getAllBankAccountDataByCustomerID(customerID);
         bankAccountsObservableList = FXCollections.observableArrayList(bankAccountsList);
         bankAccountsTableView.setItems(bankAccountsObservableList);
         bankAccountsTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
