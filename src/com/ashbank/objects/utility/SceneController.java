@@ -1,6 +1,7 @@
 package com.ashbank.objects.utility;
 
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
+import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.CustomerDeleteScene;
@@ -299,6 +300,17 @@ public class SceneController {
         CustomersEditScene customersEditScene = new CustomersEditScene(this);
         ScrollPane addCustomerEditRoot = customersEditScene.createEditCustomerRoot(customerID);
         mainDashboardRoot.setCenter(addCustomerEditRoot);
+    }
+
+    /**
+     * Delete Customer Object:
+     * deletes the selected customer object
+     * @param customerID the ID of the customer object
+     * @return true if deleting is successful, false if it fails
+     * @throws SQLException if an error occurs
+     */
+    public boolean deleteCustomerRecord(String customerID) throws SQLException {
+        return new CustomersStorageEngine().deleteCustomerData(customerID);
     }
 
     /**
