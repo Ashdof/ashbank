@@ -435,7 +435,13 @@ public class CustomerDeleteScene {
         btnDeleteRecord = new Button("Delete");
         btnDeleteRecord.setPrefWidth(120);
         btnDeleteRecord.setMinHeight(30);
-        btnDeleteRecord.setOnAction(e -> {});
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                sceneController.deleteCustomerRecord(customers.getCustomerID());
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         btnHideRecord = new Button("Hide");
         btnHideRecord.setPrefWidth(120);
