@@ -319,20 +319,6 @@ public class CustomerDeleteScene {
                 bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
             }
         });
-/*
-        bankAccountsTableView.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2 && !bankAccountsTableView.getSelectionModel().isEmpty()) {
-                BankAccounts bankAccounts = bankAccountsTableView.getSelectionModel().getSelectedItem();
-                accountID = bankAccounts.getAccountID();
-
-                try {
-                    sceneController.showBankAccountDetailsScene(accountID);
-                } catch (SQLException sqlException) {
-                    throw  new RuntimeException();
-                }
-            }
-        });
-*/
 
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
