@@ -24,8 +24,12 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDeleteScene {
+
+    private static final Logger logger = Logger.getLogger(CustomerDeleteScene.class.getName());
 
     private final SceneController sceneController;
     private final CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
@@ -51,10 +55,10 @@ public class CustomerDeleteScene {
         Customers customers;
         ScrollPane scrollPane;
         GridPane basicGridPane, buttonsGridPane;
-        Label lblInstruction, lblAccountsTitle, lblTransactionsTitle;
+        Label lblInstruction, lblAccountsTitle, lblTransactionsTitle, lblWarning, lblWarningMessage;
         Button btnDashboard;
         Separator sep1, sep2, sep3, sep4, sep5;
-        HBox hBoxBasicData, hBoxTop;
+        HBox hBoxBasicData, hBoxTop, hBoxWarning;
         VBox vBoxRoot;
         ImageView imageView;
 
@@ -63,6 +67,15 @@ public class CustomerDeleteScene {
 
         lblInstruction = new Label("Delete Customer Record");
         lblInstruction.setId("title");
+
+        lblWarning = new Label("WARNING");
+        lblWarning.setId("warning");
+
+        lblWarningMessage = new Label("""
+                Deleting this customer will also delete all records of bank accounts and their associated transactions
+                which cannot be recovered. Consider hiding this customer, which will also all associated records and can
+                be later recovered.
+                """);
 
         lblAccountsTitle = new Label(String.format("%s's Bank Accounts", customers.getFullName()));
         lblAccountsTitle.setId("sub-title");
@@ -79,8 +92,8 @@ public class CustomerDeleteScene {
         btnDashboard.setOnAction(e -> {
             try {
                 sceneController.returnToMainDashboard();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the dashboard scene - " + sqlException.getMessage());
             }
         });
 
@@ -92,6 +105,11 @@ public class CustomerDeleteScene {
         hBoxBasicData.setPadding(new Insets(10));
         hBoxBasicData.setAlignment(Pos.TOP_LEFT);
         hBoxBasicData.getChildren().addAll(imageView, basicGridPane);
+
+        hBoxWarning = new HBox(10);
+        hBoxWarning.setPadding(new Insets(10));
+        hBoxWarning.setAlignment(Pos.TOP_LEFT);
+        hBoxWarning.getChildren().addAll(lblWarning, lblWarningMessage);
 
         sep1 = new Separator();
         sep2 = new Separator();
@@ -108,8 +126,8 @@ public class CustomerDeleteScene {
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
         vBoxRoot.getChildren().addAll(
-                hBoxTop, sep1, hBoxBasicData, sep2,
-                lblAccountsTitle,  this.getListOfAllBankAccounts(),
+                hBoxTop, sep1, hBoxWarning, hBoxBasicData, sep2,
+                lblAccountsTitle,  this.getListOfAllBankAccounts(customerID),
                 sep4, lblTransactionsTitle, this.getListOfAllTransactions(accountID),
                 sep5, buttonsGridPane
         );
@@ -222,10 +240,6 @@ public class CustomerDeleteScene {
         bankAccountTransactionsTableView.setMaxHeight(400);
         this.initializeTransactionsDataTable();
 
-        bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
-        bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
-        bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
-
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
         vBox.setAlignment(Pos.TOP_LEFT);
@@ -276,8 +290,9 @@ public class CustomerDeleteScene {
                                 new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getCustomerID()
                         ).getFullName()
                 );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account owner object - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account owner object - " + sqlException);
             }
         });
 
@@ -287,8 +302,9 @@ public class CustomerDeleteScene {
                 return new ReadOnlyObjectWrapper<>(
                         new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getAccountCurrency()
                 );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account currency - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account currency - " + sqlException);
             }
         });
 
@@ -299,9 +315,10 @@ public class CustomerDeleteScene {
      * Table of Bank Account Objects:
      * create a vertical vox object containing a table list of all
      * bank account objects
+     * @param customerID the ID of the customer object
      * @return the VBox object
      */
-    private VBox getListOfAllBankAccounts() {
+    private VBox getListOfAllBankAccounts(String customerID) {
 
         VBox vBox;
 
@@ -310,24 +327,16 @@ public class CustomerDeleteScene {
         bankAccountsTableView.setMaxHeight(200);
         this.initializeBankAccountDataTable();
 
-        bankAccountsList = BankAccountsStorageEngine.getAllBankAccountData();
+        bankAccountsList = BankAccountsStorageEngine.getAllBankAccountDataByCustomerID(customerID);
         bankAccountsObservableList = FXCollections.observableArrayList(bankAccountsList);
         bankAccountsTableView.setItems(bankAccountsObservableList);
         bankAccountsTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 accountID = newValue.getAccountID();
-            }
-        });
-        bankAccountsTableView.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2 && !bankAccountsTableView.getSelectionModel().isEmpty()) {
-                BankAccounts bankAccounts = bankAccountsTableView.getSelectionModel().getSelectedItem();
-                accountID = bankAccounts.getAccountID();
 
-                try {
-                    sceneController.showBankAccountDetailsScene(accountID);
-                } catch (SQLException sqlException) {
-                    throw  new RuntimeException();
-                }
+                bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
+                bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
+                bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
             }
         });
 
@@ -387,8 +396,9 @@ public class CustomerDeleteScene {
         customerName.setCellValueFactory(data -> {
             try {
                 return new ReadOnlyObjectWrapper<>(new CustomersStorageEngine().getCustomerDataByID(data.getValue().getCustomerID()).getFullName());
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account owner object - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account owner object - " + sqlException);
             }
         });
 
@@ -438,15 +448,22 @@ public class CustomerDeleteScene {
         btnCancel.setOnAction(e -> {
             try {
                 sceneController.showCustomerRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the customer records scene - " + sqlException.getMessage());
             }
         });
 
         btnDeleteRecord = new Button("Delete");
         btnDeleteRecord.setPrefWidth(120);
         btnDeleteRecord.setMinHeight(30);
-        btnDeleteRecord.setOnAction(e -> {});
+        btnDeleteRecord.setOnAction(e -> {
+            try {
+                if (sceneController.deleteCustomerRecord(customers.getCustomerID()))
+                    sceneController.showCustomerRecordsScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
+            }
+        });
 
         btnHideRecord = new Button("Hide");
         btnHideRecord.setPrefWidth(120);

@@ -381,13 +381,15 @@ public class CustomersStorageEngine {
     public boolean deleteCustomerData(String customerID) throws SQLException {
 
         String activity, activity_success_details, activity_failure_details, query, photoPath,
-                notificationSuccessMessage, notificationFailMessage, accountOwner;
+                notificationSuccessMessage, notificationFailMessage, accountOwner, photoDeleteTitle,
+                photoDeleteMessage;
         boolean status;
         int affectedRows;
 
         activity = "Delete Bank Account Transaction Data";
         activity_success_details = userSession.getUsername() + "'s attempt to delete customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to delete customer record unsuccessful.";
+        photoDeleteTitle = "Delete Customer Photo";
 
         accountOwner = new CustomersStorageEngine().getCustomerDataByID(customerID).getFullName();
         notificationSuccessMessage = "Deleting " + accountOwner + "'s data is successful.";
@@ -406,10 +408,16 @@ public class CustomersStorageEngine {
 
             if (affectedRows > 0) {
 
+                connection.commit();
                 status = true;
                 photoPath =  String.format("com/ashbank/resources/photos/customers/%s", getCustomerPhoto(customerID));
-//                deleteCustomersPhoto(photoPath);
-                this.deleteCustomerPhoto(new File(photoPath));
+                if (!this.deleteCustomerPhoto(new File(photoPath))) {
+                    photoDeleteMessage = String.format("Failed to delete %s's photo. It can be manually deleted at %s%n",
+                            this.getCustomerDataByID(customerID).getFullName(), photoPath
+                    );
+                    ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), photoDeleteTitle, photoDeleteMessage);
+                    customDialogs.showErrInformation(photoDeleteTitle, photoDeleteMessage);
+                }
 
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);

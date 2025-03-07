@@ -509,6 +509,66 @@ public class BankAccountsStorageEngine {
     }
 
     /**
+     * Bank Account Objects:
+     * fetch all bank account objects belonging to a customer object
+     * @param customerID the ID of the customer object
+     * @return a list of bank account objects
+     */
+    public static List<BankAccounts> getAllBankAccountDataByCustomerID(String customerID) {
+
+        List<BankAccounts> accountsList = new ArrayList<>();
+        BankAccounts bankAccounts;
+        String query, accountID, accountNumber, accountType, accountCurrency, accountStatus,
+                dateCreated;
+        double currentBalance, initialDeposit;
+        Date lastTransactionDate;
+
+        query = "SELECT * FROM customers_bank_account WHERE customer_id = ?";
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, customerID);
+
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    accountID = resultSet.getString("id");
+                    accountNumber = resultSet.getString("account_number");
+                    accountType = resultSet.getString("account_type");
+                    accountCurrency = resultSet.getString("account_currency");
+                    initialDeposit = resultSet.getDouble("initial_deposit");
+                    currentBalance = resultSet.getDouble("current_balance");
+                    dateCreated = resultSet.getString("date_created");
+                    lastTransactionDate = resultSet.getDate("last_transaction_date");
+                    accountStatus = resultSet.getString("account_status");
+
+                    bankAccounts = new BankAccounts();
+                    bankAccounts.setAccountID(accountID);
+                    bankAccounts.setCustomerID(customerID);
+                    bankAccounts.setAccountNumber(accountNumber);
+                    bankAccounts.setAccountType(accountType);
+                    bankAccounts.setInitialDeposit(initialDeposit);
+                    bankAccounts.setAccountCurrency(accountCurrency);
+                    bankAccounts.setAccountBalance(currentBalance);
+                    bankAccounts.setDateCreated(dateCreated);
+                    bankAccounts.setLastTransactionDate(lastTransactionDate);
+                    bankAccounts.setAccountStatus(accountStatus);
+
+                    accountsList.add(bankAccounts);
+                }
+            } catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error creating bank account objectss - " + sqlException.getMessage());
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error fetching bank account records - " + sqlException.getMessage());
+        }
+
+        return accountsList;
+    }
+
+    /**
      * Bank Account:
      * create a new bank account object with data from the database
      * using the provided bank account ID
@@ -531,7 +591,7 @@ public class BankAccountsStorageEngine {
 
             preparedStatement.setString(1, accountID);
 
-            try(ResultSet resultSet = preparedStatement.executeQuery();) {
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     customerID = resultSet.getString("customer_id");
                     accountNumber = resultSet.getString("account_number");
