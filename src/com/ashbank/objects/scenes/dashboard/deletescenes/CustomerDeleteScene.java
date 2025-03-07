@@ -55,10 +55,10 @@ public class CustomerDeleteScene {
         Customers customers;
         ScrollPane scrollPane;
         GridPane basicGridPane, buttonsGridPane;
-        Label lblInstruction, lblAccountsTitle, lblTransactionsTitle;
+        Label lblInstruction, lblAccountsTitle, lblTransactionsTitle, lblWarning, lblWarningMessage;
         Button btnDashboard;
         Separator sep1, sep2, sep3, sep4, sep5;
-        HBox hBoxBasicData, hBoxTop;
+        HBox hBoxBasicData, hBoxTop, hBoxWarning;
         VBox vBoxRoot;
         ImageView imageView;
 
@@ -67,6 +67,15 @@ public class CustomerDeleteScene {
 
         lblInstruction = new Label("Delete Customer Record");
         lblInstruction.setId("title");
+
+        lblWarning = new Label("WARNING");
+        lblWarning.setId("warning");
+
+        lblWarningMessage = new Label("""
+                Deleting this customer will also delete all records of bank accounts and their associated transactions
+                which cannot be recovered. Consider hiding this customer, which will also all associated records and can
+                be later recovered.
+                """);
 
         lblAccountsTitle = new Label(String.format("%s's Bank Accounts", customers.getFullName()));
         lblAccountsTitle.setId("sub-title");
@@ -97,6 +106,11 @@ public class CustomerDeleteScene {
         hBoxBasicData.setAlignment(Pos.TOP_LEFT);
         hBoxBasicData.getChildren().addAll(imageView, basicGridPane);
 
+        hBoxWarning = new HBox(10);
+        hBoxWarning.setPadding(new Insets(10));
+        hBoxWarning.setAlignment(Pos.TOP_LEFT);
+        hBoxWarning.getChildren().addAll(lblWarning, lblWarningMessage);
+
         sep1 = new Separator();
         sep2 = new Separator();
         sep3 = new Separator(Orientation.VERTICAL);
@@ -112,7 +126,7 @@ public class CustomerDeleteScene {
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
         vBoxRoot.getChildren().addAll(
-                hBoxTop, sep1, hBoxBasicData, sep2,
+                hBoxTop, sep1, hBoxWarning, hBoxBasicData, sep2,
                 lblAccountsTitle,  this.getListOfAllBankAccounts(customerID),
                 sep4, lblTransactionsTitle, this.getListOfAllTransactions(accountID),
                 sep5, buttonsGridPane
