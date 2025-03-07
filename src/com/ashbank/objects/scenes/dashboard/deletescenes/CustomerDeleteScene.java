@@ -319,6 +319,7 @@ public class CustomerDeleteScene {
                 accountID = newValue.getAccountID();
             }
         });
+/*
         bankAccountsTableView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2 && !bankAccountsTableView.getSelectionModel().isEmpty()) {
                 BankAccounts bankAccounts = bankAccountsTableView.getSelectionModel().getSelectedItem();
@@ -331,6 +332,7 @@ public class CustomerDeleteScene {
                 }
             }
         });
+*/
 
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
