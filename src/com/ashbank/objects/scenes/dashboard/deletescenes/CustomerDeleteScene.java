@@ -222,10 +222,6 @@ public class CustomerDeleteScene {
         bankAccountTransactionsTableView.setMaxHeight(400);
         this.initializeTransactionsDataTable();
 
-        bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
-        bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
-        bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
-
         vBox = new VBox(10);
         vBox.setPadding(new Insets(10));
         vBox.setAlignment(Pos.TOP_LEFT);
@@ -317,6 +313,10 @@ public class CustomerDeleteScene {
         bankAccountsTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 accountID = newValue.getAccountID();
+
+                bankAccountTransactionsList = BankTransactionsStorageEngine.getBankTransactionsDataByAccountID(accountID);
+                bankAccountTransactionsObservableList = FXCollections.observableArrayList(bankAccountTransactionsList);
+                bankAccountTransactionsTableView.setItems(bankAccountTransactionsObservableList);
             }
         });
 /*
