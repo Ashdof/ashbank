@@ -24,8 +24,12 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CustomerDeleteScene {
+
+    private static final Logger logger = Logger.getLogger(CustomerDeleteScene.class.getName());
 
     private final SceneController sceneController;
     private final CustomersStorageEngine customersStorageEngine = new CustomersStorageEngine();
@@ -79,8 +83,8 @@ public class CustomerDeleteScene {
         btnDashboard.setOnAction(e -> {
             try {
                 sceneController.returnToMainDashboard();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the dashboard scene - " + sqlException.getMessage());
             }
         });
 
@@ -272,8 +276,9 @@ public class CustomerDeleteScene {
                                 new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getCustomerID()
                         ).getFullName()
                 );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account owner object - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account owner object - " + sqlException);
             }
         });
 
@@ -283,8 +288,9 @@ public class CustomerDeleteScene {
                 return new ReadOnlyObjectWrapper<>(
                         new BankAccountsStorageEngine().getBankAccountsDataByID(data.getValue().getAccountID()).getAccountCurrency()
                 );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account currency - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account currency - " + sqlException);
             }
         });
 
@@ -376,8 +382,9 @@ public class CustomerDeleteScene {
         customerName.setCellValueFactory(data -> {
             try {
                 return new ReadOnlyObjectWrapper<>(new CustomersStorageEngine().getCustomerDataByID(data.getValue().getCustomerID()).getFullName());
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error getting account owner object - " + sqlException.getMessage());
+                throw new RuntimeException("Error getting account owner object - " + sqlException);
             }
         });
 
@@ -427,8 +434,8 @@ public class CustomerDeleteScene {
         btnCancel.setOnAction(e -> {
             try {
                 sceneController.showCustomerRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the customer records scene - " + sqlException.getMessage());
             }
         });
 
@@ -437,9 +444,10 @@ public class CustomerDeleteScene {
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
             try {
-                sceneController.deleteCustomerRecord(customers.getCustomerID());
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                if (sceneController.deleteCustomerRecord(customers.getCustomerID()))
+                    sceneController.showCustomerRecordsScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
             }
         });
 
