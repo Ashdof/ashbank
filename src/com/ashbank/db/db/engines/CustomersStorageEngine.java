@@ -762,43 +762,6 @@ public class CustomersStorageEngine {
 
     /**
      * Delete Photo:
-     * deletes the photo of a customer upon record deletion
-     *
-     * @param photoPath the path to the customer's photo
-     */
-    private static void deleteCustomersPhoto(String photoPath) throws SQLException {
-        String activity, activity_success_details, activity_fail_details;
-        boolean status;
-
-        activity = "Delete Customer Photo";
-        activity_fail_details = "Error: failed to delete customer's photo";
-        activity_success_details = "Customer's photo successfully deleted.";
-
-        if (photoPath == null || photoPath.trim().isEmpty()) {
-            logger.log(Level.SEVERE, "Error: customer's photo path is empty.");
-            return;
-        }
-
-        File photoFile = new File(photoPath);
-        if (!photoFile.exists()) {
-            logger.log(Level.SEVERE, "Error: customer's photo does not exist.");
-            return;
-        }
-
-        try {
-//            status = Files.deleteIfExists(photoFile.toPath());
-            Files.deleteIfExists(photoFile.toPath());
-            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-        } catch (IOException | SQLException ioException) {
-            logger.log(Level.SEVERE, "Error deleting customer's photo - " + ioException.getMessage());
-            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_fail_details);
-            status = false;
-        }
-
-    }
-
-    /**
-     * Delete Photo:
      * delete the photo of a customer upon object deletion
      * @param customerPhotoFile the photo of the customer object
      * @return true if successful, false otherwise
