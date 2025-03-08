@@ -382,9 +382,10 @@ public class CustomersStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, photoPath,
                 notificationSuccessMessage, notificationFailMessage, accountOwner, photoDeleteTitle,
-                photoDeleteMessage;
+                photoDeleteMessage, customerName;
         boolean status;
         int affectedRows;
+        File photoFile;
 
         activity = "Delete Bank Account Transaction Data";
         activity_success_details = userSession.getUsername() + "'s attempt to delete customer record successful.";
@@ -402,6 +403,7 @@ public class CustomersStorageEngine {
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             connection.setAutoCommit(false);
+            customerName = this.getCustomerDataByID(customerID).getFullName();
 
             preparedStatement.setString(1, customerID);
             affectedRows = preparedStatement.executeUpdate();
@@ -410,13 +412,20 @@ public class CustomersStorageEngine {
 
                 connection.commit();
                 status = true;
-                photoPath =  String.format("com/ashbank/resources/photos/customers/%s", getCustomerPhoto(customerID));
-                if (!this.deleteCustomerPhoto(new File(photoPath))) {
+
+                photoPath = this.getCustomerPhoto(customerID);
+                if (photoPath == null || photoPath.trim().isEmpty()) {
                     photoDeleteMessage = String.format("Failed to delete %s's photo. It can be manually deleted at %s%n",
-                            this.getCustomerDataByID(customerID).getFullName(), photoPath
+                            customerName, photoPath
                     );
-                    ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), photoDeleteTitle, photoDeleteMessage);
+                    logger.log(Level.SEVERE, String.format("Error: No photo found for customer: %s-%s ", customerName, customerID));
                     customDialogs.showErrInformation(photoDeleteTitle, photoDeleteMessage);
+                } else {
+                    photoFile = new File(photoPath);
+                    if (!photoFile.exists())
+                        logger.log(Level.SEVERE, "Error: Photo file does not exist at path: " + photoPath);
+                    else
+                        deleteCustomerPhoto(photoFile);
                 }
 
                 // Display notification
