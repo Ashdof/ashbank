@@ -739,7 +739,8 @@ public class CustomersStorageEngine {
         }
 
         // Photo directory
-        photoDirectory = "com/ashbank/resources/photos/customers/";
+        photoDirectory = System.getProperty("user.home") + "/AshBank/photos/customers/";
+        Files.createDirectories(Paths.get(photoDirectory));
 
         // Extract file extension if any
         originalFileName = customerPhoto.getName();
@@ -751,10 +752,9 @@ public class CustomersStorageEngine {
 
         timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         newFileName = customerID + "_" + timeStamp + fileExtension;
-        photoPath = photoDirectory + newFileName;
+        photoPath = Paths.get(photoDirectory, newFileName).toString();
 
-        // Ensure directory exists
-        Files.createDirectories(Paths.get(photoDirectory));
+        // Copy the photo to the new directory
         Files.copy(customerPhoto.toPath(), Paths.get(photoPath), StandardCopyOption.REPLACE_EXISTING);
 
         return photoPath;
