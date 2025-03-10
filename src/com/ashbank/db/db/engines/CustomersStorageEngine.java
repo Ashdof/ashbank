@@ -387,7 +387,7 @@ public class CustomersStorageEngine {
         int affectedRows;
         File photoFile;
 
-        activity = "Delete Bank Account Transaction Data";
+        activity = "Delete Customer Data";
         activity_success_details = userSession.getUsername() + "'s attempt to delete customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to delete customer record unsuccessful.";
         photoDeleteTitle = "Delete Customer Photo";
@@ -410,27 +410,28 @@ public class CustomersStorageEngine {
 
             if (affectedRows > 0) {
 
+                photoPath = this.getCustomerPhoto(customerID);
+
                 connection.commit();
                 status = true;
 
-                photoPath = this.getCustomerPhoto(customerID);
-                if (photoPath == null || photoPath.trim().isEmpty()) {
-                    photoDeleteMessage = String.format("Failed to delete %s's photo. It can be manually deleted at %s%n",
-                            customerName, photoPath
-                    );
-                    logger.log(Level.SEVERE, String.format("Error: No photo found for customer: %s-%s ", customerName, customerID));
-                    customDialogs.showErrInformation(photoDeleteTitle, photoDeleteMessage);
-                } else {
+                if (photoPath != null && !photoPath.trim().isEmpty()) {
                     photoFile = new File(photoPath);
                     if (!photoFile.exists())
                         logger.log(Level.SEVERE, "Error: Photo file does not exist at path: " + photoPath);
                     else
-                        deleteCustomerPhoto(photoFile);
+                        this.deleteCustomerPhoto(photoFile);
+                } else {
+                    photoDeleteMessage = String.format("Failed to delete %s's photo. It can be manually deleted at %s%n",
+                            customerName, photoPath
+                    );
+                    logger.log(Level.SEVERE, String.format("Error: No photo found for customer %s: %s ", customerName, customerID));
+                    customDialogs.showErrInformation(photoDeleteTitle, photoDeleteMessage);
                 }
 
+                customDialogs.showAlertInformation(activity, activity_success_details);
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
-
                 // Log this activity and the user undertaking it
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
             } else {
@@ -440,11 +441,9 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
-
+            customDialogs.showErrInformation(activity, activity_failure_details);
             // Display notification
             UserSession.addNotification(notificationFailMessage);
-
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
 
@@ -706,17 +705,19 @@ public class CustomersStorageEngine {
     public String getCustomerPhoto(String customerID) throws SQLException {
         String query, photo;
 
-        photo = null;
+        photo = "";
         query = "SELECT photo FROM customers WHERE id = ?";
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+
             preparedStatement.setString(1, customerID);
 
             try(ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+                if (resultSet.next())
                     photo = resultSet.getString("photo");
-                }
+                else
+                    logger.log(Level.WARNING, "No customer found with ID: " + customerID);
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
