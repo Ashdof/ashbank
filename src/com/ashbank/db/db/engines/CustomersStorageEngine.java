@@ -749,7 +749,7 @@ public class CustomersStorageEngine {
         }
 
         // Photo directory
-        photoDirectory = System.getProperty("user.home") + "/AshBank/photos/customers/";
+        photoDirectory = System.getProperty("user.home") + "/ASHBank/photos/customers/";
         Files.createDirectories(Paths.get(photoDirectory));
 
         // Extract file extension if any
