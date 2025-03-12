@@ -73,8 +73,8 @@ public class CustomerDeleteScene {
 
         lblWarningMessage = new Label("""
                 Deleting this customer will also delete all records of bank accounts and their associated transactions
-                which cannot be recovered. Consider hiding this customer, which will also all associated records and can
-                be later recovered.
+                which cannot be recovered. Consider hiding this customer, which will also hide all associated records and
+                can be later recovered.
                 """);
 
         lblAccountsTitle = new Label(String.format("%s's Bank Accounts", customers.getFullName()));

@@ -382,11 +382,12 @@ public class CustomersStorageEngine {
 
         String activity, activity_success_details, activity_failure_details, query, photoPath,
                 notificationSuccessMessage, notificationFailMessage, accountOwner, photoDeleteTitle,
-                photoDeleteMessage;
+                photoDeleteMessage, customerName;
         boolean status;
         int affectedRows;
+        File photoFile;
 
-        activity = "Delete Bank Account Transaction Data";
+        activity = "Delete Customer Data";
         activity_success_details = userSession.getUsername() + "'s attempt to delete customer record successful.";
         activity_failure_details = userSession.getUsername() + "'s attempt to delete customer record unsuccessful.";
         photoDeleteTitle = "Delete Customer Photo";
@@ -402,26 +403,35 @@ public class CustomersStorageEngine {
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             connection.setAutoCommit(false);
+            customerName = this.getCustomerDataByID(customerID).getFullName();
 
             preparedStatement.setString(1, customerID);
             affectedRows = preparedStatement.executeUpdate();
 
             if (affectedRows > 0) {
 
+                photoPath = this.getCustomerPhoto(customerID);
+
                 connection.commit();
                 status = true;
-                photoPath =  String.format("com/ashbank/resources/photos/customers/%s", getCustomerPhoto(customerID));
-                if (!this.deleteCustomerPhoto(new File(photoPath))) {
+
+                if (photoPath != null && !photoPath.trim().isEmpty()) {
+                    photoFile = new File(photoPath);
+                    if (!photoFile.exists())
+                        logger.log(Level.SEVERE, "Error: Photo file does not exist at path: " + photoPath);
+                    else
+                        this.deleteCustomerPhoto(photoFile);
+                } else {
                     photoDeleteMessage = String.format("Failed to delete %s's photo. It can be manually deleted at %s%n",
-                            this.getCustomerDataByID(customerID).getFullName(), photoPath
+                            customerName, photoPath
                     );
-                    ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), photoDeleteTitle, photoDeleteMessage);
+                    logger.log(Level.SEVERE, String.format("Error: No photo found for customer %s: %s ", customerName, customerID));
                     customDialogs.showErrInformation(photoDeleteTitle, photoDeleteMessage);
                 }
 
+                customDialogs.showAlertInformation(activity, activity_success_details);
                 // Display notification
                 UserSession.addNotification(notificationSuccessMessage);
-
                 // Log this activity and the user undertaking it
                 ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
             } else {
@@ -431,11 +441,9 @@ public class CustomersStorageEngine {
         } catch (SQLException sqlException) {
             // Log this activity and the user undertaking it
             ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
-//            customDialogs.showErrInformation(SAVE_TITLE, (SAVE_FAIL_MSG));
-
+            customDialogs.showErrInformation(activity, activity_failure_details);
             // Display notification
             UserSession.addNotification(notificationFailMessage);
-
             // replace this error logging with actual file logging which can later be analyzed
             logger.log(Level.SEVERE, "Error deleting customer record - " + sqlException.getMessage());
 
@@ -697,17 +705,19 @@ public class CustomersStorageEngine {
     public String getCustomerPhoto(String customerID) throws SQLException {
         String query, photo;
 
-        photo = null;
+        photo = "";
         query = "SELECT photo FROM customers WHERE id = ?";
 
         try(Connection connection = BankConnection.getBankConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+
             preparedStatement.setString(1, customerID);
 
             try(ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
+                if (resultSet.next())
                     photo = resultSet.getString("photo");
-                }
+                else
+                    logger.log(Level.WARNING, "No customer found with ID: " + customerID);
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
@@ -739,7 +749,8 @@ public class CustomersStorageEngine {
         }
 
         // Photo directory
-        photoDirectory = "com/ashbank/resources/photos/customers/";
+        photoDirectory = System.getProperty("user.home") + "/ASHBank/photos/customers/";
+        Files.createDirectories(Paths.get(photoDirectory));
 
         // Extract file extension if any
         originalFileName = customerPhoto.getName();
@@ -751,50 +762,12 @@ public class CustomersStorageEngine {
 
         timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         newFileName = customerID + "_" + timeStamp + fileExtension;
-        photoPath = photoDirectory + newFileName;
+        photoPath = Paths.get(photoDirectory, newFileName).toString();
 
-        // Ensure directory exists
-        Files.createDirectories(Paths.get(photoDirectory));
+        // Copy the photo to the new directory
         Files.copy(customerPhoto.toPath(), Paths.get(photoPath), StandardCopyOption.REPLACE_EXISTING);
 
         return photoPath;
-    }
-
-    /**
-     * Delete Photo:
-     * deletes the photo of a customer upon record deletion
-     *
-     * @param photoPath the path to the customer's photo
-     */
-    private static void deleteCustomersPhoto(String photoPath) throws SQLException {
-        String activity, activity_success_details, activity_fail_details;
-        boolean status;
-
-        activity = "Delete Customer Photo";
-        activity_fail_details = "Error: failed to delete customer's photo";
-        activity_success_details = "Customer's photo successfully deleted.";
-
-        if (photoPath == null || photoPath.trim().isEmpty()) {
-            logger.log(Level.SEVERE, "Error: customer's photo path is empty.");
-            return;
-        }
-
-        File photoFile = new File(photoPath);
-        if (!photoFile.exists()) {
-            logger.log(Level.SEVERE, "Error: customer's photo does not exist.");
-            return;
-        }
-
-        try {
-//            status = Files.deleteIfExists(photoFile.toPath());
-            Files.deleteIfExists(photoFile.toPath());
-            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
-        } catch (IOException | SQLException ioException) {
-            logger.log(Level.SEVERE, "Error deleting customer's photo - " + ioException.getMessage());
-            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_fail_details);
-            status = false;
-        }
-
     }
 
     /**
