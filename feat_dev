@@ -1,0 +1,3 @@
+#!/bin/bash
+# Script to switch to the feature branch
+git checkout feature_development
