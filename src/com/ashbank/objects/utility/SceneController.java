@@ -12,6 +12,7 @@ import com.ashbank.objects.scenes.dashboard.details.TransactionDetailsScene;
 import com.ashbank.objects.scenes.dashboard.editscenes.BankAccountEditScene;
 import com.ashbank.objects.scenes.dashboard.editscenes.CustomersEditScene;
 import com.ashbank.objects.scenes.dashboard.editscenes.TransactionEditScene;
+import com.ashbank.objects.scenes.dashboard.hidescenes.TransactionHideScene;
 import com.ashbank.objects.scenes.dashboard.maindashboard.MainDashboardScene;
 import com.ashbank.objects.scenes.auth.UserAuthScenes;
 import com.ashbank.objects.scenes.dashboard.newscenes.NewBankAccountsScene;
@@ -245,6 +246,12 @@ public class SceneController {
         TransactionDeleteScene transactionDeleteScene = new TransactionDeleteScene(this);
         ScrollPane addTransactionDeleteRoot = transactionDeleteScene.createTransactionDeleteRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionDeleteRoot);
+    }
+
+    public void showTransactionHideScene(String transactionID) throws SQLException {
+        TransactionHideScene transactionHideScene = new TransactionHideScene(this);
+        ScrollPane addTransactionHideRoot = transactionHideScene.createTransactionHideRoot(transactionID);
+        mainDashboardRoot.setCenter(addTransactionHideRoot);
     }
 
     /**
