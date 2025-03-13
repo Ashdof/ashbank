@@ -150,7 +150,8 @@ public class MenuScenes {
     private Menu createTransactionsMenu() {
         Menu menuNonCashTransactions, menuViewTransactions, menuTransactions;
         MenuItem menuItemCashTransactions, menuItemFunTransfer, menuItemBillPayment, menuItemViewByAccount,
-                menuItemViewByDate, menuItemViewAllTransactions;
+                menuItemViewByDate, menuItemViewAllTransactions, menuItemHiddenTransactions;
+        SeparatorMenuItem separatorMenuItem;
 
         // Create Transactions Menu and Items
         menuItemCashTransactions = new MenuItem("New Cash Transaction");
@@ -181,8 +182,19 @@ public class MenuScenes {
             sceneController.showTransactionsRecordsScene();
         });
 
+        menuItemHiddenTransactions = new MenuItem("View Hidden Transactions");
+        menuItemHiddenTransactions.setOnAction(e -> {});
+
+        separatorMenuItem = new SeparatorMenuItem();
+
         menuViewTransactions = new Menu("View Transactions");
-        menuViewTransactions.getItems().addAll(menuItemViewAllTransactions, menuItemViewByAccount, menuItemViewByDate);
+        menuViewTransactions.getItems().addAll(
+                menuItemViewAllTransactions,
+                menuItemViewByAccount,
+                menuItemViewByDate,
+                separatorMenuItem,
+                menuItemHiddenTransactions
+        );
 
         menuTransactions = new Menu("Transactions");
         menuTransactions.getItems().addAll(menuItemCashTransactions, menuNonCashTransactions, menuViewTransactions);
