@@ -240,6 +240,85 @@ public class BankTransactionsStorageEngine {
     }
 
     /**
+     * Hide Object:
+     * hides the transaction object of the provided ID
+     * @param transactionID the ID of the transaction object
+     * @return true if successfully hidden, false if it fails
+     * @throws SQLException if an error occurs
+     */
+    public boolean hideBankTransactionData(String transactionID) throws SQLException {
+
+        String activity, activity_success_details, activity_failure_details, query, hide_fail_msg,
+                hide_success_msg, notificationSuccessMessage, notificationFailMessage, accountOwner,
+                transactionType;
+        boolean status;
+
+        activity = "Hide Bank Transaction Data";
+        hide_success_msg = "Attempt to hide transaction data is successful";
+        hide_fail_msg = "Attempt to hide transaction data is unsuccessful";
+        activity_success_details = userSession.getUsername() + "'s attempt to hide bank account transaction record successful.";
+        activity_failure_details = userSession.getUsername() + "'s attempt to hide bank account transaction record unsuccessful.";
+
+        accountOwner = new CustomersStorageEngine().getCustomerDataByID(
+                new BankAccountsStorageEngine().getBankAccountsDataByID(
+                        new BankTransactionsStorageEngine().getBankTransactionDataByAccountID(
+                                transactionID
+                        ).getAccountID()
+                ).getCustomerID()
+        ).getFullName();
+        transactionType = new BankTransactionsStorageEngine().getBankTransactionDataByID(transactionID).getTransactionType();
+        notificationSuccessMessage = "Attempt to hide " + accountOwner + "'s " + transactionType + " transaction data is successful.";
+        notificationFailMessage = "Attempt to hide " + accountOwner + "'s " + transactionType + " transaction data is unsuccessful.";
+
+        query = "UPDATE customers_account_transactions SET is_active = ? WHERE id = ?";
+        status = false;
+
+        try(Connection connection = BankConnection.getBankConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                preparedStatement.setInt(1, 0);
+                preparedStatement.setString(2, transactionID);
+                preparedStatement.executeUpdate();
+
+                // commit the query
+                connection.commit();
+
+                // Log this activity and the user undertaking it
+                ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_success_details);
+
+                // Display notification
+                UserSession.addNotification(notificationSuccessMessage);
+
+                // Display success message in a dialog to the user
+                customDialogs.showAlertInformation(activity, hide_success_msg);
+                status = true;
+
+            } catch (SQLException  sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                connection.rollback();
+                logger.log(Level.SEVERE, "Error committing updates to the database - " + sqlException.getMessage());
+            }
+        } catch (SQLException sqlException) {
+            // Log this activity and the user undertaking it
+            ActivityLoggerStorageEngine.logActivity(userSession.getUserID(), activity, activity_failure_details);
+
+            // Display notification
+            UserSession.addNotification(notificationFailMessage);
+
+            // Display failure message in a dialog to the user
+            customDialogs.showErrInformation(activity, hide_fail_msg);
+
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error hiding bank account transaction data - " + sqlException.getMessage());
+        }
+
+        return status;
+    }
+
+    /**
      * Delete Transaction Object:
      * remove a transaction object of the provided ID from the database
      * @param accountID the ID of the bank account object
