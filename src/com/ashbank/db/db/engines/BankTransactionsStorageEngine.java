@@ -404,29 +404,35 @@ public class BankTransactionsStorageEngine {
         Timestamp transactionDate;
 
         bankAccountTransactionsList = new ArrayList<>();
-        query = "SELECT * FROM customers_account_transactions";
+        query = "SELECT * FROM customers_account_transactions WHERE is_active = ?";
 
         try(Connection connection = BankConnection.getBankConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery()) {
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            while (resultSet.next()) {
-                transactionID = resultSet.getString("id");
-                accountID = resultSet.getString("account_id");
-                transactionType = resultSet.getString("transaction_type");
-                transactionAmount = resultSet.getDouble("transaction_amount");
-                transactionDate = resultSet.getTimestamp("transaction_date");
-                transactionDetails = resultSet.getString("transaction_details");
+            preparedStatement.setInt(1, 1);
 
-                bankAccountTransactions = new BankAccountTransactions();
-                bankAccountTransactions.setTransactionID(transactionID);
-                bankAccountTransactions.setAccountID(accountID);
-                bankAccountTransactions.setTransactionType(transactionType);
-                bankAccountTransactions.setTransactionAmount(transactionAmount);
-                bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
-                bankAccountTransactions.setTransactionDetails(transactionDetails);
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    transactionID = resultSet.getString("id");
+                    accountID = resultSet.getString("account_id");
+                    transactionType = resultSet.getString("transaction_type");
+                    transactionAmount = resultSet.getDouble("transaction_amount");
+                    transactionDate = resultSet.getTimestamp("transaction_date");
+                    transactionDetails = resultSet.getString("transaction_details");
 
-                bankAccountTransactionsList.add(bankAccountTransactions);
+                    bankAccountTransactions = new BankAccountTransactions();
+                    bankAccountTransactions.setTransactionID(transactionID);
+                    bankAccountTransactions.setAccountID(accountID);
+                    bankAccountTransactions.setTransactionType(transactionType);
+                    bankAccountTransactions.setTransactionAmount(transactionAmount);
+                    bankAccountTransactions.setTransactionDate(String.valueOf(transactionDate));
+                    bankAccountTransactions.setTransactionDetails(transactionDetails);
+
+                    bankAccountTransactionsList.add(bankAccountTransactions);
+                }
+            }  catch (SQLException sqlException) {
+                // replace this error logging with actual file logging which can later be analyzed
+                logger.log(Level.SEVERE, "Error creating account transaction objects - " + sqlException.getMessage());
             }
         } catch (SQLException sqlException) {
             // replace this error logging with actual file logging which can later be analyzed
