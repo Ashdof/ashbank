@@ -48,9 +48,9 @@ public class TransactionDetailsScene {
 
         BankAccountTransactions bankAccountTransactions;
         ScrollPane scrollPane;
-        GridPane transactionsPane;
+        GridPane transactionsPane, gridPaneButtons;
         VBox vBoxRoot;
-        HBox hBoxButtons, hBoxTop;
+        HBox hBoxTop;
         Label lblInstruction;
         Button btnDashboard;
         Separator sep1, sep2, sep3;
@@ -76,7 +76,7 @@ public class TransactionDetailsScene {
         });
 
         transactionsPane = this.getTransactionDetailsPane(bankAccountTransactions);
-        hBoxButtons = this.createDetailsSceneButtons(bankAccountTransactions);
+        gridPaneButtons = this.createDetailsSceneButtons(bankAccountTransactions);
 
         sep1 = new Separator();
         sep2 = new Separator();
@@ -90,7 +90,7 @@ public class TransactionDetailsScene {
         vBoxRoot = new VBox(5);
         vBoxRoot.setPadding(new Insets(5));
         vBoxRoot.setAlignment(Pos.TOP_LEFT);
-        vBoxRoot.getChildren().addAll(hBoxTop, sep1, transactionsPane, sep2, hBoxButtons);
+        vBoxRoot.getChildren().addAll(hBoxTop, sep1, transactionsPane, sep2, gridPaneButtons);
 
         scrollPane = new ScrollPane(vBoxRoot);
 
@@ -172,14 +172,13 @@ public class TransactionDetailsScene {
     /**
      * Buttons:
      * create the control buttons on the details scene
-     * @return an HBox node containing the buttons
+     * @return a GridPane node containing the buttons
      */
-    private HBox createDetailsSceneButtons(BankAccountTransactions bankAccountTransactions) {
+    private GridPane createDetailsSceneButtons(BankAccountTransactions bankAccountTransactions) {
 
         GridPane gridPane;
-        HBox hBox;
-        Button btnBack, btnDeleteRecord, btnUpdateRecord;
-        Label lblSpace;
+        Button btnBack, btnDeleteRecord, btnUpdateRecord, btnHideRecord;
+        Separator sep, sep1;
 
         btnBack = new Button("Back");
         btnBack.setPrefWidth(100);
@@ -188,7 +187,7 @@ public class TransactionDetailsScene {
             sceneController.showTransactionsRecordsScene();
         });
 
-        btnDeleteRecord = new Button("Delete Record");
+        btnDeleteRecord = new Button("_Delete Record");
         btnDeleteRecord.setPrefWidth(120);
         btnDeleteRecord.setMinHeight(30);
         btnDeleteRecord.setOnAction(e -> {
@@ -199,7 +198,7 @@ public class TransactionDetailsScene {
             }
         });
 
-        btnUpdateRecord = new Button("Edit Record");
+        btnUpdateRecord = new Button("_Edit Record");
         btnUpdateRecord.setPrefWidth(120);
         btnUpdateRecord.setMinHeight(30);
         btnUpdateRecord.setOnAction(e -> {
@@ -210,7 +209,21 @@ public class TransactionDetailsScene {
             }
         });
 
-        lblSpace = new Label("      ");
+        btnHideRecord = new Button("_Hide Record");
+        btnHideRecord.setPrefWidth(120);
+        btnHideRecord.setMinHeight(30);
+        btnHideRecord.setOnAction(e -> {
+            try {
+                boolean hideResult = sceneController.hideTransactionRecord(bankAccountTransactions.getTransactionID());
+
+                if (hideResult)
+                    sceneController.showMainDashboardSummaries();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the dashboard scene - " + sqlException.getMessage());
+            }
+        });
+
+        sep = new Separator(Orientation.VERTICAL);
 
         gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -219,14 +232,12 @@ public class TransactionDetailsScene {
         gridPane.setPadding(new Insets(10));
         GridPane.setHgrow(btnUpdateRecord, Priority.NEVER);
 
-        gridPane.add(btnDeleteRecord, 0, 0);
+        gridPane.add(btnBack, 0, 0);
         gridPane.add(btnUpdateRecord, 1, 0);
+        gridPane.add(sep, 2, 0);
+        gridPane.add(btnHideRecord, 3, 0);
+        gridPane.add(btnDeleteRecord, 4, 0);
 
-        hBox = new HBox(10);
-        hBox.setPadding(new Insets(10));
-        hBox.setAlignment(Pos.BOTTOM_RIGHT);
-        hBox.getChildren().addAll(btnBack, lblSpace, btnDeleteRecord, btnUpdateRecord);
-
-        return hBox;
+        return gridPane;
     }
 }
