@@ -54,7 +54,8 @@ public class InitializePlatform {
                 "gender TEXT," +
                 "birth_date TEXT," +
                 "age INTEGER," +
-                "photo BLOB" +
+                "photo BLOB," +
+                "is_active INTEGER NOT NULL DEFAULT 1" +
                 ");";
 
         String createEmployeeEmploymentTable = "CREATE TABLE IF NOT EXISTS employees_employment (" +
@@ -105,7 +106,8 @@ public class InitializePlatform {
                 "gender TEXT," +
                 "birth_date TEXT," +
                 "age INTEGER," +
-                "photo TEXT" +
+                "photo TEXT," +
+                "is_active INTEGER NOT NULL DEFAULT 1" +
                 ");";
 
         String createCustomerProfessionDataTable = "CREATE TABLE IF NOT EXISTS customers_profession (" +
@@ -182,6 +184,7 @@ public class InitializePlatform {
                 "date_created TEXT NOT NULL," +
                 "last_transaction_date DATE," +
                 "account_status TEXT DEFAULT 'Active'," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
                 ");";
 
@@ -194,6 +197,7 @@ public class InitializePlatform {
                 "transaction_amount DECIMAL(15, 2) NOT NULL," +
                 "transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "transaction_details TEXT," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (account_id) REFERENCES customers_bank_account (id) ON DELETE CASCADE" +
                 ");";
 
@@ -209,6 +213,7 @@ public class InitializePlatform {
                 "loan_start_date DATE NOT NULL," +
                 "loan_end_date DATE NOT NULL," +
                 "loan_status TEXT DEFAULT 'Active'," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE CASCADE" +
                 ");";
 
@@ -219,6 +224,7 @@ public class InitializePlatform {
                 "payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "payment_method TEXT," +
                 "payment_details TEXT," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (loan_id) REFERENCES customers_loan_applications (id) ON DELETE CASCADE" +
                 ");";
 
@@ -230,6 +236,7 @@ public class InitializePlatform {
                 "role TEXT," +
                 "username TEXT," +
                 "password TEXT," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (employee_id) REFERENCES employees (id) ON DELETE CASCADE" +
                 ");";
 
