@@ -224,6 +224,7 @@ public class InitializePlatform {
                 "payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "payment_method TEXT," +
                 "payment_details TEXT," +
+                "is_active INTEGER NOT NULL DEFAULT 1," +
                 "FOREIGN KEY (loan_id) REFERENCES customers_loan_applications (id) ON DELETE CASCADE" +
                 ");";
 
