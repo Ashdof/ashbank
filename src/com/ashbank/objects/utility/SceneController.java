@@ -1,6 +1,7 @@
 package com.ashbank.objects.utility;
 
 import com.ashbank.db.db.engines.BankAccountsStorageEngine;
+import com.ashbank.db.db.engines.BankTransactionsStorageEngine;
 import com.ashbank.db.db.engines.CustomersStorageEngine;
 import com.ashbank.objects.scenes.auth.ForgotPasswordScene;
 import com.ashbank.objects.scenes.dashboard.deletescenes.BankAccountsDeleteScene;
@@ -248,10 +249,28 @@ public class SceneController {
         mainDashboardRoot.setCenter(addTransactionDeleteRoot);
     }
 
+    /**
+     * Transaction Hide Scene:
+     * render the scene to hide the data of a transaction object
+     * @param transactionID the ID of the transaction object
+     * @throws SQLException if an error occurs
+     */
     public void showTransactionHideScene(String transactionID) throws SQLException {
         TransactionHideScene transactionHideScene = new TransactionHideScene(this);
         ScrollPane addTransactionHideRoot = transactionHideScene.createTransactionHideRoot(transactionID);
         mainDashboardRoot.setCenter(addTransactionHideRoot);
+    }
+
+    /**
+     * Hide Transaction Record:
+     * delete the transaction object of the provided ID
+     * @param transactionID the ID of the transaction object
+     * @return true if it successful, false if it fails
+     * @throws SQLException if an error occurs
+     */
+    public boolean hideTransactionRecord(String transactionID) throws SQLException {
+
+        return new BankTransactionsStorageEngine().hideBankTransactionData(transactionID);
     }
 
     /**
