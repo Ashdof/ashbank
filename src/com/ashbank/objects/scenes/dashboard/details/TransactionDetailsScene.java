@@ -217,7 +217,7 @@ public class TransactionDetailsScene {
                 boolean hideResult = sceneController.hideTransactionRecord(bankAccountTransactions.getTransactionID());
 
                 if (hideResult)
-                    sceneController.showMainDashboardSummaries();
+                    sceneController.showTransactionsRecordsScene();
             } catch (SQLException sqlException) {
                 logger.log(Level.SEVERE, "Error switching to the dashboard scene - " + sqlException.getMessage());
             }
