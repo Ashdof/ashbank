@@ -189,9 +189,9 @@ public class MenuScenes {
 
         menuViewTransactions = new Menu("View Transactions");
         menuViewTransactions.getItems().addAll(
-                menuItemViewAllTransactions,
-                menuItemViewByAccount,
                 menuItemViewByDate,
+                menuItemViewByAccount,
+                menuItemViewAllTransactions,
                 separatorMenuItem,
                 menuItemHiddenTransactions
         );
