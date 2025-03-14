@@ -128,8 +128,8 @@ public class TransactionHideScene {
 
 
         customerID = new BankAccountsStorageEngine().getBankAccountsDataByID(bankAccountTransactions.getAccountID()).getCustomerID();
-        lblWarning = new Label("WARNING");
-        lblWarning.setId("warning");
+        lblWarning = new Label("NOTICE");
+        lblWarning.setId("notice");
 
         lblWarningMessage = new Label("""
                 This transaction record can be recovered from the inactive transaction records.

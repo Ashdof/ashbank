@@ -11,11 +11,13 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MenuScenes {
 
     /* ================ DATA MEMBERS ================ */
-
+    private static final Logger logger = Logger.getLogger(MenuScenes.class.getName());
     private final SceneController sceneController;
     private Scene menuScenes;
     private UserSession userSession = UserSession.getInstance();
@@ -51,20 +53,21 @@ public class MenuScenes {
         menuItemSignOut.setOnAction(e -> {
             try {
                 ActivityLoggerStorageEngine.logActivity(id, activity, success_details);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                userSession.clearSession();
+                sceneController.showUserAuthScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error signing out - " + sqlException.getMessage());
             }
-
-            userSession.clearSession();
-            sceneController.showUserAuthScene();
         });
 
         menuItemHome = new MenuItem("Dashboard");
         menuItemHome.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
+                sceneController.showMainDashboardSummaries();
                 sceneController.returnToMainDashboard();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the dashboard scene - " + sqlException.getMessage());
             }
         });
 
@@ -106,10 +109,11 @@ public class MenuScenes {
         menuItemNewAccount = new MenuItem("New Account");
         menuItemNewAccount.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showMainDashboardSummaries();
                 sceneController.showNewBankAccountScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error displaying scene items - " + sqlException.getMessage());
             }
         });
 
@@ -121,10 +125,11 @@ public class MenuScenes {
         menuItemAllAccounts = new MenuItem("All Bank Accounts");
         menuItemAllAccounts.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showMainDashboardSummaries();
                 sceneController.showBankAccountsRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error displaying scene items - " + sqlException.getMessage());
             }
         });
 
@@ -157,10 +162,11 @@ public class MenuScenes {
         menuItemCashTransactions = new MenuItem("New Cash Transaction");
         menuItemCashTransactions.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showMainDashboardSummaries();
                 sceneController.showNewTransactionScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error displaying scene items - " + sqlException.getMessage());
             }
         });
 
@@ -175,11 +181,12 @@ public class MenuScenes {
         menuItemViewAllTransactions = new MenuItem("View All Transactions");
         menuItemViewAllTransactions.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showMainDashboardSummaries();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.showTransactionsRecordsScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error displaying scene items - " + sqlException.getMessage());
             }
-            sceneController.showTransactionsRecordsScene();
         });
 
         menuItemHiddenTransactions = new MenuItem("View Hidden Transactions");
@@ -189,9 +196,9 @@ public class MenuScenes {
 
         menuViewTransactions = new Menu("View Transactions");
         menuViewTransactions.getItems().addAll(
-                menuItemViewAllTransactions,
-                menuItemViewByAccount,
                 menuItemViewByDate,
+                menuItemViewByAccount,
+                menuItemViewAllTransactions,
                 separatorMenuItem,
                 menuItemHiddenTransactions
         );
@@ -250,10 +257,11 @@ public class MenuScenes {
         menuItemNewCustomer.setOnAction(e -> {
             try {
                 sceneController.showMainDashboardSummaries();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                sceneController.showPlatformBottomToolbar();
+                sceneController.showNewCustomerScene();
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error displaying scene items - " + sqlException.getMessage());
             }
-            sceneController.showNewCustomerScene();
         });
 
         menuItemUpdateCustomer = new MenuItem("Update Customer Record");
@@ -262,10 +270,11 @@ public class MenuScenes {
         menuItemActiveCustomers = new MenuItem("Active Customers");
         menuItemActiveCustomers.setOnAction(e -> {
             try {
+                sceneController.showPlatformBottomToolbar();
                 sceneController.showMainDashboardSummaries();
                 sceneController.showCustomerRecordsScene();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException sqlException) {
+                logger.log(Level.SEVERE, "Error switching to the records scene - " + sqlException.getMessage());
             }
         });
 
