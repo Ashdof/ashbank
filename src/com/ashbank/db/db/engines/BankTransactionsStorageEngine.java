@@ -6,10 +6,17 @@ import com.ashbank.objects.bank.BankAccounts;
 import com.ashbank.objects.utility.CustomDialogs;
 import com.ashbank.objects.utility.UserSession;
 import javafx.scene.chart.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -735,6 +742,122 @@ public class BankTransactionsStorageEngine {
         barChart.getData().add(series);
 
         return barChart;
+    }
+
+    /**
+     * Deposits Bar:
+     * create a vertical bar for totals of deposits
+     * @return a VBox object
+     */
+    public VBox createDepositsBarChart() {
+
+        String query, transactionType, accountID, accountType;
+        Map<String, String> transactionColours;
+        Map<String, Map<String, Double>> accountTypeData;
+        double totalAmount;
+
+        BarChart<String, Number> barChart;
+        XYChart.Series<String, Number> series;
+        CategoryAxis xAxis;
+        NumberAxis yAxis;
+
+        xAxis = new CategoryAxis();
+        xAxis.setLabel("Transaction Type");
+
+        yAxis = new NumberAxis();
+        yAxis.setLabel("Total Amount");
+
+        barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Summary of Transactions");
+        barChart.setPrefSize(600, 400);
+
+        series = new XYChart.Series<>();
+        series.setName("Transactions");
+
+        query = "SELECT account_id, transaction_type, SUM(transaction_amount) AS total " +
+                "FROM customers_account_transactions " +
+                "WHERE DATE(transaction_date) = DATE('now') " +
+                "GROUP BY account_id, transaction_type";
+
+        transactionColours = new HashMap<>();
+        transactionColours.put("Deposit", "#4CAF50");   // Green
+        transactionColours.put("Withdrawal", "#F44336"); // Red
+        transactionColours.put("Transfer", "#2196F3");  // Blue
+        transactionColours.put("Bill Payment", "#FF9800"); // Orange
+
+        accountTypeData = new HashMap<>();
+
+        try (Connection connection = BankConnection.getBankConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                accountID = resultSet.getString("account_id");
+                transactionType = resultSet.getString("transaction_type");
+                totalAmount = resultSet.getDouble("total");
+
+                accountType = new BankAccountsStorageEngine()
+                        .getBankAccountsDataByID(accountID)
+                        .getAccountType();
+
+                // Group transactions by account type
+                accountTypeData
+                        .computeIfAbsent(accountType, k -> new HashMap<>())
+                        .merge(transactionType, totalAmount, Double::sum);
+            }
+        } catch (SQLException sqlException) {
+            // replace this error logging with actual file logging which can later be analyzed
+            logger.log(Level.SEVERE, "Error creating bar chart - " + sqlException.getMessage());
+        }
+
+        // Populate bar chart with grouped data
+        for (String transactType : transactionColours.keySet()) {
+            XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+            series1.setName(transactType);
+
+            for (Map.Entry<String, Map<String, Double>> entry : accountTypeData.entrySet()) {
+                String acctType = entry.getKey();
+                Map<String, Double> transactionMap = entry.getValue();
+                double totalAmt = transactionMap.getOrDefault(transactType, 0.0);
+
+                if (totalAmt > 0) {
+                    XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(acctType, totalAmt);
+
+                    // Set bar colour
+                    dataPoint.nodeProperty().addListener((obs, oldNode, newNode) -> {
+                        if (newNode != null) {
+                            newNode.setStyle("-fx-bar-fill: " + transactionColours.get(transactType) + ";");
+                        }
+                    });
+
+                    // Tooltip to display account type
+                    Tooltip tooltip = new Tooltip("Account type: " + acctType);
+                    tooltip.setShowDelay(Duration.millis(200));
+                    Tooltip.install(dataPoint.getNode(), tooltip);
+
+                    series1.getData().add(dataPoint);
+                }
+            }
+
+            if (!series1.getData().isEmpty()) {
+                barChart.getData().add(series);
+            }
+        }
+
+        // Create a legend for colours
+        HBox legend = new HBox();
+        legend.setSpacing(5);
+        for (Map.Entry<String, String> entry : transactionColours.entrySet()) {
+            Label lblLegend = new Label(entry.getKey());
+            lblLegend.setStyle("-fx-background-color: " + entry.getValue() + "; -fx-padding: 5px;");
+            legend.getChildren().add(lblLegend);
+        }
+
+        // Wrap bar chart and legend in container
+        VBox vbContainer = new VBox(barChart, legend);
+        vbContainer.setSpacing(10);
+
+        return vbContainer;
     }
 
     /**
