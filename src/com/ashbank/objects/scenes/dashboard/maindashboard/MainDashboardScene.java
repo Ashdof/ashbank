@@ -60,7 +60,7 @@ public class MainDashboardScene {
     public BorderPane getMainDashboardRoot() throws SQLException {
 
         mainDashboardRoot.setTop(menuScenes.createMenuBar());
-        mainDashboardRoot.setLeft(this.getMainDashboardSummariesRoot());
+//        mainDashboardRoot.setLeft(this.getMainDashboardSummariesRoot());
         mainDashboardRoot.setBottom(this.createToolBarRoot());
         mainDashboardRoot.setCenter(getHomeSceneRoot());
 
@@ -353,6 +353,40 @@ public class MainDashboardScene {
         vBox.setPadding(new Insets(10));
         vBox.setAlignment(Pos.TOP_LEFT);
         vBox.getChildren().addAll(lblInstruction, hBox);
+
+        return vBox;
+    }
+
+    /**
+     * Deposit Pane:
+     * creates a pane of deposit summaries
+     * @return a VBox object
+     */
+    private VBox createDepositsSummaryPane() {
+
+        VBox vBox;
+        HBox hBox;
+        Label lblTitle, lblAmount, lblAmountValue;
+        Separator sep;
+
+        lblTitle = new Label("Deposits");
+        lblTitle.setId("pane-info");
+
+        lblAmount = new Label("Total: ");
+        lblAmountValue = new Label("X.XX");
+        lblAmountValue.setId("details-value");
+
+        hBox = new HBox(10);
+        hBox.setPadding(new Insets(10));
+        hBox.setAlignment(Pos.TOP_LEFT);
+        hBox.getChildren().addAll(lblAmount, lblAmountValue);
+
+        sep = new Separator();
+
+        vBox = new VBox(5);
+        vBox.setPadding(new Insets(5));
+        vBox.setAlignment(Pos.TOP_LEFT);
+        vBox.getChildren().addAll(lblTitle, sep, hBox);
 
         return vBox;
     }
