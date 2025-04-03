@@ -94,7 +94,7 @@ public class MainDashboardScene {
                 sep1,
                 this.getQuickAccessPane(),
                 sep2,
-                this.getChartsPane(),
+                this.createDepositsSummaryPane(),
                 this.getRecentTransactionsPane(limit)
         );
 
@@ -386,7 +386,11 @@ public class MainDashboardScene {
         vBox = new VBox(5);
         vBox.setPadding(new Insets(5));
         vBox.setAlignment(Pos.TOP_LEFT);
-        vBox.getChildren().addAll(lblTitle, sep, hBox);
+        vBox.getChildren().addAll(
+                lblTitle, sep,
+                hBox,
+                bankTransactionsStorageEngine.createDepositsBarChart()
+        );
 
         return vBox;
     }
