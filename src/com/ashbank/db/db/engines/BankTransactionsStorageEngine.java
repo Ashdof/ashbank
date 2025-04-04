@@ -840,7 +840,7 @@ public class BankTransactionsStorageEngine {
             }
 
             if (!series1.getData().isEmpty()) {
-                barChart.getData().add(series);
+                barChart.getData().add(series1);
             }
         }
 
