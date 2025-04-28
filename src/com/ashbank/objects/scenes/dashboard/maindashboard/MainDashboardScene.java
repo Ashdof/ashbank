@@ -60,7 +60,7 @@ public class MainDashboardScene {
     public BorderPane getMainDashboardRoot() throws SQLException {
 
         mainDashboardRoot.setTop(menuScenes.createMenuBar());
-//        mainDashboardRoot.setLeft(this.getMainDashboardSummariesRoot());
+        mainDashboardRoot.setLeft(this.getMainDashboardSummariesRoot());
         mainDashboardRoot.setBottom(this.createToolBarRoot());
         mainDashboardRoot.setCenter(getHomeSceneRoot());
 
